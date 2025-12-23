@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mensajes personalizados de Rocío">
+    <title>Mis Mensajes Personalizados ✍️</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/images/corazon.svg">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/estilos.css">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="hero">
+            <a href="../index.html" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
+            <h1 class="titulo-categoria">✍️ Mis Mensajes</h1>
+            <p class="mensaje-intro">
+                Tus propias palabras de amor guardadas aquí 💕
+            </p>
+        </header>
+
+        <section class="filtros-section">
+            <label for="filtroCategoria" class="filtro-label">
+                Filtrar por categoría:
+            </label>
+            <select id="filtroCategoria" class="filtro-select">
+                <option value="todas">📂 Todas las categorías</option>
+                <option value="feliz">😄 Feliz</option>
+                <option value="triste">😢 Triste</option>
+                <option value="enojada">😤 Enojada</option>
+                <option value="amor">❤️ Amor</option>
+                <option value="nostalgia">🌙 Nostalgia</option>
+                <option value="motivacion">💪 Motivación</option>
+            </select>
+        </section>
+
+        <section class="mensajes-personalizados" id="mensajesPersonalizados">
+            <!-- Los mensajes se cargarán dinámicamente aquí -->
+        </section>
+
+        <footer class="pie-pagina">
+            <p>Mensajes creados con amor por ti 💕</p>
+        </footer>
+    </div>
+
+    <!-- Efectos visuales -->
+    <div id="efectos-fondo"></div>
+    <div id="cursor-particles"></div>
+
+    <!--<script src="js/efectos.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="../assets/js/config/supabase.js"></script>
+    <script src="../assets/js/ui/cursorEffects.js"></script>
+    <script src="../assets/js/services/musicaService.js"></script>
+    <script src="../assets/js/controllers/galeriaController.js"></script>
+    <script src="../assets/js/ui/darkMode.js"></script>
+    <script src="../assets/js/controllers/mensajesController.js"></script>
+    <script src="../assets/js/models/reaccionesModel.js"></script>
+
+    <script>
+        // Cargar y mostrar mensajes personalizados desde Supabase
+        async function cargarMensajesPersonalizados() {
+            const contenedor = document.getElementById('mensajesPersonalizados');
+            const filtro = document.getElementById('filtroCategoria').value;
+
+            try {
+                // Verificar que Supabase esté inicializado
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase no está inicializado');
+                    contenedor.innerHTML = `
+                        <div class="mensaje-vacio-grande">
+                            <div class="icono-vacio">⚠️</div>
+                            <h3>Error de conexión</h3>
+                            <p>No se pudo conectar a Supabase. Verifica tu conexión.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Cargar mensajes desde Supabase
+                const { data: mensajes, error } = await window.supabaseClient
+                    .from('mensajes')
+                    .select('*')
+                    .order('creado_en', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Error al cargar mensajes:', error);
+                    throw error;
+                }
+
+                console.log('✅ Mensajes cargados desde Supabase:', mensajes.length);
+
+                // Filtrar mensajes si es necesario
+                const mensajesFiltrados = filtro === 'todas'
+                    ? mensajes
+                    : mensajes.filter(m => m.categoria === filtro);
+
+                if (mensajesFiltrados.length === 0) {
+                    contenedor.innerHTML = `
+                        <div class="mensaje-vacio-grande">
+                            <div class="icono-vacio">✍️</div>
+                            <h3>No hay mensajes aquí todavía</h3>
+                            <p>Usa el botón "Agregar Mensaje" para crear tu primer mensaje personalizado</p>
+                            <button onclick="document.querySelector('.btn-formulario').click()" class="btn-crear-primero">
+                                ✍️ Crear mi primer mensaje
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                contenedor.innerHTML = mensajesFiltrados.map(mensaje => {
+                    // Formatear la fecha
+                    const fecha = new Date(mensaje.creado_en).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    return `
+                        <article class="mensaje-card mensaje-personalizado" data-id="${mensaje.id}">
+                            <div class="mensaje-header-personalizado">
+                                <span class="emoji-grande">${mensaje.emoji || '💕'}</span>
+                                <span class="badge-personalizado">Tu mensaje</span>
+                            </div>
+                            <p class="mensaje-texto">${mensaje.texto}</p>
+                            ${mensaje.nota ? `<p class="mensaje-nota-personalizado">📝 ${mensaje.nota}</p>` : ''}
+                            <div class="mensaje-footer-personalizado">
+                                <span class="mensaje-firma">— ${mensaje.autor || 'Anónimo'}</span>
+                                <span class="mensaje-fecha-creacion">${fecha}</span>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+
+
+
+                // Montar botones de reacciones para cada tarjeta
+                console.log('🔍 Buscando tarjetas de mensajes...');
+                document.querySelectorAll('.mensaje-personalizado').forEach(async article => {
+                    const mensajeId = article.dataset.id;
+                    console.log('📝 Procesando mensaje ID:', mensajeId);
+
+                    if (!mensajeId) {
+                        console.warn('❌ Tarjeta sin ID:', article);
+                        return;
+                    }
+
+                    // Contenedor para los botones
+                    let wrapper = article.querySelector('.reacciones-wrapper');
+                    if (!wrapper) {
+                        wrapper = document.createElement('div');
+                        wrapper.className = 'reacciones-wrapper';
+                        article.appendChild(wrapper);
+                        console.log('📦 Wrapper creado para mensaje:', mensajeId);
+                    }
+
+                    // Verificar que las funciones estén disponibles
+                    if (!window.Reacciones) {
+                        console.error('❌ window.Reacciones no está disponible');
+                        // Crear botones básicos como fallback
+                        wrapper.innerHTML = `
+                            <div class="reacciones-barra">
+                                <button class="btn-like-principal" onclick="console.log('Reacción temporal')">
+                                    ❤️ <span>Me gusta</span> <span>0</span>
+                                </button>
+                                <button class="btn-emoji">😂 <span>0</span></button>
+                                <button class="btn-emoji">😍 <span>0</span></button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Obtener conteos iniciales
+                    try {
+                        console.log('🔢 Obteniendo conteos para:', mensajeId);
+                        const counts = await window.Reacciones.obtenerConteosPorMensaje(mensajeId);
+                        console.log('📊 Conteos obtenidos:', counts);
+
+                        window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, counts);
+
+                        // Agregar botón de eliminar al final del wrapper
+                        const btnEliminar = document.createElement('button');
+                        btnEliminar.className = 'btn-eliminar-mensaje-vista';
+                        btnEliminar.dataset.id = mensajeId;
+                        btnEliminar.title = 'Eliminar mensaje';
+                        btnEliminar.innerHTML = '🗑️ Eliminar';
+                        btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
+                        wrapper.appendChild(btnEliminar);
+                    } catch (err) {
+                        console.error('❌ Error cargando conteos:', err);
+                        // Montar sin conteos iniciales
+                        window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, {});
+
+                        // Agregar botón de eliminar al final del wrapper
+                        const btnEliminar = document.createElement('button');
+                        btnEliminar.className = 'btn-eliminar-mensaje-vista';
+                        btnEliminar.dataset.id = mensajeId;
+                        btnEliminar.title = 'Eliminar mensaje';
+                        btnEliminar.innerHTML = '🗑️ Eliminar';
+                        btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
+                        wrapper.appendChild(btnEliminar);
+                    }
+                });
+
+                // Suscripción en tiempo real para actualizar cuando cambien
+                if (window.Reacciones && window.Reacciones.suscribirReacciones) {
+                    const subscription = window.Reacciones.suscribirReacciones(async ({ mensajeId }) => {
+                        if (!mensajeId) return;
+                        
+                        console.log('🔔 Cambio en tiempo real detectado para:', mensajeId);
+                        
+                        const card = document.querySelector(`.mensaje-personalizado[data-id="${mensajeId}"]`);
+                        if (!card) {
+                            console.warn('⚠️ Tarjeta no encontrada para', mensajeId);
+                            return;
+                        }
+
+                        const btnPrincipal = card.querySelector('.btn-reaction-main');
+                        if (!btnPrincipal) {
+                            console.warn('⚠️ Botón principal no encontrado para', mensajeId);
+                            return;
+                        }
+
+                        try {
+                            // Obtener emoji actual
+                            const emoji = await window.Reacciones.obtenerEmojiActual(mensajeId);
+                            const hasReaction = !!emoji;
+                            
+                            console.log('✅ Emoji actual:', emoji, '- tiene reacción:', hasReaction);
+
+                            // Actualizar botón
+                            const displayEmoji = emoji || '❤️';
+                            const countText = hasReaction ? ' • 1' : '';
+                            
+                            btnPrincipal.innerHTML = `
+                                <span class="reaction-emoji">${displayEmoji}</span>
+                                <span class="reaction-text"></span>
+                                <span class="reaction-count">${countText}</span>
+                            `;
+                            
+                            btnPrincipal.className = `btn-reaction-main ${hasReaction ? 'reacted' : ''}`;
+                            console.log('🔄 Botón actualizado en tiempo real');
+                        } catch (err) {
+                            console.error('❌ Error actualizando botón en tiempo real:', err);
+                        }
+                    });
+                    
+                    console.log('🎧 Suscripción de tiempo real activa:', subscription);
+                }
+
+            } catch (err) {
+                console.error('❌ Error al cargar mensajes:', err);
+                contenedor.innerHTML = `
+                    <div class="mensaje-vacio-grande">
+                        <div class="icono-vacio">⚠️</div>
+                        <h3>Error al cargar mensajes</h3>
+                        <p>${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function eliminarMensajeVista(id) {
+            if (!confirm('¿Estás segura de que quieres eliminar este mensaje?')) {
+                return;
+            }
+
+            try {
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase no está inicializado');
+                    mostrarNotificacion('Error: Supabase no inicializado', 'info');
+                    return;
+                }
+
+                const { error } = await window.supabaseClient
+                    .from('mensajes')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                console.log('✅ Mensaje eliminado de Supabase');
+
+                // Recargar lista
+                await cargarMensajesPersonalizados();
+
+                // Mostrar notificación
+                mostrarNotificacion('Mensaje eliminado correctamente', 'info');
+
+            } catch (err) {
+                console.error('❌ Error al eliminar mensaje:', err);
+                mostrarNotificacion('Error al eliminar mensaje: ' + err.message, 'info');
+            }
+        }
+
+        function mostrarNotificacion(mensaje, tipo) {
+            const notificacion = document.createElement('div');
+            notificacion.className = `notificacion-toast notificacion-${tipo} show`;
+            notificacion.innerHTML = `
+                <span class="notificacion-icono">${tipo === 'info' ? 'ℹ️' : '✅'}</span>
+                <span class="notificacion-texto">${mensaje}</span>
+            `;
+            document.body.appendChild(notificacion);
+
+            setTimeout(() => {
+                notificacion.classList.remove('show');
+                setTimeout(() => notificacion.remove(), 300);
+            }, 3000);
+        }
+
+        // Cargar al inicio
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarMensajesPersonalizados();
+
+            // Evento de filtro
+            document.getElementById('filtroCategoria').addEventListener('change', cargarMensajesPersonalizados);
+
+            // Recargar cuando se guarde un nuevo mensaje
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'mensajesPersonalizados') {
+                    cargarMensajesPersonalizados();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .filtros-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .filtro-label {
+            font-family: var(--font-cuerpo);
+            font-size: 1.2rem;
+            color: var(--morado-suave);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        body.tema-oscuro .filtro-label {
+            color: var(--acento-oscuro);
+        }
+
+        .filtro-select {
+            padding: 12px 20px;
+            border: 2px solid var(--rosa-claro);
+            border-radius: 25px;
+            font-family: var(--font-texto);
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            min-width: 250px;
+        }
+
+        body.tema-oscuro .filtro-select {
+            background: var(--bg-oscuro-card);
+            color: var(--texto-oscuro);
+            border-color: var(--morado-oscuro);
+        }
+
+        .mensajes-personalizados {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .mensaje-personalizado {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .mensaje-header-personalizado {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .badge-personalizado {
+            background: linear-gradient(135deg, #ff6b9d, var(--morado-suave));
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .mensaje-nota-personalizado {
+            font-size: 1rem;
+            color: var(--morado-suave);
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        body.tema-oscuro .mensaje-nota-personalizado {
+            color: var(--acento-oscuro);
+        }
+
+        .mensaje-footer-personalizado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--rosa-claro);
+        }
+
+        body.tema-oscuro .mensaje-footer-personalizado {
+            border-color: var(--morado-oscuro);
+        }
+
+        .mensaje-firma {
+            font-family: var(--font-cuerpo);
+            font-size: 1.1rem;
+            color: var(--rojo-amor);
+            font-weight: bold;
+        }
+
+        body.tema-oscuro .mensaje-firma {
+            color: var(--acento-oscuro);
+        }
+
+        .mensaje-fecha-creacion {
+            font-size: 0.9rem;
+            color: var(--morado-suave);
+        }
+
+        body.tema-oscuro .mensaje-fecha-creacion {
+            color: var(--texto-oscuro);
+        }
+
+        .btn-eliminar-mensaje-vista {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(230, 57, 70, 0.15));
+            color: var(--rojo-amor);
+            border: 2px solid rgba(230, 57, 70, 0.3);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
+        }
+
+        .btn-eliminar-mensaje-vista:hover {
+            background: linear-gradient(135deg, var(--rojo-amor), #ff6584);
+            color: white;
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(230, 57, 70, 0.4);
+            border-color: var(--rojo-amor);
+        }
+
+        .mensaje-vacio-grande {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 194, 209, 0.1);
+            border-radius: 30px;
+            border: 3px dashed var(--rosa-claro);
+        }
+
+        body.tema-oscuro .mensaje-vacio-grande {
+            background: rgba(255, 107, 157, 0.05);
+            border-color: var(--acento-oscuro);
+        }
+
+        .icono-vacio {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-vacio-grande h3 {
+            font-family: var(--font-titulo);
+            font-size: 2rem;
+            color: var(--morado-suave);
+            margin-bottom: 15px;
+        }
+
+        body.tema-oscuro .mensaje-vacio-grande h3 {
+            color: var(--acento-oscuro);
+        }
+
+        .mensaje-vacio-grande p {
+            font-size: 1.1rem;
+            color: var(--gris-texto);
+            margin-bottom: 25px;
+        }
+
+        body.tema-oscuro .mensaje-vacio-grande p {
+            color: var(--texto-oscuro);
+        }
+
+        .btn-crear-primero {
+            background: linear-gradient(135deg, var(--rojo-amor), #ff6b9d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-family: var(--font-cuerpo);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-crear-primero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--sombra-suave);
+        }
+
+        /* Estilos para nuevo sistema de reacciones */
+        .reacciones-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 15px;
+            gap: 15px;
+        }
+
+        .reaction-main-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-reaction-main {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid rgba(155, 89, 182, 0.2);
+            padding: 12px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #65676b;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(155, 89, 182, 0.1);
+        }
+
+        .btn-reaction-main:hover {
+            background: linear-gradient(135deg, #f0f2f5, #e4e6ea);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(155, 89, 182, 0.15);
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-reaction-main.reacted {
+            background: linear-gradient(135deg, #ff4757, #ff6b9d);
+            color: white;
+            border-color: #ff4757;
+            box-shadow: 0 6px 18px rgba(255, 71, 87, 0.35), 0 2px 8px rgba(155, 89, 182, 0.2);
+        }
+
+        .reaction-emoji {
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-reaction-main.reacted .reaction-emoji {
+            transform: scale(1.1);
+        }
+
+        .reaction-text {
+            font-weight: 600;
+        }
+
+        .reaction-count {
+            opacity: 0.8;
+            font-size: 0.85rem;
+        }
+
+        .reaction-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 25px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            margin-bottom: 8px;
+            opacity: 0;
+            transform: translateX(-50%) translateY(10px) scale(0.9);
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .reaction-menu.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .reaction-menu.hidden {
+            display: none;
+        }
+
+        .reaction-option {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .reaction-option:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.2);
+        }
+
+        .reaction-feedback {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            animation: feedbackShow 0.3s ease forwards;
+            z-index: 1001;
+        }
+
+        .reaction-feedback.fade-out {
+            animation: feedbackHide 0.3s ease forwards;
+        }
+
+        @keyframes feedbackShow {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes feedbackHide {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* Tema oscuro */
+        body.tema-oscuro .btn-reaction-main {
+            background: linear-gradient(135deg, var(--bg-oscuro-card), #2c2f36);
+            color: var(--texto-oscuro);
+            border-color: var(--morado-oscuro);
+        }
+
+        body.tema-oscuro .reaction-menu {
+            background: var(--bg-oscuro-card);
+            border-color: var(--morado-oscuro);
+        }
+
+        body.tema-oscuro .reaction-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</body>
+
+</html>

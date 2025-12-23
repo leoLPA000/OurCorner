@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Rosa romántica en SVG -->
+  <defs>
+    <radialGradient id="petalGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ff91a4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e63946;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff8c00;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Pétalos externos -->
+  <ellipse cx="100" cy="60" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(-30 100 100)" opacity="0.9"/>
+  <ellipse cx="140" cy="80" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(10 100 100)" opacity="0.9"/>
+  <ellipse cx="150" cy="120" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(50 100 100)" opacity="0.9"/>
+  <ellipse cx="130" cy="155" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(90 100 100)" opacity="0.9"/>
+  <ellipse cx="70" cy="155" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(130 100 100)" opacity="0.9"/>
+  <ellipse cx="50" cy="120" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(170 100 100)" opacity="0.9"/>
+  <ellipse cx="60" cy="80" rx="35" ry="45" fill="url(#petalGrad)" transform="rotate(-70 100 100)" opacity="0.9"/>
+  
+  <!-- Pétalos internos -->
+  <ellipse cx="100" cy="75" rx="25" ry="35" fill="#ff6b7a" transform="rotate(-20 100 100)" opacity="0.95"/>
+  <ellipse cx="125" cy="95" rx="25" ry="35" fill="#ff6b7a" transform="rotate(20 100 100)" opacity="0.95"/>
+  <ellipse cx="125" cy="120" rx="25" ry="35" fill="#ff6b7a" transform="rotate(60 100 100)" opacity="0.95"/>
+  <ellipse cx="100" cy="135" rx="25" ry="35" fill="#ff6b7a" transform="rotate(100 100 100)" opacity="0.95"/>
+  <ellipse cx="75" cy="120" rx="25" ry="35" fill="#ff6b7a" transform="rotate(140 100 100)" opacity="0.95"/>
+  <ellipse cx="75" cy="95" rx="25" ry="35" fill="#ff6b7a" transform="rotate(-60 100 100)" opacity="0.95"/>
+  
+  <!-- Centro de la rosa -->
+  <circle cx="100" cy="100" r="18" fill="url(#centerGrad)"/>
+  <circle cx="100" cy="100" r="12" fill="#ffd700" opacity="0.7"/>
+  
+  <!-- Tallo -->
+  <rect x="95" y="150" width="10" height="50" fill="#2d5016" rx="5"/>
+  
+  <!-- Hojas -->
+  <ellipse cx="85" cy="170" rx="20" ry="12" fill="#3a7d23" transform="rotate(-30 85 170)"/>
+  <ellipse cx="115" cy="180" rx="20" ry="12" fill="#3a7d23" transform="rotate(30 115 180)"/>
+</svg>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Supabase quick test - NuestroMes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>body{font-family:system-ui,Arial;background:#fff;padding:20px;color:#222} pre{background:#f6f8fa;padding:12px;border-radius:8px;overflow:auto}</style>
+</head>
+<body>
+  <h2>Supabase quick test</h2>
+  <p>Esta página prueba la inserción y subida usando la configuración existente <code>js/supabaseConfig.js</code>.</p>
+  <p>Abre la consola del navegador (F12) para ver logs detallados. El resultado también aparecerá abajo.</p>
+
+  <div id="result"></div>
+  <pre id="log"></pre>
+
+  <!-- SDK UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <!-- Usa la configuración ya creada en el proyecto -->
+  <script src="js/supabaseConfig.js"></script>
+
+  <script>
+    const out = msg => {
+      console.log(msg);
+      document.getElementById('log').textContent += JSON.stringify(msg, null, 2) + '\n';
+    }
+
+    (async () => {
+      try {
+        out('Comprobando supabaseClient...');
+        out({ exists: !!window.supabaseClient });
+
+        if (!window.supabaseClient) {
+          document.getElementById('result').innerHTML = '<strong style="color:crimson">supabaseClient no inicializado - revisa que cargues supabase.min.js y js/supabaseConfig.js en tu HTML</strong>';
+          return;
+        }
+
+        // Inserción simple de prueba
+        out('Intentando insertar fila de prueba...');
+        const { data, error } = await window.supabaseClient
+          .from('canciones')
+          .insert([{ titulo: 'Prueba desde test HTML', artista: 'LeoTest', url: 'https://example.com/test2.mp3', tipo: 'personalizada', path: 'musica/test2.mp3' }])
+          .select();
+
+        out({ insertData: data, insertError: error });
+
+        if (error) {
+          document.getElementById('result').innerHTML = '<strong style="color:crimson">Error al insertar. Revisa consola.</strong>';
+          return;
+        }
+
+        document.getElementById('result').innerHTML = '<strong style="color:green">Inserción OK - revisa la tabla canciones en Supabase</strong>';
+
+        // Prueba de upload pequeño
+        out('Intentando subir archivo dummy al bucket "archivos"...');
+        const contenido = new Uint8Array([0,1,2,3]);
+        const file = new Blob([contenido], { type: 'audio/mpeg' });
+        const timestamp = Date.now();
+        const path = `musica/${timestamp}_prueba_test.html.mp3`;
+
+        const { data: uploadData, error: uploadError } = await window.supabaseClient
+          .storage
+          .from('archivos')
+          .upload(path, file, { upsert: true });
+
+        out({ uploadData, uploadError });
+        if (uploadError) {
+          document.getElementById('result').innerHTML = '<strong style="color:orange">Upload falló, revisa consola.</strong>';
+          return;
+        }
+
+        const { data: publicUrlData } = window.supabaseClient
+          .storage
+          .from('archivos')
+          .getPublicUrl(path);
+
+        const publicURL = publicUrlData?.publicUrl;
+        out({ publicURL });
+
+        out('Insertando metadatos para el archivo subido...');
+        const { data: insertData2, error: insertError2 } = await window.supabaseClient
+          .from('canciones')
+          .insert([{ titulo: 'Prueba Upload HTML', artista: 'LeoTest', url: publicURL, tipo: 'personalizada', path }])
+          .select();
+
+        out({ insertData2, insertError2 });
+
+        document.getElementById('result').innerHTML = '<strong style="color:green">Upload + Insert OK. Revisa Storage y Table Editor en Supabase.</strong>';
+
+      } catch (err) {
+        out({ error: String(err), stack: err.stack });
+        document.getElementById('result').innerHTML = '<strong style="color:crimson">Excepción en la prueba: revisa la consola</strong>';
+      }
+    })();
+  </script>
+</body>
+</html>

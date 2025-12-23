@@ -1,0 +1,35 @@
+# Ignorar archivos de sistema y temporales
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignorar archivos del editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignorar logs
+*.log
+error_log
+
+# Ignorar caché de PHP
+*.cache
+
+# Ignorar archivos de backup
+*.bak
+*.backup
+*~
+
+# Ignorar configuraciones locales (si existen)
+config.local.php
+.env
+
+# Configuración de Supabase
+# NOTA: js/supabaseConfig.js contiene solo la key ANON (pública), es seguro subirla
+# config/supabase_secrets.php contiene keys privadas - NO SUBIR
+config/supabase_secrets.php
+
+# Mantener carpetas vacías
+!.gitkeep

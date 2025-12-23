@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mensajes románticos personalizados para Rocío">
+    <meta name="theme-color" content="#e63946">
+    <title>Mensajes - Para Rocío</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/corazon.svg">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/estilos.css">
+    
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body class="pagina-mensajes">
+    <div class="container">
+        <header class="header-mensajes">
+            <a href="index.html" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
+            <h1 class="titulo-categoria" id="tituloCategoria">Mensajes</h1>
+            <p class="dedicatoria">Para mi Rocío hermosa 💕</p>
+        </header>
+
+        <section class="contenedor-mensajes">
+            <div id="contenidoMensajes">
+                <!-- Los mensajes se cargarán dinámicamente aquí -->
+            </div>
+        </section>
+
+        <footer class="pie-pagina">
+            <p>Con amor infinito para Rocío 💖</p>
+        </footer>
+    </div>
+
+    <!-- Efectos visuales -->
+    <div id="efectos-fondo"></div>
+    
+    <!-- Contenedor para partículas del cursor -->
+    <div id="cursor-particles"></div>
+    
+    <!--<script src="js/efectos.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="js/supabaseConfig.js"></script>
+    <script src="js/cursorEffects.js"></script>
+    <script src="js/musica.js"></script>
+    <script src="js/galeria.js"></script>
+    <script src="js/modoOscuro.js"></script>
+    <script src="js/formulario.js"></script>
+    <script>
+        // Obtener categoría desde URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoria = urlParams.get('categoria') || '';
+
+        // Nombres de categorías para mostrar
+        const nombresCategorias = {
+            'feliz': 'Cuando estés feliz 😄',
+            'triste': 'Cuando estés triste 😢',
+            'enojada': 'Cuando estés enojada 😤',
+            'amor': 'Por qué te amo ❤️',
+            'nostalgia': 'Cuando me extrañes 🌙',
+            'motivacion': 'Cuando necesites fuerza 💪'
+        };
+
+        const tituloCategoria = nombresCategorias[categoria] || 'Mensajes';
+        document.getElementById('tituloCategoria').textContent = tituloCategoria;
+        document.title = tituloCategoria + ' - Para Rocío';
+
+        // Cargar mensajes desde JSON
+        async function cargarMensajes() {
+            try {
+                const response = await fetch('data/mensajes.json');
+                
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar el archivo de mensajes');
+                }
+                
+                const data = await response.json();
+                
+                if (!categoria || !data[categoria]) {
+                    mostrarError('Categoría no válida.');
+                    return;
+                }
+                
+                const mensajes = data[categoria];
+                mostrarMensajes(mensajes);
+                
+            } catch (error) {
+                console.error('Error al cargar mensajes:', error);
+                mostrarError('No se encontró el archivo de mensajes. 💔');
+            }
+        }
+
+        function mostrarMensajes(mensajes) {
+            const contenedor = document.getElementById('contenidoMensajes');
+            
+            let html = '<div class="lista-mensajes" role="list" aria-label="Lista de mensajes románticos">';
+            
+            mensajes.forEach((mensaje, index) => {
+                const emoji = mensaje.emoji || '💕';
+                const texto = mensaje.texto.replace(/\n/g, '<br>');
+                const nota = mensaje.nota ? `<p class="nota-mensaje">💭 ${mensaje.nota}</p>` : '';
+                
+                html += `
+                    <article class="mensaje-card" data-index="${index}" role="listitem">
+                        <div class="mensaje-contenido">
+                            <p class="texto-mensaje">${texto}</p>
+                            ${nota}
+                        </div>
+                        <div class="mensaje-footer">
+                            <span class="mensaje-emoji" role="img" aria-label="Emoji decorativo">${emoji}</span>
+                        </div>
+                    </article>
+                `;
+            });
+            
+            html += '</div>';
+            
+            html += `
+                <div class="mensaje-aleatorio">
+                    <button id="btnMensajeAleatorio" class="btn-aleatorio" aria-label="Mostrar un mensaje aleatorio sorpresa">
+                        ✨ Mostrar mensaje sorpresa
+                    </button>
+                </div>
+            `;
+            
+            contenedor.innerHTML = html;
+            
+            // Configurar botón aleatorio
+            const btnAleatorio = document.getElementById('btnMensajeAleatorio');
+            const tarjetasMensajes = document.querySelectorAll('.mensaje-card');
+            
+            if (btnAleatorio && tarjetasMensajes.length > 0) {
+                btnAleatorio.addEventListener('click', function() {
+                    // Ocultar todos
+                    tarjetasMensajes.forEach(m => m.classList.remove('destacado'));
+                    
+                    // Mostrar uno aleatorio
+                    const random = Math.floor(Math.random() * tarjetasMensajes.length);
+                    tarjetasMensajes[random].classList.add('destacado');
+                    tarjetasMensajes[random].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            }
+        }
+
+        function mostrarError(mensajeError) {
+            const contenedor = document.getElementById('contenidoMensajes');
+            contenedor.innerHTML = `
+                <div class="error-mensaje" role="alert">
+                    <p>${mensajeError}</p>
+                    <a href="index.html" class="btn-inicio" aria-label="Volver a la página principal">Volver al inicio</a>
+                </div>
+            `;
+        }
+
+        // Cargar mensajes al cargar la página
+        document.addEventListener('DOMContentLoaded', cargarMensajes);
+    </script>
+</body>
+</html>

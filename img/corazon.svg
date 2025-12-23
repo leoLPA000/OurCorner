@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Corazón romántico en SVG -->
+  <defs>
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e63946;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Corazón principal -->
+  <path d="M100,170 C100,170 30,120 30,80 C30,55 45,40 65,40 C80,40 92,48 100,60 C108,48 120,40 135,40 C155,40 170,55 170,80 C170,120 100,170 100,170 Z" 
+        fill="url(#heartGrad)" 
+        filter="url(#glow)"
+        stroke="#c41e3a" 
+        stroke-width="2"/>
+  
+  <!-- Brillo/highlight -->
+  <ellipse cx="80" cy="70" rx="20" ry="25" fill="white" opacity="0.3" transform="rotate(-30 80 70)"/>
+  <ellipse cx="65" cy="60" rx="10" ry="12" fill="white" opacity="0.5" transform="rotate(-30 65 60)"/>
+  
+  <!-- Decoración de puntos brillantes -->
+  <circle cx="100" cy="100" r="3" fill="white" opacity="0.6"/>
+  <circle cx="120" cy="90" r="2" fill="white" opacity="0.7"/>
+  <circle cx="85" cy="95" r="2.5" fill="white" opacity="0.65"/>
+</svg>
