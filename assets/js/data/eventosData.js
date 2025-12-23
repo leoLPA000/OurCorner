@@ -23,8 +23,48 @@ const eventosEspeciales = [
         url: 'fuegos-artificiales.html',
         activo: true,
         color: '#ffd700' // Dorado festivo
+    },
+    {
+        id: 'san-valentin-2025',
+        nombre: 'Día del Amor',
+        icono: '💝',
+        fecha: '14 de Febrero, 2025',
+        descripcion: 'Celebración especial de nuestro amor con mensajes románticos y sorpresas',
+        url: '#', // Evento de prueba
+        activo: true,
+        color: '#ff1744' // Rojo amor
+    },
+    {
+        id: 'aniversario-2025',
+        nombre: 'Nuestro Aniversario',
+        icono: '🎂',
+        fecha: '8 de Octubre, 2025',
+        descripcion: 'Un año juntos celebrando nuestro amor infinito',
+        url: '#', // Evento de prueba
+        activo: true,
+        color: '#e91e63' // Rosa celebración
+    },
+    {
+        id: 'primavera-2025',
+        nombre: 'Bienvenida Primavera',
+        icono: '🌸',
+        fecha: '21 de Marzo, 2025',
+        descripcion: 'Celebremos la llegada de la primavera con flores y amor',
+        url: '#', // Evento de prueba
+        activo: true,
+        color: '#f48fb1' // Rosa primavera
+    },
+    {
+        id: 'verano-2025',
+        nombre: 'Aventuras de Verano',
+        icono: '☀️',
+        fecha: '21 de Junio, 2025',
+        descripcion: 'Recuerdos especiales de nuestro verano juntos',
+        url: '#', // Evento de prueba
+        activo: true,
+        color: '#ffb300' // Amarillo sol
     }
-    // Futuros eventos se agregarán aquí
+    // Más eventos se pueden agregar aquí
     // Ejemplo:
     // {
     //     id: 'san-valentin-2025',
