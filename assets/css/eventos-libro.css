@@ -1,14 +1,15 @@
 /**
- * Estilos para el Libro de Eventos Especiales con efecto 3D
- * Libro desplegable tipo pop-up con animación de pasar páginas
+ * Estilos para el Libro de Eventos Especiales - Estilo Flip Cards
+ * Tarjetas apiladas con efecto 3D de volteo hacia la izquierda
+ * Inspirado en diseño de scrapbook/librito virtual
  */
 
 :root {
-    --libro-paper: #fef9e7;
-    --libro-shadow: rgba(0, 0, 0, 0.3);
-    --libro-border: #d4a574;
-    --libro-spine: #8b4513;
-    --transition-speed: 0.8s;
+    --card-paper: #fefefe;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --card-border: #e0e0e0;
+    --tab-color: #ff6b9d;
+    --transition-speed: 0.6s;
 }
 
 * {
@@ -24,14 +25,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-x: hidden;
+    overflow: hidden;
     padding: 20px;
 }
 
 /* Contenedor principal */
 .eventos-container {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     perspective: 2000px;
     perspective-origin: center;
 }
@@ -39,395 +40,407 @@ body {
 /* Header */
 .eventos-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
     color: white;
+    position: relative;
+    z-index: 100;
 }
 
 .eventos-header h1 {
-    font-size: 3.5rem;
+    font-size: 3rem;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-    animation: titleGlow 3s ease-in-out infinite;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4);
+    animation: titleFloat 3s ease-in-out infinite;
 }
 
 .eventos-header p {
-    font-size: 1.4rem;
-    opacity: 0.9;
+    font-size: 1.3rem;
+    opacity: 0.95;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-@keyframes titleGlow {
-    0%, 100% { text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.3); }
-    50% { text-shadow: 2px 2px 20px rgba(255, 255, 255, 0.6); }
+@keyframes titleFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
-/* Contenedor del libro */
+/* Wrapper del libro de tarjetas */
 .libro-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1200px;
-    height: 600px;
+    max-width: 600px;
+    height: 500px;
     margin: 0 auto;
     transform-style: preserve-3d;
 }
 
-/* Libro abierto */
-.libro-abierto {
+/* Stack de tarjetas (efecto apilado) */
+.cards-stack {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
     transform-style: preserve-3d;
-    animation: libroEntrada 1.5s ease-out;
 }
 
-@keyframes libroEntrada {
-    from {
-        opacity: 0;
-        transform: rotateX(-30deg) scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: rotateX(0deg) scale(1);
-    }
-}
-
-/* Páginas del libro */
-.pagina {
-    position: relative;
-    width: 50%;
-    height: 100%;
-    background: var(--libro-paper);
-    padding: 50px 40px;
-    box-shadow: 
-        inset 0 0 30px rgba(0, 0, 0, 0.1),
-        0 10px 40px var(--libro-shadow);
-    border-radius: 10px;
-    transform-style: preserve-3d;
-    transition: transform var(--transition-speed) cubic-bezier(0.645, 0.045, 0.355, 1);
-}
-
-/* Página izquierda */
-.pagina-izquierda {
-    border-right: 3px solid var(--libro-border);
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-    background: linear-gradient(to right, #fef9e7 0%, #fff9e0 100%);
-}
-
-/* Página derecha */
-.pagina-derecha {
-    border-left: 3px solid var(--libro-border);
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-    background: linear-gradient(to left, #fef9e7 0%, #fff9e0 100%);
-}
-
-/* Lomo del libro (decorativo) */
-.libro-abierto::before {
-    content: '';
+/* Tarjeta individual */
+.event-card {
     position: absolute;
-    left: 50%;
-    top: 0;
-    width: 6px;
+    width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, var(--libro-spine) 0%, #654321 100%);
-    transform: translateX(-50%);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    z-index: 10;
-    border-radius: 3px;
-}
-
-/* Tarjeta de evento */
-.evento-card {
     background: white;
     border-radius: 20px;
-    padding: 35px;
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px var(--card-border);
+    transform-style: preserve-3d;
+    transition: transform var(--transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    backface-visibility: hidden;
+    overflow: visible;
+}
+
+/* Tarjeta activa (visible al frente) */
+.event-card.active {
+    z-index: 10;
+    transform: translateZ(0) rotateY(0deg);
+}
+
+/* Tarjetas anteriores (ya vistas, apiladas a la izquierda) */
+.event-card.previous {
+    z-index: 5;
+    transform: translateX(-120%) translateZ(-50px) rotateY(-15deg);
+    opacity: 0.7;
+}
+
+/* Ocultar contenido de tarjetas apiladas para evitar superposición */
+.event-card.previous .card-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Mantener pestaña visible en tarjetas apiladas */
+.event-card.previous .card-tab {
+    opacity: 1;
+}
+
+/* Tarjetas siguientes (ocultas, apiladas atrás) */
+.event-card.next {
+    z-index: 1;
+}
+
+/* Animación de flip hacia la izquierda */
+.event-card.flipping {
+    z-index: 15;
+    animation: flipLeft var(--transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes flipLeft {
+    0% {
+        transform: translateZ(0) rotateY(0deg);
+    }
+
+    50% {
+        transform: translateX(-50%) translateZ(100px) rotateY(-90deg);
+    }
+
+    100% {
+        transform: translateX(-120%) translateZ(-50px) rotateY(-15deg);
+    }
+}
+
+/* Efecto de profundidad para tarjetas en el stack */
+.event-card.next:nth-child(2) {
+    transform: translateZ(-20px) scale(0.98);
+    opacity: 0.95;
+}
+
+.event-card.next:nth-child(3) {
+    transform: translateZ(-40px) scale(0.96);
+    opacity: 0.9;
+}
+
+.event-card.next:nth-child(4) {
+    transform: translateZ(-60px) scale(0.94);
+    opacity: 0.85;
+}
+
+/* Contenido de la tarjeta */
+.card-content {
+    width: 100%;
     height: 100%;
+    padding: 50px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    transition: all 0.4s ease;
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+    border-radius: 20px;
 }
 
-.evento-card::before {
-    content: '';
+/* Pestaña lateral con icono */
+.card-tab {
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.evento-card:hover::before {
-    opacity: 1;
-}
-
-.evento-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 80px;
+    background: var(--tab-color);
+    border-radius: 0 15px 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 5;
 }
 
 /* Icono del evento */
-.evento-icono {
+.event-icon {
     font-size: 5rem;
-    margin-bottom: 20px;
-    animation: iconoBounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+    margin-bottom: 25px;
+    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.15));
+    animation: iconFloat 3s ease-in-out infinite;
 }
 
-@keyframes iconoBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+@keyframes iconFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(5deg);
+    }
 }
 
 /* Nombre del evento */
-.evento-nombre {
-    font-size: 2.2rem;
+.event-name {
+    font-size: 2.5rem;
     color: #2c3e50;
     margin-bottom: 15px;
     text-align: center;
     font-weight: 700;
+    line-height: 1.2;
 }
 
 /* Fecha del evento */
-.evento-fecha {
-    font-size: 1.3rem;
+.event-date {
+    font-size: 1.4rem;
     color: #7f8c8d;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     font-style: italic;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Descripción del evento */
-.evento-descripcion {
-    font-size: 1.1rem;
+.event-description {
+    font-size: 1.15rem;
     color: #555;
     text-align: center;
-    margin-bottom: 30px;
-    line-height: 1.6;
+    margin-bottom: 35px;
+    line-height: 1.7;
+    max-width: 85%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Botón de acceder */
-.btn-acceder-evento {
-    padding: 15px 40px;
+.btn-access-event {
+    padding: 15px 45px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-decoration: none;
     border-radius: 50px;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     display: inline-block;
+    font-family: 'Dancing Script', cursive;
 }
 
-.btn-acceder-evento:hover {
+.btn-access-event:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Navegación del libro */
-.libro-navegacion {
+/* Navegación */
+.cards-navigation {
     position: absolute;
-    bottom: -80px;
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 20px;
     align-items: center;
-    z-index: 20;
+    z-index: 200;
 }
 
-.btn-nav {
-    padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.9);
+.btn-nav-card {
+    padding: 14px 30px;
+    background: rgba(255, 255, 255, 0.95);
     border: none;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     font-weight: 600;
     color: #764ba2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.btn-nav:hover:not(:disabled) {
+.btn-nav-card:hover:not(:disabled) {
     background: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-.btn-nav:disabled {
+.btn-nav-card:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
 /* Indicador de página */
-.pagina-indicador {
+.page-indicator {
     color: white;
     font-size: 1.2rem;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 20px;
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 10px 25px;
+    border-radius: 25px;
     backdrop-filter: blur(10px);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Botón de regreso */
-.btn-regresar {
+.btn-back {
     position: fixed;
     top: 30px;
     left: 30px;
-    padding: 12px 25px;
+    padding: 12px 28px;
     background: rgba(255, 255, 255, 0.95);
     color: #764ba2;
     text-decoration: none;
     border-radius: 50px;
     font-size: 1.1rem;
     font-weight: 600;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
     transition: all 0.3s ease;
     z-index: 1000;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.btn-regresar:hover {
+.btn-back:hover {
     background: white;
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
 }
 
-/* Animación de cambio de página */
-.pagina.flip-left {
-    animation: flipLeft var(--transition-speed) ease-in-out;
-}
-
-.pagina.flip-right {
-    animation: flipRight var(--transition-speed) ease-in-out;
-}
-
-@keyframes flipLeft {
-    0% { transform: rotateY(0deg); }
-    50% { transform: rotateY(-90deg); }
-    100% { transform: rotateY(0deg); }
-}
-
-@keyframes flipRight {
-    0% { transform: rotateY(0deg); }
-    50% { transform: rotateY(90deg); }
-    100% { transform: rotateY(0deg); }
-}
-
-/* Página vacía (cuando no hay evento) */
-.pagina-vacia {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #bbb;
+/* Decoraciones estilo scrapbook */
+.card-content::before {
+    content: '♡';
+    position: absolute;
+    top: 20px;
+    left: 20px;
     font-size: 1.5rem;
-    font-style: italic;
+    color: #ff6b9d;
+    opacity: 0.3;
+}
+
+.card-content::after {
+    content: '♡';
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1.5rem;
+    color: #ff6b9d;
+    opacity: 0.3;
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .eventos-header h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
     .libro-wrapper {
-        height: 500px;
+        height: 450px;
+        max-width: 90%;
     }
 
-    .pagina {
-        padding: 30px 25px;
-    }
-
-    .evento-icono {
+    .event-icon {
         font-size: 4rem;
     }
 
-    .evento-nombre {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .libro-wrapper {
-        height: auto;
-        min-height: 550px;
+    .event-name {
+        font-size: 2rem;
     }
 
-    .libro-abierto {
-        flex-direction: column;
-        height: auto;
+    .event-date {
+        font-size: 1.1rem;
     }
 
-    .pagina {
-        width: 100%;
-        border-radius: 15px !important;
-        border: 2px solid var(--libro-border) !important;
-        margin-bottom: 20px;
+    .event-description {
+        font-size: 1rem;
+        max-width: 90%;
     }
 
-    .libro-abierto::before {
-        display: none;
+    .card-content {
+        padding: 35px 25px;
     }
 
-    .libro-navegacion {
-        position: relative;
-        bottom: 0;
-        margin-top: 30px;
+    .card-tab {
+        width: 50px;
+        height: 70px;
+        font-size: 1.5rem;
     }
 
-    .btn-regresar {
+    .cards-navigation {
+        bottom: -90px;
+        gap: 15px;
+    }
+
+    .btn-nav-card {
+        padding: 12px 22px;
+        font-size: 1rem;
+    }
+
+    .btn-back {
         top: 15px;
         left: 15px;
         padding: 10px 20px;
         font-size: 1rem;
     }
-
-    .eventos-header h1 {
-        font-size: 2rem;
-    }
-
-    .eventos-header p {
-        font-size: 1.1rem;
-    }
 }
 
 @media (max-width: 480px) {
-    .evento-card {
-        padding: 25px;
+    .libro-wrapper {
+        height: 400px;
     }
 
-    .evento-icono {
+    .event-icon {
         font-size: 3.5rem;
     }
 
-    .evento-nombre {
-        font-size: 1.5rem;
+    .event-name {
+        font-size: 1.7rem;
     }
 
-    .evento-fecha {
-        font-size: 1rem;
-    }
-
-    .evento-descripcion {
-        font-size: 0.95rem;
-    }
-
-    .btn-acceder-evento {
-        padding: 12px 30px;
-        font-size: 1rem;
+    .btn-access-event {
+        padding: 12px 35px;
+        font-size: 1.1rem;
     }
 }

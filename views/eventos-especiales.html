@@ -20,7 +20,7 @@
 
 <body>
     <!-- Botón de regreso -->
-    <a href="../index.html" class="btn-regresar">
+    <a href="../index.html" class="btn-back">
         <span>←</span>
         <span>Volver al Inicio</span>
     </a>
@@ -29,32 +29,24 @@
         <!-- Header -->
         <header class="eventos-header">
             <h1>🎪 Nuestros Eventos Especiales 🎪</h1>
-            <p>Momentos mágicos guardados en nuestro libro de recuerdos</p>
+            <p>Momentos mágicos guardados en nuestro librito de recuerdos</p>
         </header>
 
-        <!-- Libro -->
+        <!-- Libro de tarjetas -->
         <div class="libro-wrapper">
-            <div class="libro-abierto">
-                <!-- Página Izquierda -->
-                <div class="pagina pagina-izquierda" id="paginaIzquierda">
-                    <!-- Contenido dinámico -->
-                </div>
-
-                <!-- Página Derecha -->
-                <div class="pagina pagina-derecha" id="paginaDerecha">
-                    <!-- Contenido dinámico -->
-                </div>
+            <div class="cards-stack" id="cardsStack">
+                <!-- Las tarjetas se generarán dinámicamente aquí -->
             </div>
 
             <!-- Navegación -->
-            <div class="libro-navegacion">
-                <button class="btn-nav" id="btnAnterior" onclick="cambiarPagina(-1)">
+            <div class="cards-navigation">
+                <button class="btn-nav-card" id="btnPrevious" onclick="previousCard()">
                     ← Anterior
                 </button>
-                <div class="pagina-indicador" id="indicadorPagina">
-                    Página 1
+                <div class="page-indicator" id="pageIndicator">
+                    Tarjeta 1 de 1
                 </div>
-                <button class="btn-nav" id="btnSiguiente" onclick="cambiarPagina(1)">
+                <button class="btn-nav-card" id="btnNext" onclick="nextCard()">
                     Siguiente →
                 </button>
             </div>
@@ -64,108 +56,141 @@
     <!-- Scripts -->
     <script src="../assets/js/data/eventosData.js"></script>
     <script>
-        // Control de páginas
-        let paginaActual = 0;
-        const eventosPorPagina = 2;
+        // Estado actual
+        let currentCardIndex = 0;
+        let totalCards = 0;
+        let isAnimating = false;
 
         /**
-         * Renderizar eventos en las páginas del libro
+         * Generar color de pestaña según el evento
          */
-        function renderizarPagina() {
-            const eventos = obtenerEventos();
-            const indiceInicio = paginaActual * eventosPorPagina;
-            const eventosPagina = eventos.slice(indiceInicio, indiceInicio + eventosPorPagina);
-
-            const paginaIzq = document.getElementById('paginaIzquierda');
-            const paginaDer = document.getElementById('paginaDerecha');
-
-            // Limpiar páginas
-            paginaIzq.innerHTML = '';
-            paginaDer.innerHTML = '';
-
-            // Renderizar evento izquierdo
-            if (eventosPagina[0]) {
-                paginaIzq.innerHTML = crearTarjetaEvento(eventosPagina[0]);
-            } else {
-                paginaIzq.innerHTML = '<div class="pagina-vacia">Página disponible para futuros eventos...</div>';
-            }
-
-            // Renderizar evento derecho
-            if (eventosPagina[1]) {
-                paginaDer.innerHTML = crearTarjetaEvento(eventosPagina[1]);
-            } else {
-                paginaDer.innerHTML = '<div class="pagina-vacia">Página disponible para futuros eventos...</div>';
-            }
-
-            // Actualizar controles de navegación
-            actualizarNavegacion(eventos.length);
+        function getTabColor(eventId) {
+            const colors = {
+                'navidad-2024': '#2d5016',
+                'anio-nuevo-2025': '#ffd700',
+                'san-valentin-2025': '#ff1744',
+                'aniversario-2025': '#e91e63',
+                'primavera-2025': '#f48fb1',
+                'verano-2025': '#ffb300'
+            };
+            return colors[eventId] || '#ff6b9d';
         }
 
         /**
-         * Crear HTML de tarjeta de evento
+         * Crear HTML de una tarjeta de evento
          */
-        function crearTarjetaEvento(evento) {
+        function createCardHTML(event, index) {
+            const tabColor = getTabColor(event.id);
             return `
-                <div class="evento-card">
-                    <div class="evento-icono">${evento.icono}</div>
-                    <h2 class="evento-nombre">${evento.nombre}</h2>
-                    <p class="evento-fecha">${evento.fecha}</p>
-                    <p class="evento-descripcion">${evento.descripcion}</p>
-                    <a href="${evento.url}" class="btn-acceder-evento">
-                        ✨ Acceder al Evento
-                    </a>
+                <div class="event-card ${index === 0 ? 'active' : 'next'}" data-index="${index}">
+                    <div class="card-tab" style="background: ${tabColor};">
+                        ${event.icono}
+                    </div>
+                    <div class="card-content">
+                        <div class="event-icon">${event.icono}</div>
+                        <h2 class="event-name">${event.nombre}</h2>
+                        <p class="event-date">${event.fecha}</p>
+                        <p class="event-description">${event.descripcion}</p>
+                        <a href="${event.url}" class="btn-access-event">
+                            ✨ Acceder al Evento
+                        </a>
+                    </div>
                 </div>
             `;
         }
 
         /**
-         * Cambiar de página
+         * Renderizar todas las tarjetas
          */
-        function cambiarPagina(direccion) {
-            const eventos = obtenerEventos();
-            const totalPaginas = Math.ceil(eventos.length / eventosPorPagina);
-            const nuevaPagina = paginaActual + direccion;
+        function renderCards() {
+            const events = obtenerEventos();
+            totalCards = events.length;
+            const stack = document.getElementById('cardsStack');
 
-            if (nuevaPagina >= 0 && nuevaPagina < totalPaginas) {
-                // Animación de voltear página
-                const paginaIzq = document.getElementById('paginaIzquierda');
-                const paginaDer = document.getElementById('paginaDerecha');
+            // Generar HTML de todas las tarjetas
+            stack.innerHTML = events.map((event, index) => createCardHTML(event, index)).join('');
 
-                if (direccion > 0) {
-                    paginaIzq.classList.add('flip-left');
-                    paginaDer.classList.add('flip-left');
-                } else {
-                    paginaIzq.classList.add('flip-right');
-                    paginaDer.classList.add('flip-right');
-                }
-
-                // Actualizar después de la animación
-                setTimeout(() => {
-                    paginaActual = nuevaPagina;
-                    renderizarPagina();
-
-                    // Remover clases de animación
-                    paginaIzq.classList.remove('flip-left', 'flip-right');
-                    paginaDer.classList.remove('flip-left', 'flip-right');
-                }, 400);
-            }
+            // Actualizar indicador
+            updateIndicator();
+            updateNavigationButtons();
         }
 
         /**
-         * Actualizar controles de navegación
+         * Ir a la siguiente tarjeta
          */
-        function actualizarNavegacion(totalEventos) {
-            const totalPaginas = Math.ceil(totalEventos / eventosPorPagina);
-            const btnAnterior = document.getElementById('btnAnterior');
-            const btnSiguiente = document.getElementById('btnSiguiente');
-            const indicador = document.getElementById('indicadorPagina');
+        function nextCard() {
+            if (isAnimating || currentCardIndex >= totalCards - 1) return;
 
-            // Actualizar indicador
-            indicador.textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
+            isAnimating = true;
+            const cards = document.querySelectorAll('.event-card');
+            const currentCard = cards[currentCardIndex];
 
-            // Habilitar/deshabilitar botones
-            btnAnterior.disabled = paginaActual === 0;
-            btnSiguiente.disabled = paginaActual >= totalPaginas - 1;
+            // Animar tarjeta actual hacia la izquierda
+            currentCard.classList.add('flipping');
+            currentCard.classList.remove('active');
+
+            // Incrementar ANTES de la animación para evitar saltos
+            currentCardIndex++;
+
+            // Activar tarjeta siguiente inmediatamente
+            cards[currentCardIndex].classList.remove('next');
+            cards[currentCardIndex].classList.add('active');
+
+            // Actualizar UI inmediatamente
+            updateIndicator();
+            updateNavigationButtons();
+
+            // Después de la animación, limpiar clases
+            setTimeout(() => {
+                currentCard.classList.remove('flipping');
+                currentCard.classList.add('previous');
+                isAnimating = false;
+            }, 600);
+        }
+
+        /**
+         * Ir a la tarjeta anterior
+         */
+        function previousCard() {
+            if (isAnimating || currentCardIndex <= 0) return;
+
+            isAnimating = true;
+            const cards = document.querySelectorAll('.event-card');
+
+            // Desactivar tarjeta actual
+            cards[currentCardIndex].classList.remove('active');
+            cards[currentCardIndex].classList.add('next');
+
+            // Activar tarjeta anterior
+            currentCardIndex--;
+            const previousCard = cards[currentCardIndex];
+            previousCard.classList.remove('previous');
+            previousCard.classList.add('active');
+
+            setTimeout(() => {
+                updateIndicator();
+                updateNavigationButtons();
+                isAnimating = false;
+            }, 100);
+        }
+
+        /**
+         * Actualizar indicador de página
+         */
+        function updateIndicator() {
+            const indicator = document.getElementById('pageIndicator');
+            indicator.textContent = `Tarjeta ${currentCardIndex + 1} de ${totalCards}`;
+        }
+
+        /**
+         * Actualizar botones de navegación
+         */
+        function updateNavigationButtons() {
+            const btnPrev = document.getElementById('btnPrevious');
+            const btnNext = document.getElementById('btnNext');
+
+            btnPrev.disabled = currentCardIndex === 0;
+            btnNext.disabled = currentCardIndex === totalCards - 1;
         }
 
         /**
@@ -173,14 +198,44 @@
          */
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
-                cambiarPagina(-1);
+                previousCard();
             } else if (e.key === 'ArrowRight') {
-                cambiarPagina(1);
+                nextCard();
             }
         });
 
+        /**
+         * Soporte para swipe en móviles
+         */
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left -> siguiente
+                    nextCard();
+                } else {
+                    // Swipe right -> anterior
+                    previousCard();
+                }
+            }
+        }
+
         // Inicializar al cargar
-        renderizarPagina();
+        renderCards();
     </script>
 </body>
 
