@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Celebración de Año Nuevo con fuegos artificiales para Rocío">
+    <meta name="theme-color" content="#0a0a2e">
+    <title>🎆 Fuegos de Año Nuevo | OurCorner</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../assets/css/fuegos-artificiales.css">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Canvas para fuegos artificiales -->
+    <canvas id="fuegosCanvas"></canvas>
+
+    <!-- Contenedor principal -->
+    <div class="fuegos-container">
+        <div class="contenido-principal">
+            <h1 class="titulo-fuegos">🎆 ¡Feliz Año Nuevo! 🎆</h1>
+            <p class="subtitulo-fuegos">2025 - Un nuevo año lleno de amor</p>
+
+            <div class="mensaje-especial">
+                <p>
+                    Mi amor, <strong>Rocío</strong>, mientras estos fuegos artificiales iluminan el cielo,
+                    quiero que sepas que mi corazón brilla aún más fuerte por ti.
+                </p>
+                <p style="margin-top: 20px;">
+                    Este nuevo año que comienza es una página en blanco donde escribiremos
+                    juntos las historias más hermosas. Cada momento a tu lado es una celebración,
+                    cada día contigo es un nuevo año que comienza.
+                </p>
+                <p style="margin-top: 20px;">
+                    🎊 ¡Que este 2025 esté lleno de amor, risas y momentos inolvidables! 🎊
+                </p>
+                <p style="margin-top: 15px; font-size: 1.3rem;">
+                    Con todo mi amor,<br>
+                    <strong>Tu Leo que te adora 💕</strong>
+                </p>
+            </div>
+
+            <div class="botones-fuegos">
+                <a href="eventos-especiales.html" class="btn-fuegos btn-regresar-libro">
+                    <span>📖</span>
+                    <span>Regresar al Libro</span>
+                </a>
+                <a href="../index.html" class="btn-fuegos btn-inicio">
+                    <span>🏠</span>
+                    <span>Ir al Inicio</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de fuegos artificiales -->
+    <script>
+        // Configuración del canvas
+        const canvas = document.getElementById('fuegosCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustar tamaño del canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Clase Partícula para fuegos artificiales
+        class Particula {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocityX = (Math.random() - 0.5) * 8;
+                this.velocityY = (Math.random() - 0.5) * 8;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+                this.radius = Math.random() * 3 + 1;
+            }
+
+            update() {
+                this.velocityY += 0.1; // Gravedad
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Efecto de brillo
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Clase Fuego Artificial
+        class FuegoArtificial {
+            constructor(x, y) {
+                this.x = x;
+                this.y = canvas.height;
+                this.targetY = y;
+                this.particulas = [];
+                this.exploded = false;
+                this.velocityY = -Math.random() * 3 - 10;
+
+                // Colores vibrantes
+                const colores = [
+                    '#ff1744', '#ff9100', '#ffd700', '#00e676',
+                    '#00b0ff', '#d500f9', '#ff4081', '#76ff03'
+                ];
+                this.color = colores[Math.floor(Math.random() * colores.length)];
+            }
+
+            update() {
+                if (!this.exploded) {
+                    this.y += this.velocityY;
+                    this.velocityY += 0.3; // Gravedad
+
+                    // Explotar al llegar al objetivo
+                    if (this.y <= this.targetY) {
+                        this.explotar();
+                    }
+                } else {
+                    // Actualizar partículas
+                    this.particulas.forEach(p => p.update());
+                    this.particulas = this.particulas.filter(p => p.alpha > 0);
+                }
+            }
+
+            explotar() {
+                this.exploded = true;
+                const particleCount = Math.random() * 50 + 75;
+
+                for (let i = 0; i < particleCount; i++) {
+                    this.particulas.push(new Particula(this.x, this.y, this.color));
+                }
+            }
+
+            draw() {
+                if (!this.exploded) {
+                    // Dibujar cohete
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                } else {
+                    // Dibujar partículas
+                    this.particulas.forEach(p => p.draw());
+                }
+            }
+
+            isDead() {
+                return this.exploded && this.particulas.length === 0;
+            }
+        }
+
+        // Array de fuegos artificiales
+        let fuegos = [];
+
+        // Crear fuegos artificiales automáticamente
+        function crearFuegoArtificial() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height * 0.4 + 100;
+            fuegos.push(new FuegoArtificial(x, y));
+        }
+
+        // Intervalo para crear fuegos
+        setInterval(crearFuegoArtificial, 800);
+
+        // Crear estrellas de fondo
+        function crearEstrellas() {
+            const body = document.body;
+            for (let i = 0; i < 100; i++) {
+                const estrella = document.createElement('div');
+                estrella.className = 'estrella';
+                estrella.style.left = Math.random() * 100 + '%';
+                estrella.style.top = Math.random() * 100 + '%';
+                estrella.style.animationDelay = Math.random() * 3 + 's';
+                body.appendChild(estrella);
+            }
+        }
+        crearEstrellas();
+
+        // Loop de animación
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 46, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            fuegos.forEach((fuego, index) => {
+                fuego.update();
+                fuego.draw();
+
+                if (fuego.isDead()) {
+                    fuegos.splice(index, 1);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar animación
+        animate();
+
+        // Click para crear fuego artificial
+        canvas.addEventListener('click', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            fuegos.push(new FuegoArtificial(x, y));
+        });
+
+        // Touch para móviles
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const x = touch.clientX;
+            const y = touch.clientY;
+            fuegos.push(new FuegoArtificial(x, y));
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,262 @@
+/**
+ * Estilos para la página de Fuegos Artificiales de Año Nuevo
+ * Celebración con animaciones de fuegos artificiales y efectos visuales
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Dancing Script', cursive, 'Great Vibes', cursive;
+    background: linear-gradient(to bottom, #0a0a2e 0%, #16213e 50%, #1a1a3e 100%);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Contenedor principal */
+.fuegos-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Canvas para fuegos artificiales */
+#fuegosCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Contenido principal */
+.contenido-principal {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+    color: white;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    animation: fadeInScale 1.5s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Título principal */
+.titulo-fuegos {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    text-shadow:
+        0 0 20px rgba(255, 215, 0, 0.8),
+        0 0 40px rgba(255, 215, 0, 0.6),
+        0 0 60px rgba(255, 215, 0, 0.4);
+    animation: titlePulse 2s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 20px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.6);
+    }
+
+    50% {
+        text-shadow:
+            0 0 30px rgba(255, 215, 0, 1),
+            0 0 60px rgba(255, 215, 0, 0.8),
+            0 0 90px rgba(255, 215, 0, 0.6);
+    }
+}
+
+/* Subtítulo */
+.subtitulo-fuegos {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #ffd700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Mensaje especial */
+.mensaje-especial {
+    font-size: 1.5rem;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.mensaje-especial strong {
+    color: #ffd700;
+    font-size: 1.7rem;
+    font-family: 'Dancing Script', cursive;
+}
+
+/* Botones */
+.botones-fuegos {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-fuegos {
+    padding: 15px 40px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-regresar-libro {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-regresar-libro:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+}
+
+.btn-inicio {
+    background: rgba(255, 255, 255, 0.9);
+    color: #764ba2;
+}
+
+.btn-inicio:hover {
+    background: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255, 255, 255, 0.4);
+}
+
+/* Estrellas de fondo */
+.estrella {
+    position: fixed;
+    background: white;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Partículas flotantes */
+.particula {
+    position: absolute;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .titulo-fuegos {
+        font-size: 2.5rem;
+    }
+
+    .subtitulo-fuegos {
+        font-size: 1.5rem;
+    }
+
+    .mensaje-especial {
+        font-size: 1.2rem;
+    }
+
+    .mensaje-especial strong {
+        font-size: 1.4rem;
+    }
+
+    .contenido-principal {
+        padding: 30px 20px;
+    }
+
+    .botones-fuegos {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-fuegos {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .titulo-fuegos {
+        font-size: 2rem;
+    }
+
+    .subtitulo-fuegos {
+        font-size: 1.2rem;
+    }
+
+    .mensaje-especial {
+        font-size: 1rem;
+    }
+
+    .btn-fuegos {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+}
