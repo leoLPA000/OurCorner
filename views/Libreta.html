@@ -199,11 +199,6 @@
       box-shadow: 0 12px 35px rgba(45, 80, 22, 0.6), 0 0 40px rgba(61, 220, 132, 0.4);
     }
 
-    /* Toggle usa estilos de estilos.css */
-    .tema-toggle {
-      top: 200px !important;
-    }
-
     /* Tema oscuro - estilos específicos de Libreta */
     body.tema-oscuro {
       background-color: #1a1a2e;
@@ -314,18 +309,6 @@
   </style>
 </head>
 <body>
-  <!-- Toggle de tema oscuro (usa darkMode.js del index) -->
-  <div class="tema-toggle">
-    <div class="toggle-container">
-      <span class="toggle-icono sol">☀️</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggleTema">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-icono luna">🌙</span>
-    </div>
-  </div>
-
   <div class="portada" id="portada" onclick="abrirCuaderno()">
     <div class="titulo">
       <span>N</span><span>O</span><span>T</span><span>E</span> LOVE
@@ -402,7 +385,6 @@
 </div>
 
   <!-- Scripts -->
-  <script src="../assets/js/ui/darkMode.js"></script>
   <script>
     // Función para abrir y cerrar el cuaderno
     function abrirCuaderno() {
