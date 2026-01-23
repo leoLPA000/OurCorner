@@ -292,6 +292,34 @@
         min-width: 200px !important;
         border-radius: 30px !important;
       }
+
+      /* Toggle más grande en móvil */
+      .tema-toggle {
+        padding: 18px 28px !important;
+        top: 15px !important;
+      }
+
+      .tema-toggle .toggle-icono {
+        font-size: 1.8rem !important;
+      }
+
+      .tema-toggle .toggle-switch {
+        width: 60px !important;
+        height: 30px !important;
+      }
+
+      .tema-toggle .toggle-slider:before {
+        height: 24px !important;
+        width: 24px !important;
+      }
+
+      .tema-toggle input:checked + .toggle-slider:before {
+        transform: translateX(30px) !important;
+      }
+
+      .tema-toggle .toggle-texto {
+        font-size: 1.2rem !important;
+      }
     }
 
     /* Móviles muy pequeños (≤400px) */
@@ -304,6 +332,11 @@
       .btn-inicio {
         padding: 45px 60px !important;
         font-size: 3.5em !important;
+      }
+
+      /* Toggle aún más grande en móviles pequeños */
+      .tema-toggle {
+        padding: 20px 30px !important;
       }
     }
   </style>
