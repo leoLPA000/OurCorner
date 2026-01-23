@@ -314,7 +314,7 @@
   </style>
 </head>
 <body>
-  <!-- Toggle de tema oscuro -->
+  <!-- Toggle de tema oscuro (usa darkMode.js del index) -->
   <div class="tema-toggle">
     <div class="toggle-container">
       <span class="toggle-icono sol">☀️</span>
@@ -401,6 +401,8 @@
 </div>
 </div>
 
+  <!-- Scripts -->
+  <script src="../assets/js/ui/darkMode.js"></script>
   <script>
     // Función para abrir y cerrar el cuaderno
     function abrirCuaderno() {
@@ -412,28 +414,6 @@
       document.getElementById('paginaInterior').style.display = 'none';
       document.getElementById('portada').style.display = 'block';
     }
-
-    // Toggle de tema oscuro
-    const toggleTema = document.getElementById('toggleTema');
-    const body = document.body;
-
-    // Cargar tema guardado
-    const temaGuardado = localStorage.getItem('tema-libreta');
-    if (temaGuardado === 'oscuro') {
-      body.classList.add('tema-oscuro');
-      toggleTema.checked = true;
-    }
-
-    // Cambiar tema
-    toggleTema.addEventListener('change', () => {
-      if (toggleTema.checked) {
-        body.classList.add('tema-oscuro');
-        localStorage.setItem('tema-libreta', 'oscuro');
-      } else {
-        body.classList.remove('tema-oscuro');
-        localStorage.setItem('tema-libreta', 'claro');
-      }
-    });
   </script>
 
 </body>
