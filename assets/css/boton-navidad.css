@@ -60,8 +60,8 @@ body.tema-oscuro .btn-calendario-navidad {
         width: 60px;
         height: 60px;
         font-size: 2em;
-        top: 10px;
-        left: 20px;
+        top: 30px;
+        left: 30px;
     }
 }
 
@@ -70,7 +70,7 @@ body.tema-oscuro .btn-calendario-navidad {
    ======================================== */
 .btn-eventos-especiales {
     position: fixed;
-    top: 15px;
+    top: 30px;
     left: 30px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: #ffffff;
