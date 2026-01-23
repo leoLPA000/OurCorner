@@ -60,17 +60,17 @@ body.tema-oscuro .btn-calendario-navidad {
         width: 60px;
         height: 60px;
         font-size: 2em;
-        top: 95px;
+        top: 20px;
         left: 20px;
     }
 }
 
 /* ========================================
-   BOTÓN EVENTOS ESPECIALES
+   BOTÓN EVENTOS ESPECIALES (LIBRETA)
    ======================================== */
 .btn-eventos-especiales {
     position: fixed;
-    top: 115px;
+    top: 30px;
     left: 30px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: #ffffff;
