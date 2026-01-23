@@ -194,28 +194,23 @@
     .cerrar:active {
       transform: translateY(-1px) scale(1.02);
     }
-
-    .btn-inicio {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      background: linear-gradient(135deg, #2d5016, #4a7c2c);
-      color: #ffffff;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 50px;
-      padding: 12px 28px;
-      font-size: 1.05em;
-      cursor: pointer;
-      z-index: 20;
-      font-weight: bold;
-      text-decoration: none;
-      display: inline-block;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 8px 25px rgba(45, 80, 22, 0.4), 0 0 20px rgba(61, 220, 132, 0.2);
-      backdrop-filter: blur(10px);
-      position: absolute;
-      overflow: hidden;
-    }
+.btn-inicio {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  background-color: white;
+  color: #800080;
+  border: 2px solid pink;
+  border-radius: 14px;
+  padding: 50px 60px;   /* ⬅️ MÁS GRANDE */
+  font-size: 3em;     /* ⬅️ TEXTO MÁS GRANDE */
+  cursor: pointer;
+  z-index: 20;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  min-width: 180px;     /* ⬅️ MÁS ANCHO */
+}
 
     .btn-inicio::before {
       content: '';
