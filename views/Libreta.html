@@ -153,10 +153,35 @@
       color: #800080;
       border: 2px solid pink;
       border-radius: 10px;
-      padding: 8px 16px;
-      font-size: 1em;
+      padding: 12px 24px;
+      font-size: 1.2em;
       cursor: pointer;
       z-index: 20;
+      font-weight: bold;
+    }
+
+    .btn-inicio {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      background-color: white;
+      color: #800080;
+      border: 2px solid pink;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 1.2em;
+      cursor: pointer;
+      z-index: 20;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cerrar:hover,
+    .btn-inicio:hover {
+      background-color: #ffc0cb;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
     }
 
     @media (max-width: 850px) {
@@ -196,7 +221,8 @@
   </div>
 
   <div id="paginaInterior">
-    <button class="cerrar" onclick="cerrarCuaderno()">✿ Cerrar</button>
+    <a href="../index.html" class="btn-inicio">🏠 Inicio</a>
+    <button class="cerrar" onclick="cerrarCuaderno()">✧ Cerrar</button>
 
   <div class="cuaderno-abierto">
   <div class="hoja">
