@@ -5,23 +5,33 @@
 // Emojis por defecto que mostraremos (puedes personalizar)
 const DEFAULT_EMOJIS = ['❤️', '😂', '😍'];
 
-// Generar ID único por sesión para simular usuario anónimo
+// Obtener ID del usuario autenticado
 function obtenerIdSesion() {
-  let sessionId = localStorage.getItem('reacciones_session_id');
-  if (!sessionId) {
-    sessionId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('reacciones_session_id', sessionId);
+  // 🔐 Verificar autenticación
+  if (window.authService && window.authService.isAuthenticated()) {
+    const user = window.authService.getCurrentUser();
+    return user.id;
   }
-  return sessionId;
+  
+  // Si no está autenticado, retornar null
+  return null;
 }
 
 async function insertarOActualizarReaccion(mensajeId, emoji) {
   if (!mensajeId || !emoji) throw new Error('mensajeId y emoji son requeridos');
 
+  // 🔐 Verificar autenticación
+  if (!window.authService || !window.authService.isAuthenticated()) {
+    alert('⚠️ Debes iniciar sesión para reaccionar');
+    window.location.href = '/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+    throw new Error('Usuario no autenticado');
+  }
+
   const client = window.supabaseClient;
   if (!client) throw new Error('Supabase no inicializado');
 
   const sessionId = obtenerIdSesion();
+  if (!sessionId) throw new Error('No se pudo obtener ID de usuario');
 
   try {
     // Buscar si existe alguna reacción para este mensaje (sin importar session_id)

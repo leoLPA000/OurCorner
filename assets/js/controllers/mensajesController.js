@@ -283,6 +283,15 @@ class FormularioMensajes {
     async guardarMensaje(e) {
         e.preventDefault();
         
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            this.mostrarNotificacion('⚠️ Debes iniciar sesión para publicar mensajes', 'error');
+            setTimeout(() => {
+                window.location.href = '/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            }, 2000);
+            return;
+        }
+        
         const categoria = document.getElementById('categoriaSelect').value;
         const emoji = document.getElementById('emojiSelect').value || '❤️';
         const texto = document.getElementById('textoMensaje').value.trim();
@@ -295,12 +304,14 @@ class FormularioMensajes {
         }
         
         // Crear objeto mensaje (sin id, Supabase lo genera automáticamente)
+        const currentUser = window.authService.getCurrentUser();
         const mensaje = {
             categoria: categoria,
             emoji: emoji,
             texto: texto,
             nota: nota,
-            autor: autor
+            autor: autor,
+            user_id: currentUser.id
         };
         
         // Guardar en Supabase

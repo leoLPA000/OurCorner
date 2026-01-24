@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | OurCorner</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #667eea;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .back-home a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-home a:hover {
+            color: #667eea;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            width: 33%;
+            background: #dc3545;
+        }
+
+        .strength-medium {
+            width: 66%;
+            background: #ffc107;
+        }
+
+        .strength-strong {
+            width: 100%;
+            background: #28a745;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .login-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 OurCorner</h1>
+            <p>Inicia sesión para acceder a tu rincón especial</p>
+        </div>
+
+        <div class="login-body">
+            <!-- Alertas -->
+            <div id="alert" class="alert"></div>
+
+            <!-- Pestañas -->
+            <div class="tabs">
+                <button class="tab active" data-tab="login">Iniciar Sesión</button>
+                <button class="tab" data-tab="register">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <div id="loginForm" class="form-container active">
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="loginUsername">Usuario</label>
+                        <input 
+                            type="text" 
+                            id="loginUsername" 
+                            name="username"
+                            placeholder="usuario123"
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            name="password"
+                            placeholder="Tu contraseña"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnLogin">
+                        Iniciar Sesión
+                    </button>
+
+                    <div class="forgot-password">
+                        <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario de Registro -->
+            <div id="registerForm" class="form-container">
+                <form id="formRegister">
+                    <div class="form-group">
+                        <label for="registerUsername">Nombre de Usuario</label>
+                        <input 
+                            type="text" 
+                            id="registerUsername" 
+                            name="username"
+                            placeholder="usuario123"
+                            required
+                            autocomplete="username"
+                            minlength="3"
+                            maxlength="20"
+                            pattern="[a-zA-Z0-9_]+"
+                            title="Solo letras, números y guión bajo"
+                        >
+                        <small style="color: #666; font-size: 0.85rem;">3-20 caracteres, sin espacios ni símbolos especiales</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerEmail">Correo Electrónico</label>
+                        <input 
+                            type="email" 
+                            id="registerEmail" 
+                            name="email"
+                            placeholder="ejemplo@correo.com"
+                            required
+                            autocomplete="email"
+                        >
+                        <small style="color: #666; font-size: 0.85rem;">Solo para recuperación de contraseña</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="registerPassword" 
+                            name="password"
+                            placeholder="Mínimo 6 caracteres"
+                            required
+                            autocomplete="new-password"
+                        >
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div id="strengthFill" class="strength-fill"></div>
+                            </div>
+                            <small id="strengthText"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Confirmar Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="registerPasswordConfirm" 
+                            name="passwordConfirm"
+                            placeholder="Repite tu contraseña"
+                            required
+                            autocomplete="new-password"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnRegister">
+                        Crear Cuenta
+                    </button>
+                </form>
+            </div>
+
+            <!-- Enlace para volver -->
+            <div class="back-home">
+                <a href="../index.html">← Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config/supabase.js"></script>
+    <script src="../assets/js/services/authService.js"></script>
+    
+    <script>
+        // Elementos del DOM
+        const tabs = document.querySelectorAll('.tab');
+        const loginFormContainer = document.getElementById('loginForm');
+        const registerFormContainer = document.getElementById('registerForm');
+        const formLogin = document.getElementById('formLogin');
+        const formRegister = document.getElementById('formRegister');
+        const alertBox = document.getElementById('alert');
+        const btnLogin = document.getElementById('btnLogin');
+        const btnRegister = document.getElementById('btnRegister');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+        // Cambiar entre pestañas
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabName = tab.dataset.tab;
+                if (tabName === 'login') {
+                    loginFormContainer.classList.add('active');
+                    registerFormContainer.classList.remove('active');
+                } else {
+                    registerFormContainer.classList.add('active');
+                    loginFormContainer.classList.remove('active');
+                }
+
+                hideAlert();
+            });
+        });
+
+        // Mostrar alerta
+        function showAlert(message, type = 'info') {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+        }
+
+        // Ocultar alerta
+        function hideAlert() {
+            alertBox.classList.remove('show');
+        }
+
+        // Validar fortaleza de contraseña
+        const registerPassword = document.getElementById('registerPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        registerPassword.addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strength = calculatePasswordStrength(password);
+
+            strengthFill.className = 'strength-fill';
+            
+            if (password.length === 0) {
+                strengthText.textContent = '';
+                return;
+            }
+
+            if (strength < 3) {
+                strengthFill.classList.add('strength-weak');
+                strengthText.textContent = 'Débil';
+                strengthText.style.color = '#dc3545';
+            } else if (strength < 5) {
+                strengthFill.classList.add('strength-medium');
+                strengthText.textContent = 'Media';
+                strengthText.style.color = '#ffc107';
+            } else {
+                strengthFill.classList.add('strength-strong');
+                strengthText.textContent = 'Fuerte';
+                strengthText.style.color = '#28a745';
+            }
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z\d]/.test(password)) strength++;
+            return strength;
+        }
+
+        // Manejar login
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="loading"></span> Iniciando sesión...';
+            hideAlert();
+
+            try {
+                const result = await window.authService.signInWithUsername(username, password);
+
+                if (result.success) {
+                    showAlert('¡Bienvenido! Redirigiendo...', 'success');
+                    
+                    // Redirigir después de 1 segundo
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('return') || '../index.html';
+                        window.location.href = returnUrl;
+                    }, 1000);
+                } else {
+                    showAlert(result.error || 'Usuario o contraseña incorrectos', 'error');
+                    btnLogin.disabled = false;
+                    btnLogin.textContent = 'Iniciar Sesión';
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Iniciar Sesión';
+            }
+        });
+
+        // Manejar registro
+        formRegister.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value.trim().toLowerCase();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            // Validaciones
+            if (!username || !email || !password || !passwordConfirm) {
+                showAlert('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            // Validar username
+            if (username.length < 3 || username.length > 20) {
+                showAlert('El nombre de usuario debe tener entre 3 y 20 caracteres', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showAlert('El nombre de usuario solo puede contener letras, números y guión bajo', 'error');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                showAlert('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            btnRegister.disabled = true;
+            btnRegister.innerHTML = '<span class="loading"></span> Creando cuenta...';
+            hideAlert();
+
+            try {
+                const result = await window.authService.signUpWithUsername(username, email, password);
+
+                if (result.success) {
+                    if (result.needsConfirmation) {
+                        showAlert('Cuenta creada. Por favor verifica tu email para completar el registro.', 'info');
+                        
+                        // Cambiar a pestaña de login después de 3 segundos
+                        setTimeout(() => {
+                            tabs[0].click();
+                        }, 3000);
+                    } else {
+                        showAlert(`¡Cuenta creada exitosamente! Tu usuario es: ${username}`, 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 2000);
+                    }
+                } else {
+                    showAlert(result.error || 'Error al crear la cuenta', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
+            } finausername = document.getElementById('loginUsername').value.trim();
+            
+            if (!username) {
+                showAlert('Por favor ingresa tu nombre de usuario primero', 'error');
+                document.getElementById('loginUsername').focus();
+                return;
+            }
+
+            const confirmed = confirm(`¿Enviar enlace de recuperación para el usuario ${username}?`);
+            if (!confirmed) return;
+
+            btnLogin.disabled = true;
+            showAlert('Buscando usuario...', 'info');
+
+            try {
+                const result = await window.authService.resetPasswordByUsername(username);
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                } else {
+                    showAlert(result.error || 'Error al enviar el enlace de recuperación', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
+            } finally {
+                btnLogin.disabled = false
+            try {
+                const result = await window.authService.resetPassword(email);
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                } else {
+                    showAlert(result.error || 'Error al enviar el enlace de recuperación', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
+            }
+        });
+
+        // Verificar si ya hay sesión activa
+        window.addEventListener('load', async () => {
+            if (window.authService && window.authService.isAuthenticated()) {
+                showAlert('Ya tienes una sesión activa. Redirigiendo...', 'info');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

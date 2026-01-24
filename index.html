@@ -103,6 +103,13 @@
             📖
         </a>
 
+        <!-- Botón de autenticación -->
+        <div class="auth-container" id="authContainer">
+            <button class="btn-auth" id="btnAuth" title="Iniciar sesión">
+                🔐 Iniciar Sesión
+            </button>
+        </div>
+
         <footer class="pie-pagina">
             <div class="contador-dias">
                 <p class="texto-contador">Llevamos juntos:</p>
@@ -123,6 +130,7 @@
     <!-- Supabase SDK (necesario para storage y DB) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="assets/js/config/supabase.js"></script>
+    <script src="assets/js/services/authService.js"></script>
 
     <!--<script src="assets/js/ui/animations.js"></script> -->
     <script src="assets/js/ui/cursorEffects.js"></script>
@@ -192,6 +200,119 @@
 
         // Actualizar cuando cambie localStorage
         window.addEventListener('storage', actualizarContadorMensajes);
+
+        // ============================================================================
+        // 🔐 SISTEMA DE AUTENTICACIÓN
+        // ============================================================================
+        
+        // Inicializar UI de autenticación
+        function initAuthUI() {
+            const btnAuth = document.getElementById('btnAuth');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (!btnAuth || !authContainer) return;
+            
+            // Verificar estado de autenticación
+            if (window.authService) {
+                window.authService.onAuthStateChange((event, session) => {
+                    updateAuthButton(session);
+                });
+            }
+        }
+        
+        // Actualizar botón según estado de autenticación
+        function updateAuthButton(session) {
+            const btnAuth = document.getElementById('btnAuth');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (!btnAuth || !authContainer) return;
+            
+            // Limpiar contenido previo
+            authContainer.innerHTML = '';
+            
+            if (session && session.user) {
+                // Usuario autenticado
+                const user = session.user;
+                const username = user.user_metadata?.username || user.email;
+                const displayName = username.length > 15 ? username.substring(0, 12) + '...' : username;
+                
+                authContainer.innerHTML = `
+                    <button class="btn-auth logged-in" id="btnUserMenu">
+                        👤 ${displayName}
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-email"><strong>@${username}</strong></div>
+                        </div>
+                        <button class="dropdown-item" onclick="window.location.href='views/mis-mensajes.html'">
+                            ✍️ Mis Mensajes
+                        </button>
+                        <button class="dropdown-item danger" onclick="handleLogout()">
+                            🚪 Cerrar Sesión
+                        </button>
+                    </div>
+                `;
+                
+                // Toggle dropdown
+                const btnUserMenu = document.getElementById('btnUserMenu');
+                const userDropdown = document.getElementById('userDropdown');
+                
+                btnUserMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Cerrar dropdown al hacer clic fuera
+                document.addEventListener('click', () => {
+                    if (userDropdown) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+                
+            } else {
+                // Usuario no autenticado
+                authContainer.innerHTML = `
+                    <button class="btn-auth" onclick="window.location.href='views/login.html'">
+                        🔐 Iniciar Sesión
+                    </button>
+                `;
+            }
+        }
+        
+        // Manejar cierre de sesión
+        async function handleLogout() {
+            if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) return;
+            
+            try {
+                const result = await window.authService.signOut();
+                
+                if (result.success) {
+                    alert('Sesión cerrada exitosamente');
+                    window.location.reload();
+                } else {
+                    alert('Error al cerrar sesión: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error al cerrar sesión');
+                console.error(error);
+            }
+        }
+        
+        // Inicializar al cargar la página
+        window.addEventListener('load', () => {
+            // Esperar a que authService esté disponible
+            const checkAuth = setInterval(() => {
+                if (window.authService) {
+                    clearInterval(checkAuth);
+                    initAuthUI();
+                }
+            }, 100);
+            
+            // Timeout después de 5 segundos
+            setTimeout(() => {
+                clearInterval(checkAuth);
+            }, 5000);
+        });
     </script>
 </body>
 
