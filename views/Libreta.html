@@ -258,6 +258,38 @@
     }
 
     /* ============================================================================
+       ESTILOS DEL TEMA-TOGGLE SOLO PARA LIBRETA
+       Estos estilos sobrescriben los de estilos.css solo en esta página
+       ============================================================================ */
+    
+    /* Estilos base del toggle para desktop */
+    .tema-toggle {
+      padding: 80px 60px !important;
+    }
+
+    .toggle-icono {
+      font-size: 1.8rem !important;
+    }
+
+    .toggle-switch {
+      width: 60px !important;
+      height: 30px !important;
+    }
+
+    .toggle-slider:before {
+      height: 24px !important;
+      width: 24px !important;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(30px) !important;
+    }
+
+    .toggle-texto {
+      font-size: 1.2rem !important;
+    }
+
+    /* ============================================================================
        MEDIA QUERIES - RESPONSIVE
        ============================================================================ */
     
@@ -292,8 +324,6 @@
         min-width: 200px !important;
         border-radius: 30px !important;
       }
-
-
     }
   </style>
 </head>
@@ -365,52 +395,17 @@
       <a href="../index.html" style="display: block; margin: 8px 0; color: #555; text-decoration: none; padding: 8px; background: #f8f8f8; border-radius: 8px;">
         ➜ Volver al Inicio
       </a>
-    // Función para abrir y cerrar el cuaderno
-    function abrirCuaderno() {
-      document.getElementById('portada').style.display = 'none';
-      document.getElementById('paginaInterior').style.display = 'flex';
-    }
+    </div>
 
-    function cerrarCuaderno() {
-      document.getElementById('paginaInterior').style.display = 'none';
-      document.getElementById('portada').style.display = 'block';
-    }
+    <p style="margin-top: 30px; text-align: center; font-size: 1.2em; color: #800080;">Te amo, mi Rocío ❤️</p>
 
-    // Función para cambiar el tema
-    function cambiarTema() {
-      const body = document.body;
-      const checkbox = document.getElementById('toggle-tema');
-      const icono = document.querySelector('.toggle-icono');
-      const texto = document.querySelector('.toggle-texto');
-      
-      body.classList.toggle('tema-oscuro');
-      checkbox.checked = body.classList.contains('tema-oscuro');
-      
-      if (body.classList.contains('tema-oscuro')) {
-        icono.textContent = '☀️';
-        texto.textContent = 'Modo Oscuro';
-        localStorage.setItem('tema-oscuro', 'true');
-      } else {
-        icono.textContent = '🌙';
-        texto.textContent = 'Modo Claro';
-        localStorage.setItem('tema-oscuro', 'false');
-      }
-    }
+  </div>
+</div>
+</div>
 
-    // Cargar tema guardado al cargar la página
-    window.addEventListener('DOMContentLoaded', () => {
-      const temaOscuro = localStorage.getItem('tema-oscuro') === 'true';
-      const checkbox = document.getElementById('toggle-tema');
-      const icono = document.querySelector('.toggle-icono');
-      const texto = document.querySelector('.toggle-texto');
-      
-      if (temaOscuro) {
-        document.body.classList.add('tema-oscuro');
-        checkbox.checked = true;
-        icono.textContent = '☀️';
-        texto.textContent = 'Modo Oscuro';
-      }
-    });ript>
+  <!-- Scripts -->
+  <script src="../assets/js/ui/darkMode.js"></script>
+  <script>
     // Función para abrir y cerrar el cuaderno
     function abrirCuaderno() {
       document.getElementById('portada').style.display = 'none';
