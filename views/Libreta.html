@@ -262,31 +262,31 @@
        Estos estilos sobrescriben los de estilos.css solo en esta página
        ============================================================================ */
     
-    /* Estilos base del toggle para desktop */
+    /* Estilos base del toggle para DESKTOP/PC */
     .tema-toggle {
-      padding: 80px 90px !important;
+      padding: 10px 20px !important;
     }
 
     .toggle-icono {
-      font-size: 10rem !important;
+      font-size: 1.3rem !important;
     }
 
     .toggle-switch {
-      width: 60px !important;
-      height: 30px !important;
+      width: 50px !important;
+      height: 24px !important;
     }
 
     .toggle-slider:before {
-      height: 24px !important;
-      width: 24px !important;
+      height: 18px !important;
+      width: 18px !important;
     }
 
     input:checked + .toggle-slider:before {
-      transform: translateX(30px) !important;
+      transform: translateX(26px) !important;
     }
 
     .toggle-texto {
-      font-size: 10rem !important;
+      font-size: 1rem !important;
     }
 
     /* ============================================================================
@@ -323,6 +323,36 @@
         font-size: 4em !important;
         min-width: 200px !important;
         border-radius: 30px !important;
+      }
+
+      /* Toggle MÁS GRANDE para móvil */
+      .tema-toggle {
+        padding: 20px 30px !important;
+        top: 15px !important;
+      }
+
+      .toggle-icono {
+        font-size: 2rem !important;
+      }
+
+      .toggle-switch {
+        width: 70px !important;
+        height: 36px !important;
+      }
+
+      .toggle-slider:before {
+        height: 30px !important;
+        width: 30px !important;
+        left: 3px !important;
+        bottom: 3px !important;
+      }
+
+      input:checked + .toggle-slider:before {
+        transform: translateX(34px) !important;
+      }
+
+      .toggle-texto {
+        font-size: 1.4rem !important;
       }
     }
   </style>
