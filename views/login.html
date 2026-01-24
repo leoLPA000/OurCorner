@@ -644,7 +644,17 @@
                 }
             } catch (error) {
                 showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
-            } finausername = document.getElementById('loginUsername').value.trim();
+            } finally {
+                btnRegister.disabled = false;
+                btnRegister.textContent = 'Crear Cuenta';
+            }
+        });
+
+        // Recuperar contraseña
+        forgotPasswordLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
             
             if (!username) {
                 showAlert('Por favor ingresa tu nombre de usuario primero', 'error');
@@ -669,17 +679,7 @@
             } catch (error) {
                 showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
             } finally {
-                btnLogin.disabled = false
-            try {
-                const result = await window.authService.resetPassword(email);
-                
-                if (result.success) {
-                    showAlert(result.message, 'success');
-                } else {
-                    showAlert(result.error || 'Error al enviar el enlace de recuperación', 'error');
-                }
-            } catch (error) {
-                showAlert('Error de conexión. Por favor intenta nuevamente.', 'error');
+                btnLogin.disabled = false;
             }
         });
 
