@@ -278,10 +278,11 @@ body.tema-oscuro .dropdown-item.danger:hover {
         width: 45px;
         height: 45px;
         justify-content: center;
+        gap: 0;
     }
 
-    .btn-auth-text {
-        display: none;
+    .btn-auth .btn-auth-text {
+        display: none !important;
     }
 
     .user-dropdown {
