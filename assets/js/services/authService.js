@@ -78,7 +78,7 @@ class AuthService {
                 };
             }
 
-            // Crear usuario en Supabase Auth
+            // Crear usuario en Supabase Auth con confirmación de email
             const { data, error } = await this.supabase.auth.signUp({
                 email: email,
                 password: password,
@@ -88,12 +88,17 @@ class AuthService {
                         display_name: username,
                         created_at: new Date().toISOString()
                     },
-                    emailRedirectTo: window.location.origin
+                    emailRedirectTo: `${window.location.origin}/views/email-confirmed.html`
                 }
             });
             
             if (error) {
                 console.error('Error en registro:', error);
+                
+                // Mensajes de error más amigables
+                if (error.message.includes('already registered')) {
+                    return { success: false, error: 'Este correo ya está registrado' };
+                }
                 return { success: false, error: error.message };
             }
             
@@ -110,26 +115,26 @@ class AuthService {
 
                 if (profileError) {
                     console.error('Error al crear perfil:', profileError);
-                    // Continuar aunque falle el perfil
+                    
+                    // Si ya existe el perfil, no es un error crítico
+                    if (!profileError.message.includes('duplicate')) {
+                        return { 
+                            success: false, 
+                            error: 'Error al crear perfil de usuario. Intenta de nuevo.' 
+                        };
+                    }
                 }
 
                 console.log('Usuario registrado exitosamente:', username);
                 
-                // Verificar si necesita confirmar email
-                if (data.user.identities && data.user.identities.length === 0) {
-                    return {
-                        success: true,
-                        needsConfirmation: true,
-                        username: username,
-                        message: 'Por favor verifica tu email para completar el registro'
-                    };
-                }
-                
+                // Supabase SIEMPRE requiere confirmación de email por defecto
+                // El usuario debe verificar su email antes de poder iniciar sesión
                 return {
                     success: true,
-                    user: data.user,
+                    needsConfirmation: true,
                     username: username,
-                    message: 'Cuenta creada exitosamente'
+                    email: email,
+                    message: `📧 ¡Revisa tu correo! Enviamos un mensaje a ${email} para verificar tu cuenta.`
                 };
             }
             
@@ -168,10 +173,31 @@ class AuthService {
             
             if (error) {
                 console.error('Error en login:', error);
+                
+                // Detectar si el usuario no ha verificado su email
+                if (error.message.includes('Email not confirmed')) {
+                    return { 
+                        success: false, 
+                        error: '📧 Debes verificar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.',
+                        needsConfirmation: true
+                    };
+                }
+                
                 return { success: false, error: 'Usuario o contraseña incorrectos' };
             }
             
             if (data.user) {
+                // Verificar que el email esté confirmado
+                if (!data.user.email_confirmed_at) {
+                    // Cerrar la sesión si no está confirmado
+                    await this.supabase.auth.signOut();
+                    return {
+                        success: false,
+                        error: '📧 Debes verificar tu email antes de iniciar sesión. Revisa tu correo.',
+                        needsConfirmation: true
+                    };
+                }
+                
                 this.currentUser = data.user;
                 console.log('Login exitoso:', username);
                 return {

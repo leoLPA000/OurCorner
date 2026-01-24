@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verificado | OurCorner</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 50px 40px;
+            text-align: center;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bounce 0.8s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .icon svg {
+            width: 60px;
+            height: 60px;
+            color: white;
+        }
+
+        .loading-icon {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .countdown {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 30px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Estado de carga -->
+        <div id="loadingState">
+            <div class="icon">
+                <div class="loading-icon"></div>
+            </div>
+            <h1>Verificando...</h1>
+            <p>Estamos confirmando tu email, espera un momento.</p>
+        </div>
+
+        <!-- Estado de éxito -->
+        <div id="successState" class="hidden">
+            <div class="icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1>¡Email Verificado! 🎉</h1>
+            <p>Tu cuenta ha sido confirmada exitosamente. Ya puedes iniciar sesión en OurCorner.</p>
+            <a href="login.html" class="btn">Iniciar Sesión</a>
+            <p class="countdown">Redirigiendo en <span id="countdown">5</span> segundos...</p>
+        </div>
+
+        <!-- Estado de error -->
+        <div id="errorState" class="hidden">
+            <div class="icon" style="background: #dc3545;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <h1>Error de Verificación</h1>
+            <div class="error-message">
+                <p id="errorMessage">No se pudo verificar tu email. El enlace puede haber expirado.</p>
+            </div>
+            <a href="login.html" class="btn">Volver al Login</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/config/supabase.js"></script>
+    <script>
+        const loadingState = document.getElementById('loadingState');
+        const successState = document.getElementById('successState');
+        const errorState = document.getElementById('errorState');
+        const countdownElement = document.getElementById('countdown');
+        const errorMessage = document.getElementById('errorMessage');
+
+        async function handleEmailConfirmation() {
+            try {
+                // Obtener el hash de la URL (contiene el token de confirmación)
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const type = hashParams.get('type');
+
+                // Si es una confirmación de email
+                if (type === 'signup' || type === 'email') {
+                    if (accessToken) {
+                        // El token es válido, Supabase ya autenticó al usuario
+                        const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+
+                        if (error || !session) {
+                            throw new Error('No se pudo obtener la sesión');
+                        }
+
+                        // Mostrar mensaje de éxito
+                        showSuccess();
+                    } else {
+                        throw new Error('Token de confirmación no encontrado');
+                    }
+                } else {
+                    // No es una confirmación de email
+                    throw new Error('Enlace de confirmación inválido');
+                }
+            } catch (error) {
+                console.error('Error en confirmación:', error);
+                showError(error.message);
+            }
+        }
+
+        function showSuccess() {
+            loadingState.classList.add('hidden');
+            successState.classList.remove('hidden');
+
+            // Countdown de redirección
+            let seconds = 5;
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = 'login.html';
+                }
+            }, 1000);
+        }
+
+        function showError(message) {
+            loadingState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            errorMessage.textContent = message || 'Error desconocido';
+        }
+
+        // Ejecutar verificación al cargar la página
+        window.addEventListener('load', handleEmailConfirmation);
+    </script>
+</body>
+</html>
