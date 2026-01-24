@@ -137,6 +137,7 @@ body.tema-oscuro .btn-eventos-especiales {
     display: flex;
     align-items: center;
     gap: 8px;
+    top: 100px;
 }
 
 .btn-auth:hover {
