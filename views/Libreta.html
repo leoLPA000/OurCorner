@@ -258,6 +258,38 @@
     }
 
     /* ============================================================================
+       ESTILOS DEL TEMA-TOGGLE SOLO PARA LIBRETA
+       Estos estilos sobrescriben los de estilos.css solo en esta página
+       ============================================================================ */
+    
+    /* Estilos base del toggle para desktop */
+    .tema-toggle {
+      padding: 80px 90px !important;
+    }
+
+    .toggle-icono {
+      font-size: 10rem !important;
+    }
+
+    .toggle-switch {
+      width: 60px !important;
+      height: 30px !important;
+    }
+
+    .toggle-slider:before {
+      height: 24px !important;
+      width: 24px !important;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(30px) !important;
+    }
+
+    .toggle-texto {
+      font-size: 10rem !important;
+    }
+
+    /* ============================================================================
        MEDIA QUERIES - RESPONSIVE
        ============================================================================ */
     
@@ -291,34 +323,6 @@
         font-size: 4em !important;
         min-width: 200px !important;
         border-radius: 30px !important;
-      }
-
-      /* Toggle más grande en móvil */
-      .tema-toggle {
-        padding: 100px 120px !important;
-        top: 40px !important;
-      }
-
-      .tema-toggle .toggle-icono {
-        font-size: 20rem !important;
-      }
-
-      .tema-toggle .toggle-switch {
-        width: 80px !important;
-        height: 50px !important;
-      }
-
-      .tema-toggle .toggle-slider:before {
-        height: 24px !important;
-        width: 24px !important;
-      }
-
-      .tema-toggle input:checked + .toggle-slider:before {
-        transform: translateX(30px) !important;
-      } 
-
-      .tema-toggle .toggle-texto {
-        font-size: 20rem !important;
       }
     }
   </style>
