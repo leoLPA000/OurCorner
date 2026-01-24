@@ -106,7 +106,7 @@
         <!-- Botón de autenticación -->
         <div class="auth-container" id="authContainer">
             <button class="btn-auth" id="btnAuth" title="Iniciar sesión">
-                🔐<span class="btn-auth-text"></span>
+                🔐<span class="btn-auth-text"> Iniciar Sesión</span>
             </button>
         </div>
 
@@ -238,7 +238,7 @@
                 
                 authContainer.innerHTML = `
                     <button class="btn-auth logged-in" id="btnUserMenu">
-                        👤 ${displayName}
+                        👤<span class="btn-auth-text"> ${displayName}</span>
                     </button>
                     <div class="user-dropdown" id="userDropdown">
                         <div class="user-info">
@@ -273,7 +273,7 @@
                 // Usuario no autenticado
                 authContainer.innerHTML = `
                     <button class="btn-auth" onclick="window.location.href='views/login.html'">
-                        🔐 Iniciar Sesión
+                        🔐<span class="btn-auth-text"> Iniciar Sesión</span>
                     </button>
                 `;
             }
