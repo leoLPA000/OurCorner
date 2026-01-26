@@ -419,6 +419,14 @@ class ReproductorRomantico {
             btnAgregar.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // 🔐 Verificar autenticación
+                if (!window.authService || !window.authService.isAuthenticated()) {
+                    alert('⚠️ Debes iniciar sesión para agregar canciones');
+                    window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                
                 console.log('➕ Abriendo formulario de canción...');
                 this.abrirFormularioCancion();
             });
@@ -857,6 +865,13 @@ class ReproductorRomantico {
     }
 
     async eliminarCancion(id) {
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            alert('⚠️ Debes iniciar sesión para eliminar canciones');
+            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
         if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
 
         try {
