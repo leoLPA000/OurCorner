@@ -489,7 +489,7 @@ class AuthService {
                 errorCallback();
             } else {
                 alert('Debes iniciar sesión para realizar esta acción');
-                window.location.href = '/views/login.html';
+                window.location.href = '/OurCorner/views/login.html';
             }
             return null;
         }

@@ -349,8 +349,13 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
     showReactionFeedback(contenedor, result.action, emoji);
 
   } catch (err) {
-    console.error('Error al reaccionar:', err);
-    alert('Error al procesar la reacción.');
+    console.error('❌ Error al reaccionar:', err);
+    console.error('📋 Detalles del error:', {
+      message: err.message,
+      stack: err.stack,
+      name: err.name
+    });
+    alert('❌ Error al procesar la reacción: ' + (err.message || 'Error desconocido'));
   } finally {
     btnPrincipal.disabled = false;
   }
