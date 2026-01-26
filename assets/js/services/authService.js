@@ -88,7 +88,7 @@ class AuthService {
                         display_name: username,
                         created_at: new Date().toISOString()
                     },
-                    emailRedirectTo: `${window.location.origin}/views/email-confirmed.html`
+                    emailRedirectTo: `${window.location.origin}/OurCorner/views/email-confirmed.html`
                 }
             });
             
