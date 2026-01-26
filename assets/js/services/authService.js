@@ -416,7 +416,9 @@ class AuthService {
      * Verificar si el usuario está autenticado
      */
     isAuthenticated() {
-        return this.currentUser !== null;
+        const isAuth = this.currentUser !== null;
+        console.log('🔐 isAuthenticated:', isAuth, 'currentUser:', this.currentUser);
+        return isAuth;
     }
     
     /**

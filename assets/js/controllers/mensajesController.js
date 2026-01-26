@@ -287,7 +287,7 @@ class FormularioMensajes {
         if (!window.authService || !window.authService.isAuthenticated()) {
             this.mostrarNotificacion('⚠️ Debes iniciar sesión para publicar mensajes', 'error');
             setTimeout(() => {
-                window.location.href = '/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
             }, 2000);
             return;
         }
