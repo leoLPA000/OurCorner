@@ -17,8 +17,9 @@ class AuthService {
         
         // Escuchar cambios en el estado de autenticación
         this.supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth state changed:', event, session?.user?.email);
+            console.log('🔄 Auth state changed:', event, session?.user?.email);
             this.currentUser = session?.user || null;
+            console.log('✅ currentUser actualizado:', this.currentUser?.email || 'null');
             this.notifyAuthStateChange(event, session);
         });
         
@@ -416,8 +417,17 @@ class AuthService {
      * Verificar si el usuario está autenticado
      */
     isAuthenticated() {
+        // Si currentUser es null, intentar obtener la sesión de Supabase
+        if (!this.currentUser) {
+            // Verificar si hay sesión en Supabase de forma síncrona
+            const session = this.supabase?.auth?.getSession();
+            if (session) {
+                console.log('⚠️ currentUser era null, recuperando de sesión...');
+            }
+        }
+        
         const isAuth = this.currentUser !== null;
-        console.log('🔐 isAuthenticated:', isAuth, 'currentUser:', this.currentUser);
+        console.log('🔐 isAuthenticated:', isAuth, 'currentUser:', this.currentUser?.email || 'null');
         return isAuth;
     }
     
