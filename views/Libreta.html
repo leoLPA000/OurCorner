@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>Nuestros Eventos ❤️ | OurCorner</title>
   <link rel="stylesheet" href="../assets/css/estilos.css">
+  
+  <!-- jQuery (requerido para Turn.js) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Turn.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -113,12 +119,10 @@
     }
 
     .cuaderno-abierto {
-      display: flex;
       width: 900px;
       height: 650px;
       box-shadow: 0px 20px 30px rgba(0,0,0,0.2);
-      border-radius: 10px;
-      overflow: hidden;
+      margin: 0 auto;
       position: relative;
     }
 
@@ -136,24 +140,19 @@
       font-size: 1em;
       color: #555;
       overflow-y: auto;
-      display: none;
-      flex-shrink: 0;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
     }
 
     /* Hoja izquierda */
     .hoja.izquierda {
       border-left: 12px solid #800080;
-      border-right: 2px solid #C7B8EA;
+      border-right: none;
     }
 
     /* Hoja derecha */
     .hoja.derecha {
-      border-left: 2px solid #C7B8EA;
+      border-left: none;
       border-right: 12px solid #800080;
-    }
-
-    .hoja.activa {
-      display: block;
     }
 
     .hoja h2 {
@@ -250,59 +249,45 @@
 
     .navegacion-hojas {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      bottom: -80px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      pointer-events: none;
+      gap: 20px;
       z-index: 15;
+      pointer-events: all;
     }
 
     .zona-click {
-      width: 50%;
-      height: 100%;
-      pointer-events: all;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
       cursor: pointer;
-      position: relative;
-      transition: background-color 0.3s ease;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .zona-click:hover {
-      background-color: rgba(128, 0, 128, 0.05);
+    .zona-click:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, #764ba2, #667eea);
     }
 
     .zona-click .indicador {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 3em;
-      color: rgba(128, 0, 128, 0.2);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-
-    .zona-izquierda .indicador {
-      left: 20px;
-    }
-
-    .zona-derecha .indicador {
-      right: 20px;
-    }
-
-    .zona-click:hover .indicador {
-      opacity: 1;
+      font-size: 1.5em;
     }
 
     /* Ocultar zonas deshabilitadas */
     .zona-click.disabled {
-      pointer-events: none;
-      cursor: default;
-    }
-
-    .zona-click.disabled:hover {
-      background-color: transparent;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .pagina-numero {
@@ -415,11 +400,11 @@
 
     body.tema-oscuro .hoja.izquierda {
       border-left-color: #0f3460;
-      border-right-color: #800080;
+      border-right-color: transparent;
     }
 
     body.tema-oscuro .hoja.derecha {
-      border-left-color: #800080;
+      border-left-color: transparent;
       border-right-color: #0f3460;
     }
 
@@ -504,16 +489,25 @@
     /* Móviles y tablets pequeñas (≤768px) */
     @media (max-width: 768px) {
       .cuaderno-abierto {
-        flex-direction: column;
-        width: 95%;
-        height: 85vh;
+        width: 90vw;
+        height: 70vh;
       }
 
       .hoja {
-        width: 100%;
-        height: 100%;
-        border-left: 8px solid #C7B8EA !important;
-        border-right: 8px solid #C7B8EA !important;
+        width: 45vw;
+        height: 70vh;
+        padding: 15px;
+        font-size: 0.9em;
+      }
+
+      .navegacion-hojas {
+        bottom: -60px;
+        gap: 10px;
+      }
+
+      .zona-click {
+        padding: 10px 20px;
+        font-size: 0.9em;
       }
 
       /* Botones MÁS GRANDES para móvil */
@@ -570,7 +564,7 @@
     <a href="../index.html" class="btn-inicio">🏠 Inicio</a>
     <button class="cerrar" onclick="cerrarCuaderno()">✧ Cerrar</button>
 
-    <div class="cuaderno-abierto">
+    <div class="cuaderno-abierto" id="flipbook">
       
       <!-- Hoja 1: Calendario de Adviento -->
       <div class="hoja izquierda activa" data-hoja="1">
@@ -667,16 +661,14 @@
         <div class="pagina-numero">Página 4 de 4</div>
       </div>
 
-      <!-- Navegación entre hojas -->
-      <div class="navegacion-hojas">
-        <div class="zona-click zona-izquierda" onclick="cambiarHoja(-1)" title="Página anterior">
-          <div class="indicador">←</div>
-        </div>
-        <div class="zona-click zona-derecha" onclick="cambiarHoja(1)" title="Página siguiente">
-          <div class="indicador">→</div>
-        </div>
-      </div>
-
+    <!-- Navegación entre hojas -->
+    <div class="navegacion-hojas">
+      <button class="zona-click zona-izquierda" onclick="cambiarHoja(-1)">
+        <span class="indicador">←</span> Anterior
+      </button>
+      <button class="zona-click zona-derecha" onclick="cambiarHoja(1)">
+        Siguiente <span class="indicador">→</span>
+      </button>
     </div>
 
   </div>
@@ -684,152 +676,165 @@
   <!-- Scripts -->
   <script src="../assets/js/ui/darkMode.js"></script>
   <script>
-    let paginaActual = 1; // Página izquierda actual
-    const totalPaginas = 4;
+    $(document).ready(function() {
+      // Variables globales
+      let flipbookIniciado = false;
 
-    // Función para abrir y cerrar el cuaderno
-    function abrirCuaderno() {
-      document.getElementById('portada').style.display = 'none';
-      document.getElementById('paginaInterior').style.display = 'flex';
-      mostrarPaginas(paginaActual);
-      actualizarBotones();
-    }
-
-    function cerrarCuaderno() {
-      document.getElementById('paginaInterior').style.display = 'none';
-      document.getElementById('portada').style.display = 'block';
-      paginaActual = 1;
-      mostrarPaginas(paginaActual);
-    }
-
-    // Función para cambiar de hoja
-    function cambiarHoja(direccion) {
-      const esMobile = window.innerWidth <= 768;
-      
-      if (esMobile) {
-        // En móvil, avanza de 1 en 1
-        paginaActual += direccion;
-        if (paginaActual < 1) paginaActual = 1;
-        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
-      } else {
-        // En desktop, avanza de 2 en 2 (un par de páginas)
-        paginaActual += (direccion * 2);
-        if (paginaActual < 1) paginaActual = 1;
-        if (paginaActual > totalPaginas - 1) paginaActual = totalPaginas - 1;
-      }
-      
-      mostrarPaginas(paginaActual);
-      actualizarBotones();
-    }
-
-    // Mostrar páginas (par de hojas en desktop, una en móvil)
-    function mostrarPaginas(pagina) {
-      const hojas = document.querySelectorAll('.hoja');
-      const esMobile = window.innerWidth <= 768;
-      
-      hojas.forEach(hoja => {
-        hoja.classList.remove('activa');
-      });
-      
-      if (esMobile) {
-        // En móvil: mostrar solo una página
-        const hojaActual = document.querySelector(`[data-hoja="${pagina}"]`);
-        if (hojaActual) hojaActual.classList.add('activa');
-      } else {
-        // En desktop: mostrar dos páginas (izquierda y derecha)
-        const hojaIzquierda = document.querySelector(`[data-hoja="${pagina}"]`);
-        const hojaDerecha = document.querySelector(`[data-hoja="${pagina + 1}"]`);
+      // Función para abrir el cuaderno
+      window.abrirCuaderno = function() {
+        document.getElementById('portada').style.display = 'none';
+        document.getElementById('paginaInterior').style.display = 'flex';
         
-        if (hojaIzquierda) hojaIzquierda.classList.add('activa');
-        if (hojaDerecha) hojaDerecha.classList.add('activa');
-      }
-    }
-
-    // Actualizar estado de los botones
-    function actualizarBotones() {
-      const zonaIzq = document.querySelector('.zona-izquierda');
-      const zonaDer = document.querySelector('.zona-derecha');
-      const esMobile = window.innerWidth <= 768;
-      
-      // Deshabilitar zonas según la página actual
-      if (paginaActual === 1) {
-        zonaIzq.classList.add('disabled');
-      } else {
-        zonaIzq.classList.remove('disabled');
-      }
-      
-      if (esMobile) {
-        if (paginaActual === totalPaginas) {
-          zonaDer.classList.add('disabled');
-        } else {
-          zonaDer.classList.remove('disabled');
+        // Inicializar Turn.js solo una vez
+        if (!flipbookIniciado) {
+          inicializarFlipbook();
+          flipbookIniciado = true;
         }
-      } else {
-        if (paginaActual >= totalPaginas - 1) {
-          zonaDer.classList.add('disabled');
+        
+        actualizarBotones();
+      };
+
+      // Función para cerrar el cuaderno
+      window.cerrarCuaderno = function() {
+        document.getElementById('paginaInterior').style.display = 'none';
+        document.getElementById('portada').style.display = 'block';
+        
+        // Volver a la primera página
+        if (flipbookIniciado) {
+          $('#flipbook').turn('page', 1);
+        }
+      };
+
+      // Inicializar el flipbook con Turn.js
+      function inicializarFlipbook() {
+        $('#flipbook').turn({
+          width: 900,
+          height: 650,
+          elevation: 50,
+          gradients: true,
+          autoCenter: true,
+          acceleration: true,
+          duration: 1000,
+          pages: 4,
+          when: {
+            turning: function(event, page, view) {
+              // Prevenir volteo si está en los límites
+              const currentPage = $('#flipbook').turn('page');
+              if ((currentPage === 1 && page < 1) || (currentPage === 4 && page > 4)) {
+                event.preventDefault();
+              }
+            },
+            turned: function(event, page, view) {
+              actualizarBotones();
+            }
+          }
+        });
+
+        // Ajustar tamaño según la pantalla
+        ajustarTamanoFlipbook();
+      }
+
+      // Ajustar tamaño del flipbook según el viewport
+      function ajustarTamanoFlipbook() {
+        if (!flipbookIniciado) return;
+        
+        const containerWidth = window.innerWidth;
+        
+        if (containerWidth <= 768) {
+          const newWidth = Math.min(containerWidth * 0.9, 900);
+          const newHeight = Math.min(window.innerHeight * 0.7, 650);
+          $('#flipbook').turn('size', newWidth, newHeight);
         } else {
-          zonaDer.classList.remove('disabled');
+          $('#flipbook').turn('size', 900, 650);
         }
       }
-    }
 
-    // Variables para gestos táctiles (swipe)
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const minSwipeDistance = 50;
-
-    // Detectar inicio del toque
-    document.querySelector('.cuaderno-abierto').addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    // Detectar fin del toque
-    document.querySelector('.cuaderno-abierto').addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, { passive: true });
-
-    // Manejar el gesto de deslizamiento
-    function handleSwipe() {
-      const swipeDistance = touchEndX - touchStartX;
-      
-      if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-          // Deslizamiento hacia la derecha - página anterior
-          cambiarHoja(-1);
+      // Función para cambiar de página (conectada a los botones)
+      window.cambiarHoja = function(direccion) {
+        if (!flipbookIniciado) return;
+        
+        if (direccion > 0) {
+          $('#flipbook').turn('next');
         } else {
-          // Deslizamiento hacia la izquierda - página siguiente
-          cambiarHoja(1);
+          $('#flipbook').turn('previous');
+        }
+      };
+
+      // Actualizar estado de los botones
+      function actualizarBotones() {
+        if (!flipbookIniciado) return;
+        
+        const currentPage = $('#flipbook').turn('page');
+        const totalPages = $('#flipbook').turn('pages');
+        
+        const zonaIzq = $('.zona-izquierda');
+        const zonaDer = $('.zona-derecha');
+        
+        // Deshabilitar botón izquierdo en primera página
+        if (currentPage === 1) {
+          zonaIzq.addClass('disabled');
+        } else {
+          zonaIzq.removeClass('disabled');
+        }
+        
+        // Deshabilitar botón derecho en última página
+        if (currentPage === totalPages) {
+          zonaDer.addClass('disabled');
+        } else {
+          zonaDer.removeClass('disabled');
         }
       }
-    }
 
-    // Guardar firmas en localStorage
-    document.querySelectorAll('.firma-input').forEach((textarea, index) => {
-      const key = `firma-evento-${index + 1}`;
-      
-      // Cargar firma guardada
-      const firmaGuardada = localStorage.getItem(key);
-      if (firmaGuardada) {
-        textarea.value = firmaGuardada;
-      }
-      
-      // Guardar firma al escribir
-      textarea.addEventListener('input', function() {
-        localStorage.setItem(key, this.value);
+      // Gestos táctiles para móvil
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const minSwipeDistance = 50;
+
+      $(document).on('touchstart', '#flipbook', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
       });
-    });
 
-    // Inicializar al cargar
-    window.addEventListener('load', () => {
-      mostrarPaginas(paginaActual);
-      actualizarBotones();
-    });
+      $(document).on('touchend', '#flipbook', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
 
-    // Actualizar al cambiar tamaño de ventana
-    window.addEventListener('resize', () => {
-      mostrarPaginas(paginaActual);
-      actualizarBotones();
+      function handleSwipe() {
+        if (!flipbookIniciado) return;
+        
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+          if (swipeDistance > 0) {
+            // Deslizamiento hacia la derecha - página anterior
+            $('#flipbook').turn('previous');
+          } else {
+            // Deslizamiento hacia la izquierda - página siguiente
+            $('#flipbook').turn('next');
+          }
+        }
+      }
+
+      // Guardar firmas en localStorage
+      $('.firma-input').each(function(index) {
+        const key = `firma-evento-${index + 1}`;
+        
+        // Cargar firma guardada
+        const firmaGuardada = localStorage.getItem(key);
+        if (firmaGuardada) {
+          $(this).val(firmaGuardada);
+        }
+        
+        // Guardar firma al escribir
+        $(this).on('input', function() {
+          localStorage.setItem(key, $(this).val());
+        });
+      });
+
+      // Ajustar tamaño al redimensionar ventana
+      $(window).on('resize', function() {
+        ajustarTamanoFlipbook();
+      });
     });
   </script>
 
