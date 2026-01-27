@@ -250,38 +250,59 @@
 
     .navegacion-hojas {
       position: absolute;
-      bottom: 5px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
-      gap: 15px;
+      pointer-events: none;
       z-index: 15;
     }
 
-  
-      
-
-    .btn-nav {
-      background: linear-gradient(135deg, #C7B8EA, #800080);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 25px;
+    .zona-click {
+      width: 50%;
+      height: 100%;
+      pointer-events: all;
       cursor: pointer;
-      font-size: 1.1em;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(128, 0, 128, 0.3);
+      position: relative;
+      transition: background-color 0.3s ease;
     }
 
-    .btn-nav:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(128, 0, 128, 0.5);
+    .zona-click:hover {
+      background-color: rgba(128, 0, 128, 0.05);
     }
 
-    .btn-nav:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .zona-click .indicador {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3em;
+      color: rgba(128, 0, 128, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .zona-izquierda .indicador {
+      left: 20px;
+    }
+
+    .zona-derecha .indicador {
+      right: 20px;
+    }
+
+    .zona-click:hover .indicador {
+      opacity: 1;
+    }
+
+    /* Ocultar zonas deshabilitadas */
+    .zona-click.disabled {
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .zona-click.disabled:hover {
+      background-color: transparent;
     }
 
     .pagina-numero {
@@ -469,7 +490,11 @@
     }
 
     .navegacion-hojas {
-        bottom: -60px;
+        bottom: 0;
+      }
+
+      .zona-click .indicador {
+        font-size: 2em;
       }
     
     /* ============================================================================
@@ -489,11 +514,6 @@
         height: 100%;
         border-left: 8px solid #C7B8EA !important;
         border-right: 8px solid #C7B8EA !important;
-      }
-
-      .btn-nav {
-        padding: 10px 20px;
-        font-size: 1em;
       }
 
       /* Botones MÁS GRANDES para móvil */
@@ -649,8 +669,12 @@
 
       <!-- Navegación entre hojas -->
       <div class="navegacion-hojas">
-        <button class="btn-nav" id="btnAnterior" onclick="cambiarHoja(-1)">← Anterior</button>
-        <button class="btn-nav" id="btnSiguiente" onclick="cambiarHoja(1)">Siguiente →</button>
+        <div class="zona-click zona-izquierda" onclick="cambiarHoja(-1)" title="Página anterior">
+          <div class="indicador">←</div>
+        </div>
+        <div class="zona-click zona-derecha" onclick="cambiarHoja(1)" title="Página siguiente">
+          <div class="indicador">→</div>
+        </div>
       </div>
 
     </div>
@@ -723,16 +747,60 @@
 
     // Actualizar estado de los botones
     function actualizarBotones() {
-      const btnAnterior = document.getElementById('btnAnterior');
-      const btnSiguiente = document.getElementById('btnSiguiente');
+      const zonaIzq = document.querySelector('.zona-izquierda');
+      const zonaDer = document.querySelector('.zona-derecha');
       const esMobile = window.innerWidth <= 768;
       
-      btnAnterior.disabled = paginaActual === 1;
+      // Deshabilitar zonas según la página actual
+      if (paginaActual === 1) {
+        zonaIzq.classList.add('disabled');
+      } else {
+        zonaIzq.classList.remove('disabled');
+      }
       
       if (esMobile) {
-        btnSiguiente.disabled = paginaActual === totalPaginas;
+        if (paginaActual === totalPaginas) {
+          zonaDer.classList.add('disabled');
+        } else {
+          zonaDer.classList.remove('disabled');
+        }
       } else {
-        btnSiguiente.disabled = paginaActual >= totalPaginas - 1;
+        if (paginaActual >= totalPaginas - 1) {
+          zonaDer.classList.add('disabled');
+        } else {
+          zonaDer.classList.remove('disabled');
+        }
+      }
+    }
+
+    // Variables para gestos táctiles (swipe)
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const minSwipeDistance = 50;
+
+    // Detectar inicio del toque
+    document.querySelector('.cuaderno-abierto').addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    // Detectar fin del toque
+    document.querySelector('.cuaderno-abierto').addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    // Manejar el gesto de deslizamiento
+    function handleSwipe() {
+      const swipeDistance = touchEndX - touchStartX;
+      
+      if (Math.abs(swipeDistance) > minSwipeDistance) {
+        if (swipeDistance > 0) {
+          // Deslizamiento hacia la derecha - página anterior
+          cambiarHoja(-1);
+        } else {
+          // Deslizamiento hacia la izquierda - página siguiente
+          cambiarHoja(1);
+        }
       }
     }
 
