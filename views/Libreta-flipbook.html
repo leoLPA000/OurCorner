@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestros Eventos ❤️ | OurCorner - Flipbook</title>
+  <link rel="stylesheet" href="../assets/css/estilos.css">
+  
+  <!-- jQuery (requerido para Turn.js) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Turn.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS';
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    #paginaInterior {
+      width: 100%;
+      max-width: 1200px;
+      position: relative;
+    }
+
+    /* Contenedor del flipbook */
+    .flipbook-container {
+      margin: 0 auto;
+      position: relative;
+      background: transparent;
+      padding: 40px 20px;
+    }
+
+    /* El flipbook */
+    #flipbook {
+      width: 900px;
+      height: 650px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Estilo de cada página */
+    .page {
+      width: 450px;
+      height: 650px;
+      background: repeating-linear-gradient(
+        to bottom,
+        #fff,
+        #fff 25px,
+        #ffc0cb4d 25px,
+        #ffc0cb4d 26px
+      );
+      padding: 30px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Páginas especiales */
+    .page.portada {
+      background: repeating-linear-gradient(
+        0deg,
+        #800080,
+        #C7B8EA 30px,
+        #800080 30px,
+        #C7B8EA 60px
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-left: 60px solid #800080;
+    }
+
+    .page.contraportada {
+      background: repeating-linear-gradient(
+        0deg,
+        #800080,
+        #C7B8EA 30px,
+        #800080 30px,
+        #C7B8EA 60px
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 60px solid #800080;
+    }
+
+    /* Contenido de las páginas */
+    .page h2 {
+      color: #800080;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    .evento-card {
+      background: #fff;
+      border: 3px solid #C7B8EA;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 4px 8px rgba(128, 0, 128, 0.1);
+    }
+
+    .evento-titulo {
+      color: #800080;
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .evento-fecha {
+      color: #666;
+      font-size: 0.95em;
+      text-align: center;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .evento-descripcion {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+
+    .evento-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin: 15px 0;
+      transition: all 0.3s ease;
+    }
+
+    .evento-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+    }
+
+    .firma-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px dashed #C7B8EA;
+    }
+
+    .firma-label {
+      color: #800080;
+      font-size: 1em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .firma-input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #C7B8EA;
+      border-radius: 8px;
+      font-family: 'Brush Script MT', cursive;
+      font-size: 1.2em;
+      color: #555;
+      background: #fefefe;
+      resize: none;
+    }
+
+    .titulo-portada {
+      font-size: 2.5em;
+      color: #000000;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 4px;
+      margin: 20px 0;
+    }
+
+    .titulo-portada span {
+      display: inline-block;
+      background-color: #C7B8EA;
+      border-radius: 10px;
+      padding: 5px 10px;
+      margin: 0 3px;
+    }
+
+    .etiqueta {
+      background: white;
+      padding: 15px 30px;
+      border: 2px solid pink;
+      border-radius: 10px;
+      font-size: 1.1em;
+      color: #000000;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    /* Controles de navegación */
+    .controls {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .control-btn {
+      background: linear-gradient(135deg, #C7B8EA, #800080);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(128, 0, 128, 0.3);
+    }
+
+    .control-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(128, 0, 128, 0.5);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .page-counter {
+      color: white;
+      font-size: 1.2em;
+      margin: 20px 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Botones superiores */
+    .top-buttons {
+      position: fixed;
+      top: 20px;
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 1000;
+      padding: 0 20px;
+    }
+
+    .btn-top {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50px;
+      padding: 15px 25px;
+      font-size: 1.2em;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-top:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Tema oscuro */
+    body.tema-oscuro {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
+    body.tema-oscuro .page {
+      background: repeating-linear-gradient(
+        to bottom,
+        #16213e,
+        #16213e 25px,
+        #800080 25px,
+        #800080 26px
+      );
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .evento-card {
+      background: #0f3460;
+      border-color: #800080;
+    }
+
+    body.tema-oscuro .evento-titulo {
+      color: #ffc0cb;
+    }
+
+    body.tema-oscuro .evento-descripcion,
+    body.tema-oscuro .evento-fecha {
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .firma-input {
+      background: #0f3460;
+      color: #C7B8EA;
+      border-color: #800080;
+    }
+
+    /* Responsive */
+    @media (max-width: 1000px) {
+      #flipbook {
+        width: 600px;
+        height: 450px;
+      }
+
+      .page {
+        width: 300px;
+        height: 450px;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      #flipbook {
+        width: 90vw;
+        height: 70vh;
+      }
+
+      .page {
+        width: 45vw;
+        height: 70vh;
+        padding: 15px;
+        font-size: 0.9em;
+      }
+
+      .evento-titulo {
+        font-size: 1.2em;
+      }
+
+      .control-btn {
+        padding: 10px 20px;
+        font-size: 1em;
+      }
+
+      .btn-top {
+        padding: 10px 15px;
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="top-buttons">
+    <a href="../index.html" class="btn-top">🏠 Inicio</a>
+    <button class="btn-top" onclick="toggleFullscreen()">⛶ Pantalla Completa</button>
+  </div>
+
+  <div id="paginaInterior">
+    <div class="flipbook-container">
+      
+      <div id="flipbook">
+        
+        <!-- Portada -->
+        <div class="page portada">
+          <div class="titulo-portada">
+            <span>N</span><span>O</span><span>T</span><span>E</span> LOVE
+          </div>
+          <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG20.png" 
+               alt="Kawaii" style="width: 100px; margin: 20px 0;">
+          <div class="etiqueta">DEDICADO A ROCÍO ❤️</div>
+          <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG43.png" 
+               alt="Kawaii" style="width: 100px; margin: 20px 0;">
+          <p style="margin-top: 30px; font-style: italic; color: #000;">hecho con amor para ti</p>
+        </div>
+
+        <!-- Página 1: Calendario de Adviento -->
+        <div class="page">
+          <h2>🎄 Calendario de Adviento</h2>
+          
+          <div class="evento-card">
+            <div class="evento-titulo">Navidad Mágica</div>
+            <div class="evento-fecha">📅 Diciembre 2025</div>
+            
+            <div class="evento-descripcion">
+              Este calendario de adviento fue creado especialmente para ti, mi amor. Cada día representa un momento mágico que compartimos juntos durante esta época tan especial del año.
+            </div>
+            
+            <a href="calendario-adviento.html" class="evento-btn">
+              ✨ Abrir Calendario de Adviento
+            </a>
+            
+            <div class="firma-section">
+              <label class="firma-label">💝 Tu firma o dedicatoria:</label>
+              <textarea class="firma-input" rows="2" placeholder="Escribe aquí..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Página 2: Fuegos Artificiales -->
+        <div class="page">
+          <h2>🎆 Año Nuevo</h2>
+          
+          <div class="evento-card">
+            <div class="evento-titulo">Fuegos Artificiales</div>
+            <div class="evento-fecha">📅 31 de Diciembre 2025</div>
+            
+            <div class="evento-descripcion">
+              Celebramos juntos la llegada del nuevo año con esta hermosa página de fuegos artificiales. Cada clic crea un nuevo espectáculo de luces, así como cada momento contigo ilumina mi vida.
+            </div>
+            
+            <a href="fuegos-artificiales.html" class="evento-btn">
+              🎇 Ver Fuegos Artificiales
+            </a>
+            
+            <div class="firma-section">
+              <label class="firma-label">💝 Tu firma o dedicatoria:</label>
+              <textarea class="firma-input" rows="2" placeholder="Escribe aquí..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Página 3: Atardecer Estrellado -->
+        <div class="page">
+          <h2>🌌 Atardecer Estrellado</h2>
+          
+          <div class="evento-card">
+            <div class="evento-titulo">Nuestro Universo</div>
+            <div class="evento-fecha">📅 Siempre</div>
+            
+            <div class="evento-descripcion">
+              Un atardecer estrellado que representa nuestro amor infinito. Tú eres mi universo entero, y cada estrella en este cielo representa un "te amo" que quiero decirte.
+            </div>
+            
+            <a href="Atardecer_Estrellado.html" class="evento-btn">
+              💖 Ver Atardecer Estrellado
+            </a>
+            
+            <div class="firma-section">
+              <label class="firma-label">💝 Tu firma o dedicatoria:</label>
+              <textarea class="firma-input" rows="2" placeholder="Escribe aquí..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contraportada -->
+        <div class="page contraportada">
+          <div style="text-align: center; color: #fff; padding: 40px;">
+            <h2 style="color: #FFD700; font-size: 2.5em; margin-bottom: 30px;">✨ Próximamente ✨</h2>
+            <p style="font-size: 1.3em; line-height: 1.8; margin: 20px 0;">
+              Esta libreta está esperando por nuestros próximos momentos especiales juntos.
+            </p>
+            <p style="font-size: 1.5em; font-style: italic; margin: 40px 0; color: #ffc0cb;">
+              "Lo mejor de nuestra historia aún está por escribirse..."
+            </p>
+            <p style="font-size: 2em; margin-top: 50px;">💕</p>
+            <p style="font-size: 1.2em; margin-top: 30px;">Te amo, mi Rocío</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Controles -->
+      <div class="controls">
+        <div class="page-counter">
+          <span id="current-page">1</span> / <span id="total-pages">5</span>
+        </div>
+        <button class="control-btn" id="prev-btn" onclick="prevPage()">← Anterior</button>
+        <button class="control-btn" id="next-btn" onclick="nextPage()">Siguiente →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/ui/darkMode.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Configurar el flipbook
+      $('#flipbook').turn({
+        width: 900,
+        height: 650,
+        elevation: 50,
+        gradients: true,
+        autoCenter: true,
+        acceleration: true,
+        duration: 1000,
+        pages: 5,
+        when: {
+          turned: function(event, page, view) {
+            $('#current-page').text(page);
+            updateButtons(page);
+          }
+        }
+      });
+
+      // Ajustar tamaño según pantalla
+      function resizeFlipbook() {
+        const containerWidth = $('.flipbook-container').width();
+        
+        if (containerWidth < 1000) {
+          const scale = Math.min(containerWidth / 900, 1);
+          $('#flipbook').turn('size', 600, 450);
+        } else if (containerWidth < 700) {
+          const viewportWidth = window.innerWidth * 0.9;
+          const viewportHeight = window.innerHeight * 0.7;
+          $('#flipbook').turn('size', viewportWidth, viewportHeight);
+        }
+      }
+
+      // Botones de navegación
+      window.nextPage = function() {
+        $('#flipbook').turn('next');
+      };
+
+      window.prevPage = function() {
+        $('#flipbook').turn('previous');
+      };
+
+      // Actualizar estado de botones
+      function updateButtons(page) {
+        const totalPages = $('#flipbook').turn('pages');
+        $('#prev-btn').prop('disabled', page === 1);
+        $('#next-btn').prop('disabled', page === totalPages);
+      }
+
+      // Pantalla completa
+      window.toggleFullscreen = function() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      };
+
+      // Gestos táctiles para móvil
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      $('#flipbook').on('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      $('#flipbook').on('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const swipeDistance = touchEndX - touchStartX;
+        if (Math.abs(swipeDistance) > 50) {
+          if (swipeDistance > 0) {
+            prevPage();
+          } else {
+            nextPage();
+          }
+        }
+      }
+
+      // Guardar firmas en localStorage
+      $('.firma-input').each(function(index) {
+        const key = `firma-evento-flipbook-${index + 1}`;
+        const savedSignature = localStorage.getItem(key);
+        
+        if (savedSignature) {
+          $(this).val(savedSignature);
+        }
+        
+        $(this).on('input', function() {
+          localStorage.setItem(key, $(this).val());
+        });
+      });
+
+      // Ajustar tamaño al cargar y redimensionar
+      resizeFlipbook();
+      $(window).resize(resizeFlipbook);
+
+      // Inicializar página actual
+      $('#total-pages').text($('#flipbook').turn('pages'));
+      updateButtons(1);
+    });
+  </script>
+
+</body>
+</html>
