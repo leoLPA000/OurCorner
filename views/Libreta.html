@@ -132,13 +132,24 @@
         #ffc0cb4d 25px,
         #ffc0cb4d 26px
       );
-      border-left: 8px solid #C7B8EA;
-      border-right: 8px solid #C7B8EA;
       padding: 30px;
       font-size: 1em;
       color: #555;
       overflow-y: auto;
       display: none;
+      flex-shrink: 0;
+    }
+
+    /* Hoja izquierda */
+    .hoja.izquierda {
+      border-left: 12px solid #800080;
+      border-right: 2px solid #C7B8EA;
+    }
+
+    /* Hoja derecha */
+    .hoja.derecha {
+      border-left: 2px solid #C7B8EA;
+      border-right: 12px solid #800080;
     }
 
     .hoja.activa {
@@ -376,8 +387,16 @@
         #800080 26px
       );
       color: #C7B8EA;
-      border-left-color: #800080;
+    }
+
+    body.tema-oscuro .hoja.izquierda {
+      border-left-color: #0f3460;
       border-right-color: #800080;
+    }
+
+    body.tema-oscuro .hoja.derecha {
+      border-left-color: #800080;
+      border-right-color: #0f3460;
     }
 
     body.tema-oscuro .hoja h2 {
@@ -462,6 +481,8 @@
       .hoja {
         width: 100%;
         height: 100%;
+        border-left: 8px solid #C7B8EA !important;
+        border-right: 8px solid #C7B8EA !important;
       }
 
       .navegacion-hojas {
@@ -530,7 +551,7 @@
     <div class="cuaderno-abierto">
       
       <!-- Hoja 1: Calendario de Adviento -->
-      <div class="hoja activa" data-hoja="1">
+      <div class="hoja izquierda activa" data-hoja="1">
         <h2>🎄 Calendario de Adviento</h2>
         
         <div class="evento-card">
@@ -555,7 +576,7 @@
       </div>
 
       <!-- Hoja 2: Fuegos Artificiales -->
-      <div class="hoja" data-hoja="2">
+      <div class="hoja derecha activa" data-hoja="2">
         <h2>🎆 Año Nuevo</h2>
         
         <div class="evento-card">
@@ -580,7 +601,7 @@
       </div>
 
       <!-- Hoja 3: Atardecer Estrellado -->
-      <div class="hoja" data-hoja="3">
+      <div class="hoja izquierda" data-hoja="3">
         <h2>🌌 Atardecer Estrellado</h2>
         
         <div class="evento-card">
@@ -601,7 +622,27 @@
           </div>
         </div>
 
-        <div class="pagina-numero">Página 3 de 3</div>
+        <div class="pagina-numero">Página 3 de 4</div>
+      </div>
+
+      <!-- Hoja 4: Página en blanco para futuros eventos -->
+      <div class="hoja derecha" data-hoja="4">
+        <h2>✨ Próximamente</h2>
+        
+        <div class="evento-card" style="min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <div style="font-size: 3em; margin-bottom: 20px;">📝</div>
+          <div class="evento-titulo">Espacio para Más Recuerdos</div>
+          
+          <div class="evento-descripcion" style="text-align: center;">
+            Esta página está esperando por nuestros próximos momentos especiales juntos. Cada día contigo es una nueva aventura que merece ser recordada.
+          </div>
+          
+          <div style="margin-top: 30px; color: #800080; font-style: italic; text-align: center;">
+            "Lo mejor de nuestra historia aún está por escribirse..." 💕
+          </div>
+        </div>
+
+        <div class="pagina-numero">Página 4 de 4</div>
       </div>
 
     </div>
@@ -616,52 +657,80 @@
   <!-- Scripts -->
   <script src="../assets/js/ui/darkMode.js"></script>
   <script>
-    let hojaActual = 1;
-    const totalHojas = 3;
+    let paginaActual = 1; // Página izquierda actual
+    const totalPaginas = 4;
 
     // Función para abrir y cerrar el cuaderno
     function abrirCuaderno() {
       document.getElementById('portada').style.display = 'none';
       document.getElementById('paginaInterior').style.display = 'flex';
+      mostrarPaginas(paginaActual);
       actualizarBotones();
     }
 
     function cerrarCuaderno() {
       document.getElementById('paginaInterior').style.display = 'none';
       document.getElementById('portada').style.display = 'block';
-      hojaActual = 1;
-      mostrarHoja(hojaActual);
+      paginaActual = 1;
+      mostrarPaginas(paginaActual);
     }
 
     // Función para cambiar de hoja
     function cambiarHoja(direccion) {
-      hojaActual += direccion;
+      const esMobile = window.innerWidth <= 768;
       
-      if (hojaActual < 1) hojaActual = 1;
-      if (hojaActual > totalHojas) hojaActual = totalHojas;
+      if (esMobile) {
+        // En móvil, avanza de 1 en 1
+        paginaActual += direccion;
+        if (paginaActual < 1) paginaActual = 1;
+        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+      } else {
+        // En desktop, avanza de 2 en 2 (un par de páginas)
+        paginaActual += (direccion * 2);
+        if (paginaActual < 1) paginaActual = 1;
+        if (paginaActual > totalPaginas - 1) paginaActual = totalPaginas - 1;
+      }
       
-      mostrarHoja(hojaActual);
+      mostrarPaginas(paginaActual);
       actualizarBotones();
     }
 
-    // Mostrar hoja específica
-    function mostrarHoja(numero) {
+    // Mostrar páginas (par de hojas en desktop, una en móvil)
+    function mostrarPaginas(pagina) {
       const hojas = document.querySelectorAll('.hoja');
+      const esMobile = window.innerWidth <= 768;
+      
       hojas.forEach(hoja => {
         hoja.classList.remove('activa');
-        if (parseInt(hoja.getAttribute('data-hoja')) === numero) {
-          hoja.classList.add('activa');
-        }
       });
+      
+      if (esMobile) {
+        // En móvil: mostrar solo una página
+        const hojaActual = document.querySelector(`[data-hoja="${pagina}"]`);
+        if (hojaActual) hojaActual.classList.add('activa');
+      } else {
+        // En desktop: mostrar dos páginas (izquierda y derecha)
+        const hojaIzquierda = document.querySelector(`[data-hoja="${pagina}"]`);
+        const hojaDerecha = document.querySelector(`[data-hoja="${pagina + 1}"]`);
+        
+        if (hojaIzquierda) hojaIzquierda.classList.add('activa');
+        if (hojaDerecha) hojaDerecha.classList.add('activa');
+      }
     }
 
     // Actualizar estado de los botones
     function actualizarBotones() {
       const btnAnterior = document.getElementById('btnAnterior');
       const btnSiguiente = document.getElementById('btnSiguiente');
+      const esMobile = window.innerWidth <= 768;
       
-      btnAnterior.disabled = hojaActual === 1;
-      btnSiguiente.disabled = hojaActual === totalHojas;
+      btnAnterior.disabled = paginaActual === 1;
+      
+      if (esMobile) {
+        btnSiguiente.disabled = paginaActual === totalPaginas;
+      } else {
+        btnSiguiente.disabled = paginaActual >= totalPaginas - 1;
+      }
     }
 
     // Guardar firmas en localStorage
@@ -682,7 +751,13 @@
 
     // Inicializar al cargar
     window.addEventListener('load', () => {
-      mostrarHoja(hojaActual);
+      mostrarPaginas(paginaActual);
+      actualizarBotones();
+    });
+
+    // Actualizar al cambiar tamaño de ventana
+    window.addEventListener('resize', () => {
+      mostrarPaginas(paginaActual);
       actualizarBotones();
     });
   </script>
