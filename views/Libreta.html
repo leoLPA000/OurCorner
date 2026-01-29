@@ -9,6 +9,8 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Turn.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  <!-- JSONBin para sincronización de firmas -->
+  <script src="../assets/js/config/jsonbin.js"></script>
   
   <style>
     * {
@@ -818,18 +820,52 @@
       // Guardar firmas en localStorage
       $('.firma-input').each(function(index) {
         const key = `firma-evento-${index + 1}`;
+        const eventoId = `evento${index + 1}`;
+        const $textarea = $(this);
         
-        // Cargar firma guardada
-        const firmaGuardada = localStorage.getItem(key);
-        if (firmaGuardada) {
-          $(this).val(firmaGuardada);
-        }
+        // Cargar firmas desde JSONBin al iniciar
+        FirmasSync.cargarFirmas().then(firmas => {
+          if (firmas && firmas[eventoId]) {
+            $textarea.val(firmas[eventoId]);
+          } else {
+            // Fallback: cargar desde localStorage si JSONBin falla
+            const firmaGuardada = localStorage.getItem(key);
+            if (firmaGuardada) {
+              $textarea.val(firmaGuardada);
+            }
+          }
+        });
         
-        // Guardar firma al escribir
-        $(this).on('input', function() {
-          localStorage.setItem(key, $(this).val());
+        // Guardar firma al escribir (sincronizada + localStorage como backup)
+        $textarea.on('input', function() {
+          const texto = $(this).val();
+          
+          // Guardar en localStorage como backup
+          localStorage.setItem(key, texto);
+          
+          // Sincronizar con JSONBin (con debounce de 2 segundos)
+          FirmasSync.guardarFirmaIndividual(eventoId, texto);
         });
       });
+
+      // Recargar firmas cada 30 segundos para ver cambios de otros usuarios
+      setInterval(async () => {
+        const firmas = await FirmasSync.cargarFirmas();
+        if (firmas) {
+          $('.firma-input').each(function(index) {
+            const eventoId = `evento${index + 1}`;
+            const $textarea = $(this);
+            
+            // Solo actualizar si el usuario no está escribiendo
+            if (!$textarea.is(':focus') && firmas[eventoId]) {
+              if ($textarea.val() !== firmas[eventoId]) {
+                $textarea.val(firmas[eventoId]);
+                console.log(`🔄 Firma ${eventoId} actualizada desde el servidor`);
+              }
+            }
+          });
+        }
+      }, 30000); // 30 segundos
 
       // Ajustar tamaño al redimensionar ventana
       $(window).on('resize', function() {
