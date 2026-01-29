@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Análisis de Visitantes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logs-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .filter-input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .log-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .log-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .log-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .tag-mobile { background: #ffd93d; color: #333; }
+        .tag-desktop { background: #6bcf7f; color: white; }
+        .tag-tablet { background: #4ecdc4; color: white; }
+        .tag-bot { background: #ff6b6b; color: white; }
+
+        .details-btn {
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .detail-section {
+            margin: 20px 0;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .detail-value {
+            color: #333;
+            word-break: break-word;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .export-btn {
+            background: #2ecc71;
+        }
+
+        .clear-btn {
+            background: #e74c3c;
+        }
+
+        .map-container {
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .log-table {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Panel de Análisis de Visitantes</h1>
+            <p>Monitoreo en tiempo real de actividad web</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">Total Visitas</div>
+                <div class="stat-number" id="totalVisitas">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Visitas Hoy</div>
+                <div class="stat-number" id="visitasHoy">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">IPs Únicas</div>
+                <div class="stat-number" id="ipsUnicas">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Países</div>
+                <div class="stat-number" id="paises">0</div>
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <div class="filters">
+                <input type="text" class="filter-input" id="filterIP" placeholder="Filtrar por IP">
+                <input type="text" class="filter-input" id="filterPais" placeholder="Filtrar por país">
+                <select class="filter-input" id="filterDispositivo">
+                    <option value="">Todos los dispositivos</option>
+                    <option value="Móvil">Móvil</option>
+                    <option value="Desktop">Desktop</option>
+                    <option value="Tablet">Tablet</option>
+                </select>
+                <button class="btn" onclick="cargarLogs()">🔄 Actualizar</button>
+                <button class="btn export-btn" onclick="exportarCSV()">📥 Exportar CSV</button>
+            </div>
+
+            <div id="logsContent" class="loading">
+                Cargando datos...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de detalles -->
+    <div id="detallesModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración - CAMBIA ESTO
+        const SECRET_KEY = 'tu_clave_secreta_aqui_' + btoa(window.location.pathname);
+        const API_ENDPOINT = '../archivosPHP/ip-logger.php';
+
+        let logsData = [];
+
+        // Cargar logs al iniciar
+        window.onload = function() {
+            cargarLogs();
+            // Auto-actualizar cada 30 segundos
+            setInterval(cargarLogs, 30000);
+        };
+
+        async function cargarLogs() {
+            try {
+                const response = await fetch(`${API_ENDPOINT}?action=view&key=${SECRET_KEY}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    logsData = data.logs || [];
+                    actualizarEstadisticas();
+                    mostrarLogs(logsData);
+                } else {
+                    document.getElementById('logsContent').innerHTML = 
+                        '<p style="color: #e74c3c;">❌ Error: ' + data.message + '</p>';
+                }
+            } catch (error) {
+                document.getElementById('logsContent').innerHTML = 
+                    '<p style="color: #e74c3c;">❌ Error al cargar datos: ' + error.message + '</p>';
+            }
+        }
+
+        function actualizarEstadisticas() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const visitasHoy = logsData.filter(log => log.timestamp.startsWith(hoy)).length;
+            const ipsUnicas = new Set(logsData.map(log => log.ip_publica)).size;
+            const paises = new Set(logsData.map(log => log.pais)).size;
+
+            document.getElementById('totalVisitas').textContent = logsData.length;
+            document.getElementById('visitasHoy').textContent = visitasHoy;
+            document.getElementById('ipsUnicas').textContent = ipsUnicas;
+            document.getElementById('paises').textContent = paises;
+        }
+
+        function mostrarLogs(logs) {
+            if (logs.length === 0) {
+                document.getElementById('logsContent').innerHTML = '<p>No hay registros aún.</p>';
+                return;
+            }
+
+            // Filtrar
+            const filterIP = document.getElementById('filterIP').value.toLowerCase();
+            const filterPais = document.getElementById('filterPais').value.toLowerCase();
+            const filterDispositivo = document.getElementById('filterDispositivo').value;
+
+            const logsFiltrados = logs.filter(log => {
+                return (
+                    (!filterIP || log.ip_publica.toLowerCase().includes(filterIP)) &&
+                    (!filterPais || log.pais.toLowerCase().includes(filterPais)) &&
+                    (!filterDispositivo || log.tipo_dispositivo === filterDispositivo)
+                );
+            }).reverse(); // Más recientes primero
+
+            const tabla = `
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha/Hora</th>
+                            <th>IP</th>
+                            <th>País</th>
+                            <th>Ciudad</th>
+                            <th>Dispositivo</th>
+                            <th>Navegador</th>
+                            <th>SO</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${logsFiltrados.map((log, index) => `
+                            <tr>
+                                <td>${log.timestamp}</td>
+                                <td><strong>${log.ip_publica}</strong></td>
+                                <td>${log.pais} ${log.codigo_pais ? '(' + log.codigo_pais + ')' : ''}</td>
+                                <td>${log.ciudad || 'N/A'}</td>
+                                <td>
+                                    <span class="tag tag-${log.tipo_dispositivo.toLowerCase()}">
+                                        ${log.tipo_dispositivo}
+                                    </span>
+                                </td>
+                                <td>${log.navegador}</td>
+                                <td>${log.sistema_operativo}</td>
+                                <td>
+                                    <button class="details-btn" onclick="mostrarDetalles(${logs.length - 1 - index})">
+                                        Ver más
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('logsContent').innerHTML = tabla;
+        }
+
+        function mostrarDetalles(index) {
+            const log = logsData[logsData.length - 1 - index];
+            
+            const contenido = `
+                <h2>📊 Detalles Completos del Visitante</h2>
+                
+                <div class="detail-section">
+                    <h3>🌐 Información de Red</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">IP Pública</div>
+                            <div class="detail-value">${log.ip_publica}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">IP Local</div>
+                            <div class="detail-value">${log.ip_local || 'No disponible'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Hostname</div>
+                            <div class="detail-value">${log.hostname || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">ISP</div>
+                            <div class="detail-value">${log.isp || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📍 Geolocalización</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">País</div>
+                            <div class="detail-value">${log.pais}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Región</div>
+                            <div class="detail-value">${log.region || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Ciudad</div>
+                            <div class="detail-value">${log.ciudad || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Coordenadas</div>
+                            <div class="detail-value">
+                                ${log.coordenadas?.lat && log.coordenadas?.lon 
+                                    ? `${log.coordenadas.lat}, ${log.coordenadas.lon}` 
+                                    : 'N/A'}
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Zona Horaria</div>
+                            <div class="detail-value">${log.zona_horaria || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💻 Dispositivo y Navegador</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Tipo de Dispositivo</div>
+                            <div class="detail-value">${log.tipo_dispositivo}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Navegador</div>
+                            <div class="detail-value">${log.navegador} ${log.version_navegador || ''}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Sistema Operativo</div>
+                            <div class="detail-value">${log.sistema_operativo}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Plataforma</div>
+                            <div class="detail-value">${log.plataforma || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🖥️ Hardware</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Resolución de Pantalla</div>
+                            <div class="detail-value">${log.pantalla?.resolucion || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Profundidad de Color</div>
+                            <div class="detail-value">${log.pantalla?.profundidad_color || 'N/A'} bits</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Núcleos CPU</div>
+                            <div class="detail-value">${log.nucleos_cpu || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Memoria</div>
+                            <div class="detail-value">${log.memoria_dispositivo || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Batería</div>
+                            <div class="detail-value">${log.bateria?.nivel || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🎨 Fingerprints</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Canvas Fingerprint</div>
+                            <div class="detail-value">${log.canvas_fingerprint || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">WebGL Vendor</div>
+                            <div class="detail-value">${log.webgl_vendor || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">WebGL Renderer</div>
+                            <div class="detail-value">${log.webgl_renderer || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fingerprint Único</div>
+                            <div class="detail-value">${log.fingerprint || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🔗 Navegación</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">URL Actual</div>
+                            <div class="detail-value">${log.url_actual || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Referrer</div>
+                            <div class="detail-value">${log.url_referrer || 'Directo'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Idioma</div>
+                            <div class="detail-value">${log.idioma || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🔧 Información Técnica</h3>
+                    <div class="detail-item">
+                        <div class="detail-label">User Agent Completo</div>
+                        <div class="detail-value" style="word-break: break-all; font-size: 0.85em;">
+                            ${log.user_agent}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalContent').innerHTML = contenido;
+            document.getElementById('detallesModal').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('detallesModal').style.display = 'none';
+        }
+
+        function exportarCSV() {
+            const csv = [
+                ['Fecha', 'IP', 'País', 'Ciudad', 'Dispositivo', 'Navegador', 'SO', 'ISP'].join(','),
+                ...logsData.map(log => [
+                    log.timestamp,
+                    log.ip_publica,
+                    log.pais,
+                    log.ciudad,
+                    log.tipo_dispositivo,
+                    log.navegador,
+                    log.sistema_operativo,
+                    log.isp
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visitor-logs-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('detallesModal');
+            if (event.target === modal) {
+                cerrarModal();
+            }
+        };
+
+        // Filtros en tiempo real
+        document.getElementById('filterIP').addEventListener('input', () => mostrarLogs(logsData));
+        document.getElementById('filterPais').addEventListener('input', () => mostrarLogs(logsData));
+        document.getElementById('filterDispositivo').addEventListener('change', () => mostrarLogs(logsData));
+    </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs del Tracker - Almacenamiento Local</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .logs-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .log-entry {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .log-entry h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .log-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .log-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .log-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.85em;
+        }
+
+        .log-value {
+            color: #333;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Logs del Tracker (Almacenamiento Local)</h1>
+            <p>Datos guardados en el navegador (localStorage)</p>
+        </div>
+
+        <div class="alert">
+            ⚠️ <strong>Nota:</strong> Estos logs están guardados localmente en tu navegador. 
+            Si borras el caché o cambias de navegador, se perderán. 
+            Para persistencia real, necesitas un backend con base de datos.
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVisitas">0</div>
+                <div class="stat-label">Total Visitas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="visitasHoy">0</div>
+                <div class="stat-label">Visitas Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="ipsUnicas">0</div>
+                <div class="stat-label">IPs Únicas</div>
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <div class="buttons">
+                <button class="btn" onclick="cargarLogs()">🔄 Actualizar</button>
+                <button class="btn btn-success" onclick="exportarJSON()">📥 Exportar JSON</button>
+                <button class="btn btn-success" onclick="exportarCSV()">📊 Exportar CSV</button>
+                <button class="btn btn-danger" onclick="limpiarLogs()">🗑️ Limpiar Todo</button>
+            </div>
+
+            <div id="logsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let logs = [];
+
+        // Cargar logs al iniciar
+        window.onload = function() {
+            cargarLogs();
+            
+            // Auto-actualizar cada 10 segundos
+            setInterval(cargarLogs, 10000);
+        };
+
+        function cargarLogs() {
+            const data = localStorage.getItem('visitor_logs');
+            logs = data ? JSON.parse(data) : [];
+            
+            actualizarEstadisticas();
+            mostrarLogs();
+        }
+
+        function actualizarEstadisticas() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const visitasHoy = logs.filter(log => log.timestamp.startsWith(hoy)).length;
+            const ipsUnicas = new Set(logs.map(log => log.ip)).size;
+
+            document.getElementById('totalVisitas').textContent = logs.length;
+            document.getElementById('visitasHoy').textContent = visitasHoy;
+            document.getElementById('ipsUnicas').textContent = ipsUnicas;
+        }
+
+        function mostrarLogs() {
+            const container = document.getElementById('logsContent');
+            
+            if (logs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3>No hay logs aún</h3>
+                        <p>Los visitantes que accedan a las páginas con el tracker aparecerán aquí.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Mostrar logs más recientes primero
+            const logsOrdenados = [...logs].reverse();
+            
+            container.innerHTML = logsOrdenados.map((log, index) => `
+                <div class="log-entry">
+                    <h3>👤 Visitante #${logs.length - index} - ${new Date(log.timestamp).toLocaleString('es-ES')}</h3>
+                    
+                    <div class="log-grid">
+                        <div class="log-item">
+                            <div class="log-label">🌐 IP Pública</div>
+                            <div class="log-value">${log.ip || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🏠 IP Local</div>
+                            <div class="log-value">${log.ip_local || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">📍 País</div>
+                            <div class="log-value">${log.pais || 'N/A'} (${log.codigo_pais || '-'})</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🏙️ Ciudad</div>
+                            <div class="log-value">${log.ciudad || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🏢 ISP</div>
+                            <div class="log-value">${log.isp || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">📌 Coordenadas</div>
+                            <div class="log-value">
+                                ${log.coordenadas ? `${log.coordenadas.lat}, ${log.coordenadas.lon}` : 'N/A'}
+                            </div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">💻 Dispositivo</div>
+                            <div class="log-value">${log.tipo_dispositivo || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🌍 Navegador</div>
+                            <div class="log-value">${log.navegador || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🖥️ Sistema Operativo</div>
+                            <div class="log-value">${log.sistema_operativo || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">📱 Es Móvil</div>
+                            <div class="log-value">${log.es_movil ? 'Sí' : 'No'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">📺 Pantalla</div>
+                            <div class="log-value">${log.pantalla?.resolucion || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🌐 Idioma</div>
+                            <div class="log-value">${log.idioma || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🔧 Núcleos CPU</div>
+                            <div class="log-value">${log.nucleos_cpu || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">💾 Memoria</div>
+                            <div class="log-value">${log.memoria || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🎨 Canvas FP</div>
+                            <div class="log-value">${log.canvas_fp || 'N/A'}</div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-label">🔑 Fingerprint</div>
+                            <div class="log-value">${log.fingerprint_unico || 'N/A'}</div>
+                        </div>
+                        <div class="log-item" style="grid-column: 1 / -1;">
+                            <div class="log-label">🔗 URL</div>
+                            <div class="log-value">${log.url_actual || 'N/A'}</div>
+                        </div>
+                        <div class="log-item" style="grid-column: 1 / -1;">
+                            <div class="log-label">📎 Referrer</div>
+                            <div class="log-value">${log.referrer || 'Directo'}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function exportarJSON() {
+            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+            descargarArchivo(blob, `visitor-logs-${getFecha()}.json`);
+        }
+
+        function exportarCSV() {
+            const headers = ['Timestamp', 'IP', 'País', 'Ciudad', 'Dispositivo', 'Navegador', 'SO', 'ISP'];
+            const rows = logs.map(log => [
+                log.timestamp,
+                log.ip,
+                log.pais,
+                log.ciudad,
+                log.tipo_dispositivo,
+                log.navegador,
+                log.sistema_operativo,
+                log.isp
+            ]);
+            
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            descargarArchivo(blob, `visitor-logs-${getFecha()}.csv`);
+        }
+
+        function descargarArchivo(blob, nombre) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombre;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function getFecha() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function limpiarLogs() {
+            if (confirm('¿Estás seguro de que quieres eliminar TODOS los logs?')) {
+                localStorage.removeItem('visitor_logs');
+                logs = [];
+                cargarLogs();
+                alert('✅ Logs eliminados');
+            }
+        }
+    </script>
+</body>
+</html>
