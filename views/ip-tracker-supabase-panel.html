@@ -392,14 +392,14 @@
 
     <script>
         let logs = [];
-        let supabaseClient = null;
+        // No declarar supabaseClient aquí, usar el global de window
 
         // Inicializar
         window.addEventListener('load', async () => {
             // Esperar a que Supabase esté disponible
-            await esperarSupabase();
+            const conectado = await esperarSupabase();
             
-            if (supabaseClient) {
+            if (conectado) {
                 cargarLogs();
                 // Auto-actualizar cada 30 segundos
                 setInterval(cargarLogs, 30000);
@@ -411,8 +411,8 @@
         async function esperarSupabase() {
             for (let i = 0; i < 10; i++) {
                 if (window.supabaseClient) {
-                    supabaseClient = window.supabaseClient;
                     actualizarEstadoConexion(true);
+                    console.log('✅ Supabase conectado');
                     return true;
                 }
                 await sleep(500);
@@ -433,7 +433,7 @@
         }
 
         async function cargarLogs() {
-            if (!supabaseClient) {
+            if (!window.supabaseClient) {
                 mostrarError('Supabase no está disponible');
                 return;
             }
@@ -441,7 +441,7 @@
             try {
                 document.getElementById('btnActualizar').disabled = true;
                 
-                const { data, error } = await supabaseClient
+                const { data, error } = await window.supabaseClient
                     .from('visitor_logs')
                     .select('*')
                     .order('timestamp', { ascending: false })
@@ -454,6 +454,7 @@
                 }
 
                 logs = data || [];
+                console.log(`📊 ${logs.length} registros cargados`);
                 actualizarEstadisticas();
                 mostrarLogs();
                 
