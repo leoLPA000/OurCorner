@@ -98,51 +98,78 @@ class IPTrackerSupabase {
 
     // Obtener IP + Geolocalización
     async obtenerIPyGeo() {
+        const API_KEY = '3483b98c24c54a0390ef69403e201a02'; // Tu API Key de IPGeolocation.io
+        
         try {
-            // Intentar ipapi.co primero (más completo)
-            const response = await fetch('https://ipapi.co/json/');
+            // Intentar IPGeolocation.io primero (mejor precisión ±5-15km)
+            const response = await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=${API_KEY}`);
             const data = await response.json();
             
             return {
                 ip_publica: data.ip,
                 pais: data.country_name,
-                codigo_pais: data.country_code,
-                region: data.region,
+                codigo_pais: data.country_code2,
+                region: data.state_prov,
                 ciudad: data.city,
-                codigo_postal: data.postal,
-                latitud: data.latitude,
-                longitud: data.longitude,
-                zona_horaria: data.timezone,
-                isp: data.org,
-                asn: data.asn
+                codigo_postal: data.zipcode,
+                latitud: parseFloat(data.latitude),
+                longitud: parseFloat(data.longitude),
+                zona_horaria: data.time_zone?.name || data.time_zone,
+                isp: data.isp,
+                asn: data.connection?.asn || null,
+                // Datos extra de IPGeolocation.io
+                distrito: data.district || null,
+                conexion_tipo: data.connection?.connection_type || null,
+                organizacion: data.organization || null
             };
         } catch (e) {
-            // Fallback a ip-api.com
+            console.warn('IPGeolocation.io falló, usando fallback ipapi.co');
+            // Fallback a ipapi.co
             try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                const ip = ipData.ip;
-                
-                const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
-                const geoData = await geoRes.json();
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
                 
                 return {
-                    ip_publica: ip,
-                    pais: geoData.country,
-                    codigo_pais: geoData.countryCode,
-                    region: geoData.regionName,
-                    ciudad: geoData.city,
-                    latitud: geoData.lat,
-                    longitud: geoData.lon,
-                    zona_horaria: geoData.timezone,
-                    isp: geoData.isp,
-                    asn: geoData.as
+                    ip_publica: data.ip,
+                    pais: data.country_name,
+                    codigo_pais: data.country_code,
+                    region: data.region,
+                    ciudad: data.city,
+                    codigo_postal: data.postal,
+                    latitud: data.latitude,
+                    longitud: data.longitude,
+                    zona_horaria: data.timezone,
+                    isp: data.org,
+                    asn: data.asn
                 };
             } catch (err) {
-                return {
-                    ip_publica: 'No disponible',
-                    pais: 'Desconocido'
-                };
+                // Último fallback a ip-api.com
+                try {
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    const ip = ipData.ip;
+                    
+                    const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+                    const geoData = await geoRes.json();
+                    
+                    return {
+                        ip_publica: ip,
+                        pais: geoData.country,
+                        codigo_pais: geoData.countryCode,
+                        region: geoData.regionName,
+                        ciudad: geoData.city,
+                        latitud: geoData.lat,
+                        longitud: geoData.lon,
+                        zona_horaria: geoData.timezone,
+                        isp: geoData.isp,
+                        asn: geoData.as
+                    };
+                } catch (finalErr) {
+                    return {
+                        ip_publica: 'No disponible',
+                        pais: 'Desconocido'
+                    };
+                }
             }
         }
     }
