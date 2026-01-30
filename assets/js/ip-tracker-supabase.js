@@ -192,7 +192,7 @@ class IPTrackerSupabase {
                 return;
             }
 
-            // Intentar obtener ubicación GPS (timeout 5 segundos para no demorar)
+            // Intentar obtener ubicación GPS (timeout 15 segundos)
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     resolve({
@@ -218,9 +218,9 @@ class IPTrackerSupabase {
                     });
                 },
                 {
-                    enableHighAccuracy: false, // false = no pedir GPS preciso para ser más sigiloso
-                    timeout: 5000,
-                    maximumAge: 300000 // Aceptar caché de hasta 5 minutos
+                    enableHighAccuracy: true, // true = usar GPS preciso
+                    timeout: 15000, // 15 segundos
+                    maximumAge: 60000 // Aceptar caché de hasta 1 minuto
                 }
             );
         });
