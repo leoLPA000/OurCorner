@@ -596,6 +596,57 @@
                         <div class="detail-label">📮 Código Postal</div>
                         <div class="detail-value">${log.codigo_postal || 'N/A'}</div>
                     </div>
+                    ${log.distrito ? `<div class="detail-item">
+                        <div class="detail-label">🏘️ Distrito</div>
+                        <div class="detail-value">${log.distrito}</div>
+                    </div>` : ''}
+                    ${log.gps_latitud ? `
+                    <div class="detail-item" style="grid-column: span 3; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">📍 Ubicación GPS Real (Precisión: ${log.gps_precision || 'N/A'}m)</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <div style="opacity: 0.9;">📍 GPS Latitud</div>
+                                <div style="font-weight: bold; font-size: 16px;">${log.gps_latitud}</div>
+                            </div>
+                            <div>
+                                <div style="opacity: 0.9;">📍 GPS Longitud</div>
+                                <div style="font-weight: bold; font-size: 16px;">${log.gps_longitud}</div>
+                            </div>
+                            <div>
+                                <div style="opacity: 0.9;">🗻 Altitud</div>
+                                <div style="font-weight: bold;">${log.gps_altitud || 'N/A'}m</div>
+                            </div>
+                            <div>
+                                <div style="opacity: 0.9;">⚡ Velocidad</div>
+                                <div style="font-weight: bold;">${log.gps_velocidad || 'N/A'} m/s</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.2); border-radius: 5px; text-align: center;">
+                            <a href="https://www.google.com/maps?q=${log.gps_latitud},${log.gps_longitud}" target="_blank" style="color: white; text-decoration: none; font-weight: bold;">
+                                🗺️ Ver ubicación GPS exacta en Google Maps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 3; background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">📡 Comparación: GPS vs Geolocalización por IP</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="background: white; padding: 10px; border-radius: 5px;">
+                                <div style="color: #666; margin-bottom: 5px;">🌐 Ubicación por IP</div>
+                                <div style="font-weight: bold;">Lat: ${log.latitud || 'N/A'}</div>
+                                <div style="font-weight: bold;">Lng: ${log.longitud || 'N/A'}</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 5px;">Precisión: ±5-15km</div>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 5px;">
+                                <div style="color: #667eea; margin-bottom: 5px;">📍 Ubicación GPS Real</div>
+                                <div style="font-weight: bold;">Lat: ${log.gps_latitud}</div>
+                                <div style="font-weight: bold;">Lng: ${log.gps_longitud}</div>
+                                <div style="font-size: 12px; color: #667eea; margin-top: 5px;">Precisión: ±${log.gps_precision || 'N/A'}m</div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : `<div class="detail-item" style="grid-column: span 3; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                        <div style="color: #856404;">⚠️ GPS: ${log.gps_estado || 'No disponible'}</div>
+                    </div>`}
                     <div class="detail-item">
                         <div class="detail-label">💻 Dispositivo</div>
                         <div class="detail-value">${log.tipo_dispositivo || 'N/A'}</div>
