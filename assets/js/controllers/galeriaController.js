@@ -86,13 +86,20 @@ class GaleriaRomantica {
 
         document.body.appendChild(botonAdmin);
 
-        botonAdmin.addEventListener('click', () => {
+        botonAdmin.addEventListener('click', async () => {
             // 🔐 Verificar autenticación
             if (!window.authService || !window.authService.isAuthenticated()) {
                 alert('⚠️ Debes iniciar sesión para agregar fotos');
                 window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
                 return;
             }
+            
+            // 🔐 Verificar permisos (solo admin y super_admin)
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                window.rolesService.showNoPermissionMessage();
+                return;
+            }
+            
             this.abrirFormularioFoto();
         });
     }

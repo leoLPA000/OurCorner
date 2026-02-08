@@ -131,6 +131,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="assets/js/config/supabase.js"></script>
     <script src="assets/js/services/authService.js"></script>
+    <script src="assets/js/services/rolesService.js"></script>
 
     <!--<script src="assets/js/ui/animations.js"></script> -->
     <script src="assets/js/ui/cursorEffects.js"></script>
@@ -234,7 +235,7 @@
         }
         
         // Actualizar botón según estado de autenticación
-        function updateAuthButton(session) {
+        async function updateAuthButton(session) {
             const btnAuth = document.getElementById('btnAuth');
             const authContainer = document.getElementById('authContainer');
             
@@ -249,20 +250,43 @@
                 const username = user.user_metadata?.username || user.email;
                 const displayName = username.length > 15 ? username.substring(0, 12) + '...' : username;
                 
+                // Verificar si es super admin
+                const isSuperAdmin = await window.rolesService?.isSuperAdmin();
+                const userRole = await window.rolesService?.getCurrentUserRole();
+                const roleInfo = window.rolesService?.getRoleInfo(userRole);
+                
+                // Construir menú dinámicamente
+                let menuItems = '';
+                
+                // Opción de Panel Admin (solo super_admin)
+                if (isSuperAdmin) {
+                    menuItems += `
+                        <button class="dropdown-item" onclick="window.location.href='views/admin-panel.html'">
+                            👑 Panel Admin
+                        </button>
+                    `;
+                }
+                
+                // Opciones comunes
+                menuItems += `
+                    <button class="dropdown-item" onclick="window.location.href='views/mis-mensajes.html'">
+                        ✍️ Mis Mensajes
+                    </button>
+                    <button class="dropdown-item danger" onclick="handleLogout()">
+                        🚪 Cerrar Sesión
+                    </button>
+                `;
+                
                 authContainer.innerHTML = `
                     <button class="btn-auth logged-in" id="btnUserMenu">
-                        👤<span class="btn-auth-text"> ${displayName}</span>
+                        ${roleInfo?.icon || '👤'}<span class="btn-auth-text"> ${displayName}</span>
                     </button>
                     <div class="user-dropdown" id="userDropdown">
                         <div class="user-info">
                             <div class="user-email"><strong>@${username}</strong></div>
+                            ${roleInfo ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${roleInfo.name}</div>` : ''}
                         </div>
-                        <button class="dropdown-item" onclick="window.location.href='views/mis-mensajes.html'">
-                            ✍️ Mis Mensajes
-                        </button>
-                        <button class="dropdown-item danger" onclick="handleLogout()">
-                            🚪 Cerrar Sesión
-                        </button>
+                        ${menuItems}
                     </div>
                 `;
                 

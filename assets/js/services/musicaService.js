@@ -416,7 +416,7 @@ class ReproductorRomantico {
         // Agregar música
         const btnAgregar = document.querySelector('.btn-agregar-musica');
         if (btnAgregar) {
-            btnAgregar.addEventListener('click', (e) => {
+            btnAgregar.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -424,6 +424,12 @@ class ReproductorRomantico {
                 if (!window.authService || !window.authService.isAuthenticated()) {
                     alert('⚠️ Debes iniciar sesión para agregar canciones');
                     window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                
+                // 🔐 Verificar permisos (solo admin y super_admin)
+                if (window.rolesService && !await window.rolesService.canModify()) {
+                    window.rolesService.showNoPermissionMessage();
                     return;
                 }
                 
