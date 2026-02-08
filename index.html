@@ -141,8 +141,16 @@
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
-            const fechaInicio = new Date('2025-10-08'); // 8 de octubre 2025
-            const hoy = new Date();
+            // Fecha de inicio: 8 de octubre 2025 a las 00:00 UTC-3:30 (hora intermedia Bolivia-Argentina)
+            // Bolivia: UTC-4, Argentina: UTC-3 → Promedio: UTC-3:30
+            const fechaInicio = new Date('2025-10-08T00:00:00-03:30');
+            
+            // Obtener la hora actual en la zona horaria intermedia UTC-3:30
+            const ahora = new Date();
+            const offsetIntermedio = -3.5 * 60; // -210 minutos (UTC-3:30)
+            const offsetLocal = ahora.getTimezoneOffset(); // offset del navegador
+            const diferenciaOffset = offsetLocal - offsetIntermedio;
+            const horaIntermedia = new Date(ahora.getTime() + diferenciaOffset * 60000);
             
             // Calcular meses completos basándose en aniversarios mensuales (cada día 8)
             let mesesCompletos = 0;
@@ -152,8 +160,8 @@
                 // Avanzar un mes
                 fechaAniversario.setMonth(fechaAniversario.getMonth() + 1);
                 
-                // Si el próximo aniversario es mayor que hoy, detener
-                if (fechaAniversario > hoy) {
+                // Si el próximo aniversario es mayor que la hora actual, detener
+                if (fechaAniversario > horaIntermedia) {
                     fechaAniversario.setMonth(fechaAniversario.getMonth() - 1); // Volver al último aniversario
                     break;
                 }
@@ -161,7 +169,7 @@
             }
             
             // Calcular días desde el último aniversario mensual
-            const diferenciaDias = Math.floor((hoy - fechaAniversario) / (1000 * 60 * 60 * 24));
+            const diferenciaDias = Math.floor((horaIntermedia - fechaAniversario) / (1000 * 60 * 60 * 24));
             
             let texto = '';
             if (mesesCompletos === 0 && diferenciaDias === 0) {
