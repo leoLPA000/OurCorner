@@ -27,7 +27,7 @@
 <body>
     <div class="container">
         <header class="hero">
-            <h1 class="titulo-principal">Para ti, Rocío 35❤️</h1>
+            <h1 class="titulo-principal">Para ti, Rocío❤️</h1>
             <p class="subtitulo">Nuestro riconcito</p>
             <div class="fecha-especial">Rocío & Leonardo</div>
         </header>
@@ -143,34 +143,39 @@
         function calcularDiasJuntos() {
             const fechaInicio = new Date('2025-10-08'); // 8 de octubre 2025
             const hoy = new Date();
-            const diferencia = hoy - fechaInicio;
-            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-
-            let texto = '';
-            if (dias === 0) {
-                texto = '¡Hoy comenzamos! 🎉';
-            } else if (dias === 1) {
-                texto = '1 día hermoso';
-            } else if (dias < 30) {
-                texto = dias + ' días increíbles';
-            } else if (dias < 60) {
-                texto = '1 mes maravilloso';
-            } else if (dias < 365) {
-                const meses = Math.floor(dias / 30);
-                const diasRestantes = dias % 30;
-                texto = meses + (meses === 1 ? ' mes' : ' meses');
-                if (diasRestantes > 0) {
-                    texto += ' y ' + diasRestantes + (diasRestantes === 1 ? ' día' : ' días');
+            
+            // Calcular meses completos basándose en aniversarios mensuales (cada día 8)
+            let mesesCompletos = 0;
+            let fechaAniversario = new Date(fechaInicio);
+            
+            while (true) {
+                // Avanzar un mes
+                fechaAniversario.setMonth(fechaAniversario.getMonth() + 1);
+                
+                // Si el próximo aniversario es mayor que hoy, detener
+                if (fechaAniversario > hoy) {
+                    fechaAniversario.setMonth(fechaAniversario.getMonth() - 1); // Volver al último aniversario
+                    break;
                 }
+                mesesCompletos++;
+            }
+            
+            // Calcular días desde el último aniversario mensual
+            const diferenciaDias = Math.floor((hoy - fechaAniversario) / (1000 * 60 * 60 * 24));
+            
+            let texto = '';
+            if (mesesCompletos === 0 && diferenciaDias === 0) {
+                texto = '¡Hoy comenzamos! 🎉';
+            } else if (mesesCompletos === 0 && diferenciaDias === 1) {
+                texto = '1 día hermoso';
+            } else if (mesesCompletos === 0) {
+                texto = diferenciaDias + ' días increíbles';
+            } else if (mesesCompletos === 1 && diferenciaDias === 0) {
+                texto = '1 mes maravilloso';
             } else {
-                const anos = Math.floor(dias / 365);
-                const diasRestantes = dias % 365;
-                texto = anos + (anos === 1 ? ' año' : ' años');
-                if (diasRestantes > 0) {
-                    const meses = Math.floor(diasRestantes / 30);
-                    if (meses > 0) {
-                        texto += ' y ' + meses + (meses === 1 ? ' mes' : ' meses');
-                    }
+                texto = mesesCompletos + (mesesCompletos === 1 ? ' mes' : ' meses');
+                if (diferenciaDias > 0) {
+                    texto += ' y ' + diferenciaDias + (diferenciaDias === 1 ? ' día' : ' días');
                 }
             }
 

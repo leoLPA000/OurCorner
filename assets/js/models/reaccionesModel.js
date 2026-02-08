@@ -208,7 +208,7 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   const menuReacciones = document.createElement('div');
   menuReacciones.className = 'reaction-menu hidden';
 
-  const emojisDisponibles = ['❤️', '😂', '😍', '🥹', '🫂'];
+  const emojisDisponibles = ['😂', '❤️', '😍', '🥹', '🫂'];
   emojisDisponibles.forEach(emoji => {
     const btnEmoji = document.createElement('button');
     btnEmoji.className = 'reaction-option';
