@@ -24,12 +24,15 @@ class RolesService {
                 return null;
             }
 
-            const { data: { user } } = await this.supabase.auth.getUser();
+            // Primero intentar obtener el usuario de la sesión actual (más rápido)
+            const { data: { session } } = await this.supabase.auth.getSession();
             
-            if (!user) {
+            if (!session || !session.user) {
                 console.log('⚠️ No hay usuario autenticado');
                 return null;
             }
+
+            const user = session.user;
 
             const { data, error } = await this.supabase
                 .from('user_roles')
@@ -42,7 +45,7 @@ class RolesService {
                 return this.roles.INVITADO; // Por defecto
             }
 
-            this.currentRole = data.role;
+            this.currentRole = data?.role || this.roles.INVITADO;
             console.log('✅ Rol del usuario:', this.currentRole);
             return this.currentRole;
         } catch (err) {
@@ -135,7 +138,9 @@ class RolesService {
             }
 
             // No permitir cambiar el propio rol de super_admin
-            const { data: { user } } = await this.supabase.auth.getUser();
+            const { data: { session } } = await this.supabase.auth.getSession();
+            const user = session?.user;
+            
             if (user && user.id === userId && newRole !== this.roles.SUPER_ADMIN) {
                 return { 
                     success: false, 
