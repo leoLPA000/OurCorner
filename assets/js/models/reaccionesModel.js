@@ -261,6 +261,13 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   btnPrincipal.addEventListener('mouseup', async (e) => {
     clearTimeout(holdTimeout);
     if (!isHolding) {
+      // 🔐 VERIFICAR PERMISOS ANTES DE PROCESAR
+      if (window.rolesService && !await window.rolesService.canModify()) {
+        alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+        isHolding = false;
+        return;
+      }
+
       // Click rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
       console.log(`🎯 Estado del botón: ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
@@ -298,6 +305,14 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     clearTimeout(holdTimeout);
     if (!isHolding) {
       e.preventDefault();
+
+      // 🔐 VERIFICAR PERMISOS ANTES DE PROCESAR
+      if (window.rolesService && !await window.rolesService.canModify()) {
+        alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+        isHolding = false;
+        return;
+      }
+
       // Touch rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
       console.log(`🎯 Estado del botón (touch): ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);

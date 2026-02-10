@@ -95,7 +95,10 @@ class RolesService {
      * Verificar si el usuario puede hacer CRUD
      */
     async canModify() {
-        return await this.isAdmin();
+        const result = await this.isAdmin();
+        const currentRole = this.currentRole;
+        console.log(`🔐 canModify() llamado - Rol: ${currentRole}, Puede modificar: ${result}`);
+        return result;
     }
 
     /**
