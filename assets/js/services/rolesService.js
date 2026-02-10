@@ -100,6 +100,7 @@ class RolesService {
 
     /**
      * Obtener todos los usuarios con sus roles (solo super_admin)
+     * Incluye usuarios antiguos sin entrada en user_roles
      */
     async getAllUsersWithRoles() {
         try {
@@ -108,12 +109,21 @@ class RolesService {
                 return { success: false, error: 'No tienes permisos' };
             }
 
+            // Usar la función RPC que combina auth.users con user_roles
             const { data, error } = await this.supabase
-                .from('user_roles')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .rpc('get_all_users_with_roles');
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Error RPC:', error);
+                // Fallback: obtener solo de user_roles
+                const fallback = await this.supabase
+                    .from('user_roles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (fallback.error) throw fallback.error;
+                return { success: true, data: fallback.data };
+            }
 
             return { success: true, data };
         } catch (err) {
@@ -124,6 +134,7 @@ class RolesService {
 
     /**
      * Cambiar el rol de un usuario (solo super_admin)
+     * Si el usuario no tiene entrada en user_roles, la crea automáticamente
      */
     async changeUserRole(userId, newRole) {
         try {
@@ -148,7 +159,8 @@ class RolesService {
                 };
             }
 
-            const { data, error } = await this.supabase
+            // Intentar actualizar primero
+            let { data, error } = await this.supabase
                 .from('user_roles')
                 .update({ 
                     role: newRole, 
@@ -158,7 +170,28 @@ class RolesService {
                 .eq('user_id', userId)
                 .select();
 
-            if (error) throw error;
+            // Si no existe, usar UPSERT para crear o actualizar
+            if (error || !data || data.length === 0) {
+                console.log('⚠️ Usuario sin rol asignado, creando entrada...');
+                
+                // Obtener el email del usuario
+                const { data: userData, error: userError } = await this.supabase.auth.admin.getUserById(userId);
+                const email = userData?.user?.email || 'unknown@email.com';
+
+                const { data: upsertData, error: upsertError } = await this.supabase
+                    .from('user_roles')
+                    .upsert({ 
+                        user_id: userId,
+                        email: email,
+                        role: newRole, 
+                        updated_at: new Date().toISOString(),
+                        updated_by: user.id
+                    }, { onConflict: 'user_id' })
+                    .select();
+
+                if (upsertError) throw upsertError;
+                data = upsertData;
+            }
 
             console.log('✅ Rol actualizado exitosamente');
             return { success: true, data };

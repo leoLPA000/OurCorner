@@ -191,27 +191,31 @@
 
                         window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, counts);
 
-                        // Agregar botón de eliminar al final del wrapper
-                        const btnEliminar = document.createElement('button');
-                        btnEliminar.className = 'btn-eliminar-mensaje-vista';
-                        btnEliminar.dataset.id = mensajeId;
-                        btnEliminar.title = 'Eliminar mensaje';
-                        btnEliminar.innerHTML = '🗑️ Eliminar';
-                        btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
-                        wrapper.appendChild(btnEliminar);
+                        // 🔐 Solo mostrar botón de eliminar si tiene permisos
+                        if (window.rolesService && await window.rolesService.canModify()) {
+                            const btnEliminar = document.createElement('button');
+                            btnEliminar.className = 'btn-eliminar-mensaje-vista';
+                            btnEliminar.dataset.id = mensajeId;
+                            btnEliminar.title = 'Eliminar mensaje';
+                            btnEliminar.innerHTML = '🗑️ Eliminar';
+                            btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
+                            wrapper.appendChild(btnEliminar);
+                        }
                     } catch (err) {
                         console.error('❌ Error cargando conteos:', err);
                         // Montar sin conteos iniciales
                         window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, {});
 
-                        // Agregar botón de eliminar al final del wrapper
-                        const btnEliminar = document.createElement('button');
-                        btnEliminar.className = 'btn-eliminar-mensaje-vista';
-                        btnEliminar.dataset.id = mensajeId;
-                        btnEliminar.title = 'Eliminar mensaje';
-                        btnEliminar.innerHTML = '🗑️ Eliminar';
-                        btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
-                        wrapper.appendChild(btnEliminar);
+                        // 🔐 Solo mostrar botón de eliminar si tiene permisos
+                        if (window.rolesService && await window.rolesService.canModify()) {
+                            const btnEliminar = document.createElement('button');
+                            btnEliminar.className = 'btn-eliminar-mensaje-vista';
+                            btnEliminar.dataset.id = mensajeId;
+                            btnEliminar.title = 'Eliminar mensaje';
+                            btnEliminar.innerHTML = '🗑️ Eliminar';
+                            btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
+                            wrapper.appendChild(btnEliminar);
+                        }
                     }
                 });
 
@@ -278,6 +282,12 @@
             if (!window.authService || !window.authService.isAuthenticated()) {
                 alert('⚠️ Debes iniciar sesión para eliminar mensajes');
                 window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // 🔐 Verificar permisos de rol
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                window.rolesService.showNoPermissionMessage();
                 return;
             }
 

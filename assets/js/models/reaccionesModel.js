@@ -27,6 +27,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
     throw new Error('Usuario no autenticado');
   }
 
+  // 🔐 Verificar permisos de rol (solo admin y super_admin pueden reaccionar)
+  if (window.rolesService && !await window.rolesService.canModify()) {
+    alert('⚠️ Los invitados no pueden reaccionar a los mensajes.\nSolo los administradores tienen este permiso.');
+    throw new Error('Usuario sin permisos para reaccionar');
+  }
+
   const client = window.supabaseClient;
   if (!client) throw new Error('Supabase no inicializado');
 
@@ -175,8 +181,12 @@ function suscribirReacciones(onUpdate) {
 }
 
 // Helper para montar botón de reacciones con menú desplegable
-function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
+async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   console.log('🔧 Montando botón de reacciones para mensaje:', mensajeId);
+
+  // 🔐 Verificar permisos
+  const canReact = window.rolesService ? await window.rolesService.canModify() : true;
+  console.log('🔐 Usuario puede reaccionar:', canReact);
 
   // Limpiar contenedor
   contenedor.innerHTML = '';
@@ -227,6 +237,18 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   // Variables para hold detection
   let holdTimeout;
   let isHolding = false;
+
+  // 🔐 Si no tiene permisos, deshabilitar interacciones
+  if (!canReact) {
+    btnPrincipal.disabled = true;
+    btnPrincipal.title = 'Solo los administradores pueden reaccionar';
+    btnPrincipal.style.opacity = '0.5';
+    btnPrincipal.style.cursor = 'not-allowed';
+    reactionContainer.appendChild(btnPrincipal);
+    reactionContainer.appendChild(menuReacciones);
+    contenedor.appendChild(reactionContainer);
+    return; // No agregar eventos si no tiene permisos
+  }
 
   // Eventos para mostrar menú al mantener presionado
   btnPrincipal.addEventListener('mousedown', (e) => {
@@ -337,6 +359,12 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
   try {
     btnPrincipal.disabled = true;
     console.log(`${emoji} Procesando reacción...`);
+
+    // 🔐 Verificar permisos antes de reaccionar
+    if (window.rolesService && !await window.rolesService.canModify()) {
+      alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+      return;
+    }
 
     const result = await insertarOActualizarReaccion(mensajeId, emoji);
     console.log('✅ Resultado:', result);

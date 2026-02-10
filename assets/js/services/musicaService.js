@@ -416,6 +416,13 @@ class ReproductorRomantico {
         // Agregar música
         const btnAgregar = document.querySelector('.btn-agregar-musica');
         if (btnAgregar) {
+            // 🔐 Verificar permisos y ocultar si es invitado
+            (async () => {
+                if (window.rolesService && !await window.rolesService.canModify()) {
+                    btnAgregar.style.display = 'none';
+                }
+            })();
+
             btnAgregar.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -942,6 +949,12 @@ class ReproductorRomantico {
             return;
         }
 
+        // 🔐 Verificar permisos de rol
+        if (window.rolesService && !await window.rolesService.canModify()) {
+            window.rolesService.showNoPermissionMessage();
+            return;
+        }
+
         if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
 
         try {
@@ -999,9 +1012,12 @@ class ReproductorRomantico {
         }, 3000);
     }
 
-    mostrarPlaylist() {
+    async mostrarPlaylist() {
         // Pausar música
         if (this.playing) this.pause();
+
+        // 🔐 Verificar permisos para eliminar
+        const canModify = window.rolesService ? await window.rolesService.canModify() : false;
 
         // Si no hay canciones, mostrar mensaje
         if (this.playlist.length === 0) {
@@ -1070,7 +1086,7 @@ class ReproductorRomantico {
                                 <div class="cancion-titulo-item">${cancion.titulo}</div>
                                 <div class="cancion-artista-item">${cancion.artista}</div>
                             </div>
-                            ${cancion.tipo === 'personalizada' ? `
+                            ${cancion.tipo === 'personalizada' && canModify ? `
                                 <button class="btn-eliminar-cancion" data-id="${cancion.id}" title="Eliminar">
                                     🗑️
                                 </button>
