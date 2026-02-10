@@ -200,7 +200,7 @@ class GaleriaRomantica {
         document.body.style.overflow = '';
     }
 
-    mostrarFoto(index) {
+    async mostrarFoto(index) {
         this.currentIndex = index;
         const foto = this.fotos[index];
 
