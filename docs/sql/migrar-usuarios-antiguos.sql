@@ -26,8 +26,8 @@ AS $$
 BEGIN
     -- Verificar que quien ejecuta sea super_admin
     IF NOT EXISTS (
-        SELECT 1 FROM public.user_roles
-        WHERE user_id = auth.uid() AND role = 'super_admin'
+        SELECT 1 FROM public.user_roles ur_check
+        WHERE ur_check.user_id = auth.uid() AND ur_check.role = 'super_admin'
     ) THEN
         RAISE EXCEPTION 'No tienes permisos para ver usuarios';
     END IF;
