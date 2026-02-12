@@ -29,14 +29,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  verification: {
-    google: "eP_k7lAoHo1853EwR8zCZmZedWBoRXSHVlCBn4R92PA",
-  },
-  metadataBase: new URL("https://willyoubmyvalentine.vercel.app"),
+  metadataBase: new URL("https://tu-dominio-aqui.vercel.app"),
   title: "Will You Be My Valentine?",
-  description: "The most unique way to ask 'Will you be my Valentine?'. Forget boring cards send an interactive, playful experience that makes it impossible to say no. Try it now!",
-  applicationName: "Will You Be My Valentine",
-  authors: [{ name: "iloveyou" }],
+  description: "Una forma única e interactiva de preguntar '¿Quieres ser mi San Valentín?'. Una experiencia personalizada con dibujos y mensajes especiales.",
+  applicationName: "Valentine Card",
+  authors: [{ name: "OurCorner" }],
   generator: "Next.js",
   keywords: [
     "will you be my valentine",
@@ -70,8 +67,8 @@ export const metadata: Metadata = {
     "no login valentine card"
   ],
   referrer: "origin-when-cross-origin",
-  creator: "Valentine Team",
-  publisher: "Valentine Team",
+  creator: "OurCorner Team",
+  publisher: "OurCorner Team",
   robots: {
     index: true,
     follow: true,
@@ -85,11 +82,11 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_US",
-    url: "https://willyoubmyvalentine.vercel.app",
+    locale: "es_ES",
+    url: "https://tu-dominio-aqui.vercel.app",
     title: "Will You Be My Valentine?",
-    description: "The most unique way to ask 'Will you be my Valentine?'. Send an interactive, playful experience they can't say no to. Free and shareable! 💌",
-    siteName: "Will You Be My Valentine",
+    description: "Una forma única e interactiva de preguntar '¿Quieres ser mi San Valentín?'. ¡Envía una experiencia personalizada que no podrán rechazar! 💌",
+    siteName: "Valentine Card",
     images: [
       {
         url: "/willyoubemyvalentine.webp",
@@ -102,9 +99,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Will You Be My Valentine?",
-    description: "The most unique way to ask 'Will you be my Valentine?'. Send an interactive, playful experience they can't say no to! 💌",
+    description: "Una forma única e interactiva de preguntar '¿Quieres ser mi San Valentín?'. ¡Envía una experiencia personalizada! 💌",
     images: ["/willyoubemyvalentine.webp"],
-    creator: "@valentine_app",
+    creator: "@ourcorner_app",
   },
   icons: {
     icon: "/favicon.ico",
@@ -112,7 +109,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   alternates: {
-    canonical: "https://willyoubmyvalentine.vercel.app",
+    canonical: "https://tu-dominio-aqui.vercel.app",
   },
 };
 
@@ -122,10 +119,10 @@ const jsonLd = {
     {
       "@type": "WebSite",
       "name": "Will you be my valentine ?",
-      "url": "https://willyoubmyvalentine.vercel.app",
+      "url": "https://tu-dominio-aqui.vercel.app",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://willyoubmyvalentine.vercel.app/?q={search_term_string}",
+        "target": "https://tu-dominio-aqui.vercel.app/?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     },

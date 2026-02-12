@@ -452,6 +452,29 @@
           </div>
         </div>
 
+        <!-- Página 4: San Valentín -->
+        <div class="page">
+          <h2>💌 San Valentín</h2>
+          
+          <div class="evento-card">
+            <div class="evento-titulo">Propuesta Interactiva</div>
+            <div class="evento-fecha">📅 14 de Febrero</div>
+            
+            <div class="evento-descripcion">
+              Una experiencia única e interactiva para celebrar nuestro amor en este día especial. Crea tu propia tarjeta personalizada con dibujos y mensajes especiales. ¡Una forma moderna de expresar lo que sientes!
+            </div>
+            
+            <a href="https://tu-dominio-aqui.vercel.app" target="_blank" rel="noopener noreferrer" class="evento-btn">
+              💖 Crear Tarjeta de San Valentín
+            </a>
+            
+            <div class="firma-section">
+              <label class="firma-label">💝 Tu firma o dedicatoria:</label>
+              <textarea class="firma-input" rows="2" placeholder="Escribe aquí..."></textarea>
+            </div>
+          </div>
+        </div>
+
         <!-- Contraportada -->
         <div class="page contraportada">
           <div style="text-align: center; color: #fff; padding: 40px;">
@@ -472,7 +495,7 @@
       <!-- Controles -->
       <div class="controls">
         <div class="page-counter">
-          <span id="current-page">1</span> / <span id="total-pages">5</span>
+          <span id="current-page">1</span> / <span id="total-pages">6</span>
         </div>
         <button class="control-btn" id="prev-btn" onclick="prevPage()">← Anterior</button>
         <button class="control-btn" id="next-btn" onclick="nextPage()">Siguiente →</button>
@@ -494,7 +517,7 @@
         autoCenter: true,
         acceleration: true,
         duration: 1000,
-        pages: 5,
+        pages: 6,
         when: {
           turned: function(event, page, view) {
             $('#current-page').text(page);
