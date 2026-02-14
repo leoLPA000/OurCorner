@@ -324,23 +324,24 @@
             top: 50%;
             right: 5vw;
             transform: translateY(-50%);
-            width: 400px;
+            width: 500px;
             max-width: 90vw;
-            padding: 25px;
-            background-color: rgba(60, 10, 20, .6);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 50, 50, .3);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, .3);
-            z-index: 20
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(80, 20, 40, 0.85), rgba(40, 10, 20, 0.9));
+            border-radius: 20px;
+            border: 2px solid rgba(255, 100, 100, .5);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 50px rgba(255, 0, 100, 0.3), 0 0 30px rgba(255, 50, 50, 0.2);
+            z-index: 20;
         }
 
         #poem-text {
             color: #fff0f5;
             font-family: 'Courier New', Courier, monospace;
             font-size: 1.1rem;
-            line-height: 1.6;
-            white-space: pre-wrap
+            line-height: 1.8;
+            white-space: pre-wrap;
+            text-align: center;
         }
 
         #poem-text::after {
@@ -465,7 +466,12 @@
             }
 
             #poem-text {
-                font-size: 1rem
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .poem-card {
+                padding: 20px;
             }
         }
     </style>
@@ -537,7 +543,87 @@
     <div class=poem-card>
         <p id=poem-text></p>
     </div>
-    <script>function _0x3e53() { const t = ["flor roja ", "remove", "log", "div", "nction() ", 'rn this")(', "onload", "4614JJBREG", "add", "licidad.", "classList", "constructo", "ine", "random", "alidad,\n", "wth", "prototype", "toString", ".night", "y brillant", "por ti no ", "bind", "e,\n", "torAll", "1935948jilGqK", "Eres mi su", "className", "length", "1063360SeRHdz", "tiene fin.", "console", "setPropert", "max", "613qeNYVl", "nstante.\n\n", "Como esta ", "8567541hQnzGL", ".flower__l", "return (fu", "{}.constru", "left", "998UhQrSc", "warn", "charAt", ".flower", "4CQRjsQ", "top", "star", "215970PlKSZK", "table", "--leaf-gro", "forEach", "alentín,\n", "getElement", "ById", "1246625dIAgUh", "body", "mi dulce y", "height", "253ycvduZ", "tor", "8057hFnlBZ", "rowth", "querySelec", "vmin", "style", "ent", "toFixed", "appendChil", "eño, mi re", " eterna fe", "exception", "error"]; return (_0x3e53 = function () { return t })() } const _0x4ddd5c = _0x3a1b; function _0x3a1b(t, n) { const e = _0x3e53(); return _0x3a1b = function (t, n) { return e[t -= 431] }, _0x3a1b(t, n) } !function () { const t = _0x3a1b, n = _0x3e53(); for (; ;)try { if (520745 === -parseInt(t(462)) / 1 * (parseInt(t(470)) / 2) + parseInt(t(453)) / 3 + -parseInt(t(474)) / 4 * (parseInt(t(484)) / 5) + -parseInt(t(436)) / 6 * (parseInt(t(490)) / 7) + -parseInt(t(457)) / 8 + parseInt(t(465)) / 9 + -parseInt(t(477)) / 10 * (-parseInt(t(488)) / 11)) break; n.push(n.shift()) } catch (t) { n.push(n.shift()) } }(); const _0x5823f4 = function () { let t = !0; return function (n, e) { const o = t ? function () { if (e) { const t = e.apply(n, arguments); return e = null, t } } : function () { }; return t = !1, o } }(), _0x504d9a = _0x5823f4(this, function () { const t = _0x3a1b, n = function () { const t = _0x3a1b; let n; try { n = Function(t(467) + t(433) + (t(468) + 'ctor("retu') + t(434) + " ));")() } catch (t) { n = window } return n }(), e = n.console = n[t(459)] || {}, o = [t(431), t(471), "info", t(501), t(500), t(478), "trace"]; for (let n = 0; n < o[t(456)]; n++) { const r = _0x5823f4[t(440) + "r"][t(445)][t(450)](_0x5823f4), c = o[n], a = e[c] || r; r.__proto__ = _0x5823f4.bind(_0x5823f4), r[t(446)] = a[t(446)][t(450)](a), e[c] = r } }); _0x504d9a(), window[_0x4ddd5c(435)] = () => { const t = _0x4ddd5c, n = setTimeout(() => { const t = _0x3a1b; document[t(485)][t(439)][t(503)]("not-loaded"), clearTimeout(n) }, 1e3), e = "En este día de San V" + t(481) + "mi cariño " + t(449) + t(458) + "\n" + (t(464) + t(502) + t(448) + t(451)) + "mi corazón late al i" + t(463) + (t(454) + t(498) + t(443)) + (t(486) + t(499) + t(438)), o = document[t(482) + t(483)]("poem-text"), r = document.documentElement; let c = 0; const a = { "flower--1": 70, "flower--2": 60, "flower--3": 55 }; !function n() { const s = t; if (c < e.length) { o.innerHTML += e[s(472)](c), c++; const t = c / e[s(456)], i = t, l = Math[s(461)](0, (t - .2) / .8), d = Math.max(0, (t - .5) / .5); document["querySelec" + s(452)](".flower").forEach(t => { const n = s, e = a[t.classList[1]] * i; t[n(492) + "tor"](n(466) + "ine")[n(494)].height = e + "vmin" }), r[s(494)][s(460) + "y"](s(479) + s(444), l[s(496)](2)), r.style[s(460) + "y"]("--flower-g" + s(491), d[s(496)](2)), setTimeout(n, 80) } else o.classList[s(437)]("typing-done"), r.style[s(460) + "y"]("--leaf-gro" + s(444), 1), r[s(494)].setProperty("--flower-g" + s(491), 1), document[s(492) + s(452)](s(473))[s(480)](t => { const n = s, e = a[t.classList[1]]; t[n(492) + n(489)](".flower__l" + n(441))[n(494)][n(487)] = e + n(493) }) }(), function () { const n = t, e = document[n(492) + n(489)](n(447)); for (let t = 0; t < 100; t++) { const t = document["createElem" + n(495)](n(432)); t[n(455)] = n(476), t[n(494)][n(475)] = 100 * Math[n(442)]() + "%", t.style[n(469)] = 100 * Math[n(442)]() + "%", t[n(494)].animationDelay = 5 * Math.random() + "s", e[n(497) + "d"](t) } }() }</script>
+    <script>
+        window.onload = () => {
+            // Remover clase not-loaded después de 1 segundo
+            setTimeout(() => {
+                document.body.classList.remove("not-loaded");
+            }, 1000);
+
+            // El poema completo
+            const poem = `En este día de San Valentín,
+mi amor por ti no tiene fin.
+Como una flor roja y brillante,
+mi corazón late por ti a cada instante 🌹❤️
+
+Rocío, eres mi sueño hecho realidad,
+mi paz, mi alegría y mi felicidad.
+Gracias por existir y por elegir caminar conmigo 🫂❤️
+
+Te amo hoy, mañana y siempre, mi vida 🥹🥰😘
+
+Mi esposa 🥰❤️😘😘😘😘😘😘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💝 de Leonardo Para Rocío 💝
+━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+            const poemElement = document.getElementById("poem-text");
+            const root = document.documentElement;
+            let charIndex = 0;
+            const flowerHeights = { "flower--1": 70, "flower--2": 60, "flower--3": 55 };
+
+            // Función de escritura con efecto typewriter
+            function typeWriter() {
+                if (charIndex < poem.length) {
+                    poemElement.innerHTML += poem.charAt(charIndex);
+                    charIndex++;
+
+                    // Calcular progreso para animaciones
+                    const progress = charIndex / poem.length;
+                    const stemProgress = progress;
+                    const leafProgress = Math.max(0, (progress - 0.2) / 0.8);
+                    const flowerProgress = Math.max(0, (progress - 0.5) / 0.5);
+
+                    // Animar crecimiento de tallos
+                    document.querySelectorAll(".flower").forEach(flower => {
+                        const flowerHeight = flowerHeights[flower.classList[1]] * stemProgress;
+                        flower.querySelector(".flower__line").style.height = flowerHeight + "vmin";
+                    });
+
+                    // Animar crecimiento de hojas y flores
+                    root.style.setProperty("--leaf-growth", leafProgress.toFixed(2));
+                    root.style.setProperty("--flower-growth", flowerProgress.toFixed(2));
+
+                    setTimeout(typeWriter, 80);
+                } else {
+                    // Animación completada
+                    poemElement.classList.add("typing-done");
+                    root.style.setProperty("--leaf-growth", 1);
+                    root.style.setProperty("--flower-growth", 1);
+
+                    // Asegurar altura final de las flores
+                    document.querySelectorAll(".flower").forEach(flower => {
+                        const finalHeight = flowerHeights[flower.classList[1]];
+                        flower.querySelector(".flower__line").style.height = finalHeight + "vmin";
+                    });
+                }
+            }
+
+            typeWriter();
+
+            // Crear estrellas en el cielo
+            const night = document.querySelector(".night");
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement("div");
+                star.className = "star";
+                star.style.left = Math.random() * 100 + "%";
+                star.style.top = Math.random() * 100 + "%";
+                star.style.animationDelay = Math.random() * 5 + "s";
+                night.appendChild(star);
+            }
+        };
+    </script>
     <script>function _0x23c2(n, t) { const e = _0x5713(); return (_0x23c2 = function (n, t) { return e[n -= 274] })(n, t) } function _0x5713() { const n = ["4euyWNP", "innerWidth", "ault", "las herram", "tido.</h1>", "console", "toLowerCas", "__proto__", "table", "19100130KkNVbD", "constructo", "stener", "chrome", "7735490nkqzTi", "isInitiali", "innerHeigh", "4944573XFmQhY", "outerWidth", "zed", "bind", "ientas de ", "534nGpQNd", "addEventLi", "test", 'ns-serif;"', "length", "><h1>Acces", "{}.constru", "8spgcQl", "F12", "toString", "key", "log", "s:center; ", "userAgent", "warn", "horizontal", "flex; just", "orientatio", "or cierra ", "725157WsfSdl", "exception", "outerHeigh", "open", "vh; flex-d", "t-align:ce", "olumn; tex", "prototype", "error", 'rn this")(', "1736892yJLeXT", "vertical", "desarrollo", "includes", "Firebug", "info", "<div style", "align-item", "return (fu", "t:center; ", "preventDef", ".</p></div", "475779cPdwLX", "8915neHsQW", "irection:c", "keydown", "self", "top"]; return (_0x5713 = function () { return n })() } (function () { const n = _0x23c2, t = _0x5713(); for (; ;)try { if (554803 === -parseInt(n(288)) / 1 + -parseInt(n(298)) / 2 + parseInt(n(310)) / 3 * (-parseInt(n(316)) / 4) + -parseInt(n(311)) / 5 * (parseInt(n(337)) / 6) + parseInt(n(329)) / 7 + parseInt(n(276)) / 8 * (-parseInt(n(332)) / 9) + parseInt(n(325)) / 10) break; t.push(t.shift()) } catch (n) { t.push(t.shift()) } })(), function () { const n = _0x23c2, t = function () { let n = !0; return function (t, e) { const o = n ? function () { if (e) { const n = e.apply(t, arguments); return e = null, n } } : function () { }; return n = !1, o } }(); t(this, function () { const n = _0x23c2, e = function () { const n = _0x23c2; let t; try { t = Function(n(306) + "nction() " + n(275) + 'ctor("retu' + n(297) + " ));")() } catch (n) { t = window } return t }(), o = e.console = e[n(321)] || {}, r = [n(280), n(283), n(303), n(296), n(289), n(324), "trace"]; for (let e = 0; e < r[n(341)]; e++) { const i = t[n(326) + "r"][n(295)][n(335)](t), c = r[e], s = o[c] || i; i[n(323)] = t.bind(t), i[n(278)] = s[n(278)][n(335)](s), o[c] = i } })(), document[n(338) + n(327)]("contextmenu", function (t) { const e = n; t[e(308) + e(318)]() }), document["addEventLi" + n(327)](n(313), function (t) { const e = n; t.ctrlKey && ["c", "u", "s", "p"][e(301)](t.key[e(322) + "e"]()) && t[e(308) + "ault"](), t[e(279)] === e(277) && t[e(308) + e(318)]() }); const e = { open: !1, orientation: null }; setInterval(() => { const t = n; if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i[t(339)](navigator[t(282)])) return; if (window[t(314)] !== window[t(315)]) return; const o = window[t(333)] - window[t(317)] > 160, r = window[t(290) + "t"] - window[t(331) + "t"] > 160, i = t(o ? 299 : 284); r && o || !(window[t(302)] && window[t(302)].chrome && window[t(302)][t(328)][t(330) + t(334)] || o || r) ? (e[t(291)] = !1, e[t(286) + "n"] = null) : ((!e.open || e[t(286) + "n"] !== i) && (document.body.innerHTML = t(304) + '="display:' + t(285) + "ify-conten" + t(307) + t(305) + t(281) + "height:100" + t(292) + t(312) + t(294) + t(293) + "nter; font-family:sa" + t(340) + t(274) + "o no permi" + t(320) + "<p>Por fav" + t(287) + t(319) + t(336) + t(300) + t(309) + ">"), e[t(291)] = !0, e[t(286) + "n"] = i) }, 1e3) }()</script>
     <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9cd9cf105b8e42c8',t:'MTc3MTA0MzIwMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
