@@ -431,38 +431,37 @@
 
         @media (max-width:1024px) {
             .poem-card {
-                top: 5vh;
+                top: 3vh;
                 left: 50%;
                 right: auto;
                 transform: translateX(-50%);
-                width: 90%;
-                max-width: 550px
+                width: 85%;
+                max-width: 450px;
+                padding: 20px;
+                max-height: 65vh;
+                overflow-y: auto;
+            }
+
+            #poem-text {
+                font-size: 1rem;
+                line-height: 1.65;
             }
 
             .flowers {
-                transform: scale(.8);
-                bottom: -5vmin
+                transform: scale(.65);
+                bottom: -8vmin
             }
         }
 
         @media (max-width:768px) {
             .poem-card {
-                top: 5vh;
+                top: 2vh;
                 left: 50%;
                 right: auto;
                 transform: translateX(-50%);
-                width: 90vw
-            }
-
-            .flowers {
-                transform: scale(.75);
-                bottom: 5vmin
-            }
-        }
-
-        @media (max-width:480px) {
-            .flowers {
-                transform: scale(.7)
+                width: 88vw;
+                max-height: 60vh;
+                padding: 18px;
             }
 
             #poem-text {
@@ -470,8 +469,29 @@
                 line-height: 1.6;
             }
 
+            .flowers {
+                transform: scale(.6);
+                bottom: -10vmin
+            }
+        }
+
+        @media (max-width:480px) {
             .poem-card {
-                padding: 20px;
+                top: 1.5vh;
+                width: 92vw;
+                max-height: 55vh;
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            #poem-text {
+                font-size: 0.85rem;
+                line-height: 1.5;
+            }
+
+            .flowers {
+                transform: scale(.5);
+                bottom: -12vmin;
             }
         }
     </style>
@@ -555,18 +575,13 @@
 mi amor por ti no tiene fin.
 Como una flor roja y brillante,
 mi corazón late por ti a cada instante 🌹❤️
-
 Rocío, eres mi sueño hecho realidad,
 mi paz, mi alegría y mi felicidad.
 Gracias por existir y por elegir caminar conmigo 🫂❤️
-
 Te amo hoy, mañana y siempre, mi vida 🥹🥰😘
+Mi esposita hermosa🥰❤️😘
 
-Mi esposa 🥰❤️😘😘😘😘😘😘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-💝 de Leonardo Para Rocío 💝
-━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+💝 de Leonardo Para Rocío 💝`;
 
             const poemElement = document.getElementById("poem-text");
             const root = document.documentElement;
