@@ -493,11 +493,57 @@
                 transform: scale(.5);
                 bottom: -12vmin;
             }
+
+            .btn-libreta {
+                top: 10px !important;
+                left: 10px !important;
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 1.2rem !important;
+            }
+        }
+
+        /* Botón para volver a la Libreta */
+        .btn-libreta {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, rgba(80, 20, 40, 0.7), rgba(40, 10, 20, 0.8));
+            color: #ffb3c1;
+            border: 1.5px solid rgba(255, 100, 100, 0.4);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            z-index: 30;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 50, 50, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-libreta:hover {
+            background: linear-gradient(135deg, rgba(100, 30, 50, 0.85), rgba(60, 15, 30, 0.9));
+            color: #ffc0cb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 50, 50, 0.35);
+            border-color: rgba(255, 100, 100, 0.6);
+        }
+
+        .btn-libreta:active {
+            transform: translateY(0);
         }
     </style>
 </head>
 
 <body class=not-loaded>
+    <a href="Libreta.html" class="btn-libreta" title="Volver a la Libreta">
+        ←
+    </a>
     <div class=night>
         <div class=shooting-star></div>
     </div>
