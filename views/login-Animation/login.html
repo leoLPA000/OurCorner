@@ -125,6 +125,20 @@
             line-height: 1.35;
         }
 
+        form .inputGroup1 .helper1 {
+            max-width: calc(100% - 2em);
+            font-size: 1.08em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transform: translate(1em, 2.45em) scale(1);
+        }
+
+        form .inputGroup1.focusWithText .helper1 {
+            transform: translate(1em, 2.45em) scale(0.82);
+            opacity: 0;
+        }
+
         .password-strength {
             margin-top: 8px;
             font-size: 0.85rem;
@@ -223,6 +237,10 @@
 
             .auth-link {
                 font-size: 0.9em;
+            }
+
+            form .inputGroup1 .helper1 {
+                font-size: 0.96em;
             }
         }
     </style>
