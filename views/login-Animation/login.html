@@ -672,7 +672,8 @@
                 const result = await window.authService.signUpWithUsername(username, email, password);
 
                 if (result.success) {
-                    showAlert(result.message || 'Cuenta creada. Revisa tu correo para confirmar.', result.needsConfirmation ? 'info' : 'success');
+                    const confirmationMessage = result.message || ('Cuenta creada. Revisa tu correo (' + email + ') y confirma tu cuenta para poder iniciar sesion.');
+                    showAlert(confirmationMessage, result.needsConfirmation ? 'info' : 'success');
                     loginIdentityInput.value = username;
                     loginPasswordInput.value = '';
                     setTimeout(() => {

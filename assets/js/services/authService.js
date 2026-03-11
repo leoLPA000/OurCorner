@@ -70,7 +70,15 @@ class AuthService {
                 .from('user_profiles')
                 .select('username')
                 .eq('username', username.toLowerCase())
-                .single();
+                .maybeSingle();
+
+            if (checkError) {
+                console.error('Error verificando username:', checkError);
+                return {
+                    success: false,
+                    error: 'No se pudo validar el nombre de usuario. Intenta nuevamente.'
+                };
+            }
 
             if (existingUsers) {
                 return { 
@@ -156,7 +164,7 @@ class AuthService {
                 .from('user_profiles')
                 .select('email')
                 .eq('username', username.toLowerCase())
-                .single();
+                .maybeSingle();
 
             if (profileError || !profile) {
                 console.error('Usuario no encontrado:', username);
@@ -324,7 +332,7 @@ class AuthService {
                 .from('user_profiles')
                 .select('email')
                 .eq('username', username.toLowerCase())
-                .single();
+                .maybeSingle();
 
             if (profileError || !profile) {
                 return { 
