@@ -430,7 +430,7 @@
                 <p class="helper helper1">usuario123 o correo@dominio.com</p>
             </div>
             <div class="inputGroup inputGroup2">
-                <label for="loginPassword" id="loginPasswordLabel">Contrasena</label>
+                <label for="loginPassword" id="loginPasswordLabel">Contraseña</label>
                 <input type="password" id="loginPassword" autocomplete="current-password" />
                 <label id="showPasswordToggle" for="showPasswordCheck">Mostrar
                     <input id="showPasswordCheck" type="checkbox" />
@@ -441,7 +441,7 @@
                 <button id="login" type="submit">Iniciar sesion</button>
             </div>
             <div class="auth-links">
-                <button type="button" class="auth-link" data-switch="recovery">Olvide mi contrasena</button>
+                <button type="button" class="auth-link" data-switch="recovery">Olvide mi contraseña</button>
                 <button type="button" class="auth-link" data-switch="register">Crear cuenta</button>
             </div>
         </section>
@@ -459,7 +459,7 @@
             </div>
 
             <div class="inputGroup">
-                <label for="registerPassword">Contrasena</label>
+                <label for="registerPassword">Contraseña</label>
                 <input type="password" id="registerPassword" autocomplete="new-password" />
                 <div class="password-strength">
                     <div class="strength-bar">
@@ -470,7 +470,7 @@
             </div>
 
             <div class="inputGroup">
-                <label for="registerPasswordConfirm">Confirmar contrasena</label>
+                <label for="registerPasswordConfirm">Confirmar contraseña</label>
                 <input type="password" id="registerPasswordConfirm" autocomplete="new-password" />
             </div>
 
@@ -626,7 +626,7 @@
                     return;
                 }
 
-                showAlert(result.error || 'Usuario o contrasena incorrectos', 'error');
+                showAlert(result.error || 'Usuario o contraseña incorrectos', 'error');
             } catch (error) {
                 showAlert('Error de conexion. Intenta nuevamente.', 'error');
             } finally {
@@ -656,12 +656,12 @@
             }
 
             if (password !== passwordConfirm) {
-                showAlert('Las contrasenas no coinciden', 'error');
+                showAlert('Las contraseñas no coinciden', 'error');
                 return;
             }
 
             if (password.length < 6) {
-                showAlert('La contrasena debe tener al menos 6 caracteres', 'error');
+                showAlert('La contraseña debe tener al menos 6 caracteres', 'error');
                 return;
             }
 
