@@ -1,5 +1,18 @@
-// Register the plugin (Required for GSAP v3)
-gsap.registerPlugin(MorphSVGPlugin);
+// Register MorphSVG only when the plugin is actually available.
+var hasMorphSVG = typeof MorphSVGPlugin !== "undefined";
+
+if (hasMorphSVG) {
+    gsap.registerPlugin(MorphSVGPlugin);
+}
+
+function tweenMorph(targets, shape, options) {
+    if (!hasMorphSVG) {
+        return;
+    }
+
+    var tweenOptions = Object.assign({ morphSVG: shape }, options || {});
+    gsap.to(targets, 1, tweenOptions);
+}
 
 var emailLabel = document.querySelector('#loginEmailLabel'),
     email = document.querySelector('#loginEmail'),
@@ -123,7 +136,7 @@ function onEmailInput(e) {
     if (curEmailIndex > 0) {
         if (mouthStatus == "small") {
             mouthStatus = "medium";
-            gsap.to([mouthBG, mouthOutline, mouthMaskPath], 1, { morphSVG: mouthMediumBG, shapeIndex: 8, ease: "expo.out" });
+            tweenMorph([mouthBG, mouthOutline, mouthMaskPath], mouthMediumBG, { shapeIndex: 8, ease: "expo.out" });
             gsap.to(tooth, 1, { x: 0, y: 0, ease: "expo.out" });
             gsap.to(tongue, 1, { x: 0, y: 1, ease: "expo.out" });
             gsap.to([eyeL, eyeR], 1, { scaleX: .85, scaleY: .85, ease: "expo.out" });
@@ -131,14 +144,14 @@ function onEmailInput(e) {
         }
         if (value.includes("@")) {
             mouthStatus = "large";
-            gsap.to([mouthBG, mouthOutline, mouthMaskPath], 1, { morphSVG: mouthLargeBG, ease: "expo.out" });
+            tweenMorph([mouthBG, mouthOutline, mouthMaskPath], mouthLargeBG, { ease: "expo.out" });
             gsap.to(tooth, 1, { x: 3, y: -2, ease: "expo.out" });
             gsap.to(tongue, 1, { y: 2, ease: "expo.out" });
             gsap.to([eyeL, eyeR], 1, { scaleX: .65, scaleY: .65, ease: "expo.out", transformOrigin: "center center" });
             eyeScale = .65;
         } else {
             mouthStatus = "medium";
-            gsap.to([mouthBG, mouthOutline, mouthMaskPath], 1, { morphSVG: mouthMediumBG, ease: "expo.out" });
+            tweenMorph([mouthBG, mouthOutline, mouthMaskPath], mouthMediumBG, { ease: "expo.out" });
             gsap.to(tooth, 1, { x: 0, y: 0, ease: "expo.out" });
             gsap.to(tongue, 1, { x: 0, y: 1, ease: "expo.out" });
             gsap.to([eyeL, eyeR], 1, { scaleX: .85, scaleY: .85, ease: "expo.out" });
@@ -146,7 +159,7 @@ function onEmailInput(e) {
         }
     } else {
         mouthStatus = "small";
-        gsap.to([mouthBG, mouthOutline, mouthMaskPath], 1, { morphSVG: mouthSmallBG, shapeIndex: 9, ease: "expo.out" });
+        tweenMorph([mouthBG, mouthOutline, mouthMaskPath], mouthSmallBG, { shapeIndex: 9, ease: "expo.out" });
         gsap.to(tooth, 1, { x: 0, y: 0, ease: "expo.out" });
         gsap.to(tongue, 1, { y: 0, ease: "expo.out" });
         gsap.to([eyeL, eyeR], 1, { scaleX: 1, scaleY: 1, ease: "expo.out" });
@@ -253,7 +266,9 @@ function coverEyes() {
     gsap.set([armL, armR], { visibility: "visible" });
     gsap.to(armL, .45, { x: -93, y: 10, rotation: 0, ease: "quad.out" });
     gsap.to(armR, .45, { x: -93, y: 10, rotation: 0, ease: "quad.out", delay: .1 });
-    gsap.to(bodyBG, .45, { morphSVG: bodyBGchanged, ease: "quad.out" });
+    if (hasMorphSVG) {
+        gsap.to(bodyBG, .45, { morphSVG: bodyBGchanged, ease: "quad.out" });
+    }
     eyesCovered = true;
 }
 
@@ -267,7 +282,9 @@ function uncoverEyes() {
             gsap.set([armL, armR], { visibility: "hidden" });
         }
     });
-    gsap.to(bodyBG, .45, { morphSVG: bodyBG, ease: "quad.out" });
+    if (hasMorphSVG) {
+        gsap.to(bodyBG, .45, { morphSVG: bodyBG, ease: "quad.out" });
+    }
     eyesCovered = false;
 }
 
