@@ -97,7 +97,7 @@ class AuthService {
                         display_name: username,
                         created_at: new Date().toISOString()
                     },
-                    emailRedirectTo: `${window.location.origin}/OurCorner/views/email-confirmed.html`
+                    emailRedirectTo: `${window.location.origin}${window.getRoute('/views/email-confirmed.html')}`
                 }
             });
             
@@ -507,7 +507,7 @@ class AuthService {
                 errorCallback();
             } else {
                 alert('Debes iniciar sesión para realizar esta acción');
-                window.location.href = '/OurCorner/views/login.html';
+                window.location.href = window.getRoute('/views/login.html');
             }
             return null;
         }

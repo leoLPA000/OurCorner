@@ -430,7 +430,7 @@ class ReproductorRomantico {
                 // 🔐 Verificar autenticación
                 if (!window.authService || !window.authService.isAuthenticated()) {
                     alert('⚠️ Debes iniciar sesión para agregar canciones');
-                    window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                    window.location.href = window.getRoute('/views/login.html') + '?return=' + encodeURIComponent(window.location.pathname);
                     return;
                 }
                 
@@ -878,7 +878,7 @@ class ReproductorRomantico {
                 if (err.message.includes('authenticated') || err.message.includes('JWT')) {
                     mensajeError = '🔐 Debes iniciar sesión para subir canciones. Redirigiendo...';
                     setTimeout(() => {
-                        window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                        window.location.href = window.getRoute('/views/login.html') + '?return=' + encodeURIComponent(window.location.pathname);
                     }, 2000);
                 } else if (err.message.includes('size') || err.message.includes('too large')) {
                     mensajeError = '❌ El archivo es muy grande. Máximo 50MB';
@@ -945,7 +945,7 @@ class ReproductorRomantico {
         // 🔐 Verificar autenticación
         if (!window.authService || !window.authService.isAuthenticated()) {
             alert('⚠️ Debes iniciar sesión para eliminar canciones');
-            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            window.location.href = window.getRoute('/views/login.html') + '?return=' + encodeURIComponent(window.location.pathname);
             return;
         }
 

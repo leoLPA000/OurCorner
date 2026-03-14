@@ -97,7 +97,7 @@ class GaleriaRomantica {
             // 🔐 Verificar autenticación
             if (!window.authService || !window.authService.isAuthenticated()) {
                 alert('⚠️ Debes iniciar sesión para agregar fotos');
-                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                window.location.href = window.getRoute('/views/login.html') + '?return=' + encodeURIComponent(window.location.pathname);
                 return;
             }
             
@@ -424,7 +424,7 @@ class GaleriaRomantica {
         // 🔐 Verificar autenticación
         if (!window.authService || !window.authService.isAuthenticated()) {
             alert('⚠️ Debes iniciar sesión para eliminar fotos');
-            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            window.location.href = window.getRoute('/views/login.html') + '?return=' + encodeURIComponent(window.location.pathname);
             return;
         }
 

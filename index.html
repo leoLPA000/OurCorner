@@ -43,42 +43,42 @@
             <h2 class="seccion-titulo">Elige cómo te sientes hoy</h2>
 
             <div class="grid-categorias" role="navigation" aria-label="Categorías de mensajes">
-                <a href="views/mensajes.html?categoria=feliz" class="categoria-card feliz"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=feliz')" class="categoria-card feliz"
                     aria-label="Ver mensajes para cuando estés feliz">
                     <div class="icono" role="img" aria-label="Emoji feliz">😄</div>
                     <h3>Cuando estés feliz</h3>
                     <p>Celebremos juntos tu alegría</p>
                 </a>
 
-                <a href="views/mensajes.html?categoria=triste" class="categoria-card triste"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=triste')" class="categoria-card triste"
                     aria-label="Ver mensajes para cuando estés triste">
                     <div class="icono" role="img" aria-label="Emoji triste">😢</div>
                     <h3>Cuando estés triste</h3>
                     <p>Deja que te abrace con palabras</p>
                 </a>
 
-                <a href="views/mensajes.html?categoria=enojada" class="categoria-card enojada"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=enojada')" class="categoria-card enojada"
                     aria-label="Ver mensajes para cuando estés enojada">
                     <div class="icono" role="img" aria-label="Emoji enojado">😤</div>
                     <h3>Cuando estés enojada</h3>
                     <p>Respira... aquí estoy para ti</p>
                 </a>
 
-                <a href="views/mensajes.html?categoria=amor" class="categoria-card amor"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=amor')" class="categoria-card amor"
                     aria-label="Ver mensajes sobre por qué te amo">
                     <div class="icono" role="img" aria-label="Emoji corazón">❤️</div>
                     <h3>Por qué te amo</h3>
                     <p>Las razones nunca terminan</p>
                 </a>
 
-                <a href="views/mensajes.html?categoria=nostalgia" class="categoria-card nostalgia"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=nostalgia')" class="categoria-card nostalgia"
                     aria-label="Ver mensajes para cuando me extrañes">
                     <div class="icono" role="img" aria-label="Emoji luna">🌙</div>
                     <h3>Cuando me extrañes</h3>
                     <p>Estoy más cerca de lo que piensas</p>
                 </a>
 
-                <a href="views/mensajes.html?categoria=motivacion" class="categoria-card motivacion"
+                <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mensajes.html?categoria=motivacion')" class="categoria-card motivacion"
                     aria-label="Ver mensajes motivacionales">
                     <div class="icono" role="img" aria-label="Emoji músculo">💪</div>
                     <h3>Cuando necesites fuerza</h3>
@@ -88,7 +88,7 @@
         </section>
 
         <section class="acceso-rapido">
-            <a href="views/mis-mensajes.html" class="btn-mis-mensajes">
+            <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/mis-mensajes.html')" class="btn-mis-mensajes">
                 <span class="icono-btn">✍️</span>
                 <div class="texto-btn">
                     <strong>Mis Mensajes</strong>
@@ -98,7 +98,7 @@
         </section>
 
         <!-- Botón de acceso a eventos especiales -->
-        <a href="views/Libreta.html" class="btn-eventos-especiales" id="btnEventosEspeciales"
+        <a href="#" onclick="event.preventDefault(); window.location.href = getRoute('/views/Libreta.html')" class="btn-eventos-especiales" id="btnEventosEspeciales"
             title="Ver nuestra libreta de eventos">
             📖
         </a>
@@ -126,6 +126,9 @@
 
     <!-- Contenedor para partículas del cursor -->
     <div id="cursor-particles"></div>
+
+    <!-- 📍 Base Path Configuration (Must be first) -->
+    <script src="assets/js/config/basePath.js"></script>
 
     <!-- Supabase SDK (necesario para storage y DB) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
