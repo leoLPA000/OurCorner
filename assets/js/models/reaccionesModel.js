@@ -225,10 +225,39 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     btnEmoji.textContent = emoji;
     btnEmoji.dataset.emoji = emoji;
 
+    // Efecto hover - resaltar y crecer
+    btnEmoji.addEventListener('mouseenter', () => {
+      btnEmoji.style.transform = 'scale(1.5) translateY(-10px)';
+      btnEmoji.setAttribute('data-highlighted', 'true');
+    });
+
+    btnEmoji.addEventListener('mouseleave', () => {
+      btnEmoji.style.transform = 'scale(1) translateY(0)';
+      btnEmoji.removeAttribute('data-highlighted');
+    });
+
     btnEmoji.addEventListener('click', async (e) => {
       e.stopPropagation();
+      console.log('🎯 Emoji clickeado:', emoji);
       hideMenu();
       await handleReaction(mensajeId, emoji, btnPrincipal, contenedor);
+    });
+
+    // Touch: prevenir selección de texto
+    btnEmoji.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Al soltar sobre un emoji resaltado, seleccionar ese
+    btnEmoji.addEventListener('touchend', async (e) => {
+      if (btnEmoji.getAttribute('data-highlighted') === 'true') {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🎯 Emoji seleccionado (touch):', emoji);
+        hideMenu();
+        await handleReaction(mensajeId, emoji, btnPrincipal, contenedor);
+      }
     });
 
     menuReacciones.appendChild(btnEmoji);
@@ -295,14 +324,19 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
 
   // Touch events para móvil
   btnPrincipal.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    console.log('📱 Touch start en botón');
     holdTimeout = setTimeout(() => {
       isHolding = true;
+      console.log('📱 Hold detectado, mostrando menú');
       showMenu();
     }, 500);
   });
 
   btnPrincipal.addEventListener('touchend', async (e) => {
     clearTimeout(holdTimeout);
+    console.log('📱 Touch end, isHolding:', isHolding);
+    
     if (!isHolding) {
       e.preventDefault();
 
@@ -333,10 +367,59 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     isHolding = false;
   });
 
+  // Cancelar hold si se levanta el dedo rápido
+  btnPrincipal.addEventListener('touchcancel', (e) => {
+    clearTimeout(holdTimeout);
+    isHolding = false;
+  });
+
+  // Detectar emoji bajo el dedo mientras deslizas (en el menú)
+  let lastHighlightedEmoji = null;
+  
+  menuReacciones.addEventListener('touchmove', (e) => {
+    // No prevenir si el menú no es visible
+    if (!menuReacciones.classList.contains('show')) return;
+    
+    try {
+      const touch = e.touches[0];
+      const elementoEnPosicion = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      // Buscar si es un botón de emoji
+      const emojiBtn = elementoEnPosicion?.closest('.reaction-option');
+      
+      if (emojiBtn && emojiBtn !== lastHighlightedEmoji) {
+        // Remover resaltado del anterior
+        if (lastHighlightedEmoji) {
+          lastHighlightedEmoji.style.transform = 'scale(1) translateY(0)';
+          lastHighlightedEmoji.removeAttribute('data-highlighted');
+        }
+        
+        // Resaltar el actual
+        emojiBtn.style.transform = 'scale(1.5) translateY(-10px)';
+        emojiBtn.setAttribute('data-highlighted', 'true');
+        lastHighlightedEmoji = emojiBtn;
+        
+        // Prevenir scroll solo si estamos sobre un emoji
+        e.preventDefault();
+      } else if (!emojiBtn && lastHighlightedEmoji) {
+        // Quitamos del menú, remover resaltado
+        lastHighlightedEmoji.style.transform = 'scale(1) translateY(0)';
+        lastHighlightedEmoji.removeAttribute('data-highlighted');
+        lastHighlightedEmoji = null;
+      }
+    } catch (err) {
+      console.warn('Error en touchmove:', err);
+    }
+  }, { passive: false });
+
   function showMenu() {
     menuReacciones.classList.remove('hidden');
     menuReacciones.classList.add('show');
-    posicionarMenuInteligentemente();
+    
+    // En móviles, esperar un frame para que se renderice antes de posicionar
+    requestAnimationFrame(() => {
+      posicionarMenuInteligentemente();
+    });
   }
 
   function hideMenu() {
@@ -388,10 +471,15 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     }
   });
 
+  // No cerrar menú si hay touch activo en él
+  menuReacciones.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+  });
+
   // Reposicionar menú cuando cambie el tamaño de la ventana
   window.addEventListener('resize', () => {
     if (menuReacciones.classList.contains('show')) {
-      posicionarMenuInteligentemente();
+      setTimeout(() => posicionarMenuInteligentemente(), 50);
     }
   });
 
