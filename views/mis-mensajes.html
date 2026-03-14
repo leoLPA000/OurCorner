@@ -610,22 +610,17 @@
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.12);
             border-radius: 25px;
-            padding: 8px 12px;
+            padding: 8px;
             display: flex;
             gap: 4px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            z-index: 99999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
             opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0.9);
+            transition: all 0.2s ease;
             pointer-events: none;
-            backdrop-filter: blur(4px);
             top: 0;
             left: 0;
-            will-change: top, left, opacity, transform;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
         }
 
         .reaction-menu.show {
@@ -645,25 +640,18 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.8rem;
-            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 44px;
             height: 44px;
             user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
         }
 
         .reaction-option:hover {
-            background: rgba(0, 0, 0, 0.08);
-            transform: scale(1.5) translateY(-10px);
-        }
-
-        .reaction-option[data-highlighted="true"] {
-            background: rgba(255, 107, 157, 0.2);
-            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.2);
         }
 
         .reaction-feedback {
