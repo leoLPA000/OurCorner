@@ -5,23 +5,39 @@
 // Emojis por defecto que mostraremos (puedes personalizar)
 const DEFAULT_EMOJIS = ['❤️', '😂', '😍'];
 
-// Generar ID único por sesión para simular usuario anónimo
+// Obtener ID del usuario autenticado
 function obtenerIdSesion() {
-  let sessionId = localStorage.getItem('reacciones_session_id');
-  if (!sessionId) {
-    sessionId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('reacciones_session_id', sessionId);
+  // 🔐 Verificar autenticación
+  if (window.authService && window.authService.isAuthenticated()) {
+    const user = window.authService.getCurrentUser();
+    return user.id;
   }
-  return sessionId;
+  
+  // Si no está autenticado, retornar null
+  return null;
 }
 
 async function insertarOActualizarReaccion(mensajeId, emoji) {
   if (!mensajeId || !emoji) throw new Error('mensajeId y emoji son requeridos');
 
+  // 🔐 Verificar autenticación
+  if (!window.authService || !window.authService.isAuthenticated()) {
+    alert('⚠️ Debes iniciar sesión para reaccionar');
+    window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+    throw new Error('Usuario no autenticado');
+  }
+
+  // 🔐 Verificar permisos de rol (solo admin y super_admin pueden reaccionar)
+  if (window.rolesService && !await window.rolesService.canModify()) {
+    alert('⚠️ Los invitados no pueden reaccionar a los mensajes.\nSolo los administradores tienen este permiso.');
+    throw new Error('Usuario sin permisos para reaccionar');
+  }
+
   const client = window.supabaseClient;
   if (!client) throw new Error('Supabase no inicializado');
 
   const sessionId = obtenerIdSesion();
+  if (!sessionId) throw new Error('No se pudo obtener ID de usuario');
 
   try {
     // Buscar si existe alguna reacción para este mensaje (sin importar session_id)
@@ -165,8 +181,12 @@ function suscribirReacciones(onUpdate) {
 }
 
 // Helper para montar botón de reacciones con menú desplegable
-function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
+async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   console.log('🔧 Montando botón de reacciones para mensaje:', mensajeId);
+
+  // 🔐 Verificar permisos
+  const canReact = window.rolesService ? await window.rolesService.canModify() : true;
+  console.log('🔐 Usuario puede reaccionar:', canReact);
 
   // Limpiar contenedor
   contenedor.innerHTML = '';
@@ -198,7 +218,7 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   const menuReacciones = document.createElement('div');
   menuReacciones.className = 'reaction-menu hidden';
 
-  const emojisDisponibles = ['❤️', '😂', '😍', '🥹', '🫂'];
+  const emojisDisponibles = ['😂', '❤️', '😍', '🥹', '🫂'];
   emojisDisponibles.forEach(emoji => {
     const btnEmoji = document.createElement('button');
     btnEmoji.className = 'reaction-option';
@@ -218,6 +238,18 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   let holdTimeout;
   let isHolding = false;
 
+  // 🔐 Si no tiene permisos, deshabilitar interacciones
+  if (!canReact) {
+    btnPrincipal.disabled = true;
+    btnPrincipal.title = 'Solo los administradores pueden reaccionar';
+    btnPrincipal.style.opacity = '0.5';
+    btnPrincipal.style.cursor = 'not-allowed';
+    reactionContainer.appendChild(btnPrincipal);
+    reactionContainer.appendChild(menuReacciones);
+    contenedor.appendChild(reactionContainer);
+    return; // No agregar eventos si no tiene permisos
+  }
+
   // Eventos para mostrar menú al mantener presionado
   btnPrincipal.addEventListener('mousedown', (e) => {
     holdTimeout = setTimeout(() => {
@@ -229,6 +261,13 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   btnPrincipal.addEventListener('mouseup', async (e) => {
     clearTimeout(holdTimeout);
     if (!isHolding) {
+      // 🔐 VERIFICAR PERMISOS ANTES DE PROCESAR
+      if (window.rolesService && !await window.rolesService.canModify()) {
+        alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+        isHolding = false;
+        return;
+      }
+
       // Click rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
       console.log(`🎯 Estado del botón: ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
@@ -266,6 +305,14 @@ function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
     clearTimeout(holdTimeout);
     if (!isHolding) {
       e.preventDefault();
+
+      // 🔐 VERIFICAR PERMISOS ANTES DE PROCESAR
+      if (window.rolesService && !await window.rolesService.canModify()) {
+        alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+        isHolding = false;
+        return;
+      }
+
       // Touch rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
       console.log(`🎯 Estado del botón (touch): ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
@@ -328,6 +375,12 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
     btnPrincipal.disabled = true;
     console.log(`${emoji} Procesando reacción...`);
 
+    // 🔐 Verificar permisos antes de reaccionar
+    if (window.rolesService && !await window.rolesService.canModify()) {
+      alert('⚠️ Los invitados no pueden reaccionar a los mensajes.');
+      return;
+    }
+
     const result = await insertarOActualizarReaccion(mensajeId, emoji);
     console.log('✅ Resultado:', result);
 
@@ -339,8 +392,13 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
     showReactionFeedback(contenedor, result.action, emoji);
 
   } catch (err) {
-    console.error('Error al reaccionar:', err);
-    alert('Error al procesar la reacción.');
+    console.error('❌ Error al reaccionar:', err);
+    console.error('📋 Detalles del error:', {
+      message: err.message,
+      stack: err.stack,
+      name: err.name
+    });
+    alert('❌ Error al procesar la reacción: ' + (err.message || 'Error desconocido'));
   } finally {
     btnPrincipal.disabled = false;
   }

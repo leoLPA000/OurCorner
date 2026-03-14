@@ -60,17 +60,17 @@ body.tema-oscuro .btn-calendario-navidad {
         width: 60px;
         height: 60px;
         font-size: 2em;
-        top: 95px;
+        top: 30px;
         left: 20px;
     }
 }
 
 /* ========================================
-   BOTÓN EVENTOS ESPECIALES
+   BOTÓN EVENTOS ESPECIALES (LIBRETA)
    ======================================== */
 .btn-eventos-especiales {
     position: fixed;
-    top: 115px;
+    top: 30px;
     left: 30px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: #ffffff;
@@ -111,4 +111,181 @@ body.tema-oscuro .btn-calendario-navidad {
 body.tema-oscuro .btn-eventos-especiales {
     background: linear-gradient(135deg, #764ba2, #ffd700);
     box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+}
+
+/* ========================================
+   BOTÓN DE AUTENTICACIÓN (FLOTANTE)
+   ======================================== */
+.auth-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 100;
+}
+
+.btn-auth {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.btn-auth-text {
+    display: inline;
+}
+
+.btn-auth:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.btn-auth.logged-in {
+    background: linear-gradient(135deg, #2d5016, #4a7c2c);
+}
+
+.btn-auth.logged-in:hover {
+    background: linear-gradient(135deg, #4a7c2c, #3dc84b);
+}
+
+/* Dropdown de usuario */
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    padding: 12px 0;
+    min-width: 200px;
+    display: none;
+    animation: slideDown 0.3s ease;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-info {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-email {
+    font-size: 0.9rem;
+    color: #666;
+    word-break: break-all;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-size: 0.95rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-item:hover {
+    background: #f8f9ff;
+}
+
+.dropdown-item.danger {
+    color: #dc3545;
+}
+
+.dropdown-item.danger:hover {
+    background: #fff5f5;
+}
+
+/* Modo oscuro para autenticación */
+body.tema-oscuro .btn-auth {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+body.tema-oscuro .user-dropdown {
+    background: #16213e;
+    color: #eaeaea;
+}
+
+body.tema-oscuro .user-email {
+    color: #C7B8EA;
+}
+
+body.tema-oscuro .dropdown-item {
+    color: #eaeaea;
+}
+
+body.tema-oscuro .dropdown-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.tema-oscuro .dropdown-item.danger:hover {
+    background: rgba(220, 53, 69, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-container {
+        top: 80px;
+        right: 15px;
+    }
+
+    .btn-auth {
+        padding: 12px;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        width: 45px;
+        height: 45px;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .btn-auth .btn-auth-text {
+        display: none !important;
+    }
+
+    .user-dropdown {
+        min-width: 180px
+    }
 }

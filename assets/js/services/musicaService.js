@@ -416,9 +416,30 @@ class ReproductorRomantico {
         // Agregar música
         const btnAgregar = document.querySelector('.btn-agregar-musica');
         if (btnAgregar) {
-            btnAgregar.addEventListener('click', (e) => {
+            // 🔐 Verificar permisos y ocultar si es invitado
+            (async () => {
+                if (window.rolesService && !await window.rolesService.canModify()) {
+                    btnAgregar.style.display = 'none';
+                }
+            })();
+
+            btnAgregar.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // 🔐 Verificar autenticación
+                if (!window.authService || !window.authService.isAuthenticated()) {
+                    alert('⚠️ Debes iniciar sesión para agregar canciones');
+                    window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                
+                // 🔐 Verificar permisos (solo admin y super_admin)
+                if (window.rolesService && !await window.rolesService.canModify()) {
+                    window.rolesService.showNoPermissionMessage();
+                    return;
+                }
+                
                 console.log('➕ Abriendo formulario de canción...');
                 this.abrirFormularioCancion();
             });
@@ -674,7 +695,7 @@ class ReproductorRomantico {
                     <div class="form-grupo">
                         <label for="inputAudio">Seleccionar archivo de audio:</label>
                         <input type="file" id="inputAudio" accept="audio/*" required>
-                        <p class="hint-texto">Formatos: MP3, WAV, OGG, M4A</p>
+                        <p class="hint-texto">Cualquier formato de audio (MP3, M4A, WAV, OGG, FLAC, AAC, etc.) - Máx. 50MB</p>
                     </div>
                     
                     <div class="form-grupo">
@@ -689,6 +710,7 @@ class ReproductorRomantico {
                     
                     <div class="info-archivo">
                         <p>📁 <span id="nombreArchivo">Ningún archivo seleccionado</span></p>
+                        <p>📦 <span id="tamanoArchivo">-- MB</span></p>
                         <p>⏱️ <span id="duracionArchivo">--:--</span></p>
                     </div>
                     
@@ -705,12 +727,19 @@ class ReproductorRomantico {
         // Info de archivo de audio
         const inputAudio = document.getElementById('inputAudio');
         const nombreArchivo = document.getElementById('nombreArchivo');
+        const tamanoArchivo = document.getElementById('tamanoArchivo');
         const duracionArchivo = document.getElementById('duracionArchivo');
 
         inputAudio.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                // Mostrar nombre
                 nombreArchivo.textContent = file.name;
+                
+                // Mostrar tamaño
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                tamanoArchivo.textContent = `${sizeMB} MB`;
+                tamanoArchivo.style.color = file.size > 50 * 1024 * 1024 ? '#ff4444' : '#4caf50';
 
                 // Obtener duración del audio
                 const audioTemp = new Audio();
@@ -719,6 +748,7 @@ class ReproductorRomantico {
                     const minutos = Math.floor(audioTemp.duration / 60);
                     const segundos = Math.floor(audioTemp.duration % 60);
                     duracionArchivo.textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+                    URL.revokeObjectURL(audioTemp.src); // Liberar memoria
                 });
             }
         });
@@ -732,6 +762,21 @@ class ReproductorRomantico {
             const titulo = document.getElementById('tituloCancion').value;
             const artista = document.getElementById('artistaCancion').value;
 
+            // ✅ Validar que sea un archivo de audio (cualquier formato)
+            const esAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|wma|opus|webm|aiff)$/i);
+            
+            if (!esAudio) {
+                alert('❌ El archivo no parece ser de audio. Por favor selecciona un archivo de audio válido.');
+                return;
+            }
+
+            // ✅ Validar tamaño (máximo 50MB)
+            const maxSize = 50 * 1024 * 1024; // 50MB en bytes
+            if (file.size > maxSize) {
+                alert(`❌ El archivo es muy grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo: 50MB`);
+                return;
+            }
+
             // Mostrar indicador de carga
             const btnGuardar = modal.querySelector('.btn-guardar-cancion');
             const textoOriginal = btnGuardar.innerHTML;
@@ -741,7 +786,7 @@ class ReproductorRomantico {
             try {
                 if (!window.supabaseClient) throw new Error('Supabase no inicializado');
 
-                console.log('📤 Iniciando subida de archivo:', file.name);
+                console.log('📤 Iniciando subida de archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', (file.size / 1024 / 1024).toFixed(2) + 'MB');
 
                 // Generar path seguro
                 const timestamp = Date.now();
@@ -749,12 +794,36 @@ class ReproductorRomantico {
                 const path = `musica/${timestamp}_${safeName}`;
 
                 console.log('📁 Path generado:', path);
+                
+                // ✅ Determinar contentType automáticamente
+                let contentType = file.type;
+                if (!contentType || contentType === '') {
+                    // Mapeo de extensiones a tipos MIME comunes
+                    const extension = file.name.toLowerCase().split('.').pop();
+                    const mimeTypes = {
+                        'm4a': 'audio/mp4',
+                        'mp3': 'audio/mpeg',
+                        'wav': 'audio/wav',
+                        'ogg': 'audio/ogg',
+                        'flac': 'audio/flac',
+                        'aac': 'audio/aac',
+                        'opus': 'audio/opus',
+                        'webm': 'audio/webm',
+                        'wma': 'audio/x-ms-wma',
+                        'aiff': 'audio/aiff'
+                    };
+                    contentType = mimeTypes[extension] || 'audio/mpeg'; // default a audio/mpeg
+                }
+                console.log('📝 Content-Type:', contentType);
 
-                // Subir archivo
+                // Subir archivo con contentType específico
                 const { data: uploadData, error: uploadError } = await window.supabaseClient
                     .storage
                     .from('archivos')
-                    .upload(path, file, { upsert: true });
+                    .upload(path, file, { 
+                        contentType: contentType,
+                        upsert: true 
+                    });
 
                 if (uploadError) {
                     console.error('❌ Error en upload:', uploadError);
@@ -795,16 +864,32 @@ class ReproductorRomantico {
                 console.error('Detalles del error:', {
                     message: err.message,
                     name: err.name,
-                    stack: err.stack
+                    stack: err.stack,
+                    hint: err.hint,
+                    details: err.details
                 });
 
                 // Restaurar botón
                 btnGuardar.innerHTML = textoOriginal;
                 btnGuardar.disabled = false;
 
-                // En rama servidor: NO usar localStorage, mostrar error
-                this.mostrarNotificacion('❌ Error al guardar canción: ' + err.message, 'error');
-                this.mostrarNotificacion('Verifica tu conexión a Supabase en la consola (F12)', 'info');
+                // Mensajes de error más específicos
+                let mensajeError = '❌ Error al guardar canción';
+                if (err.message.includes('authenticated') || err.message.includes('JWT')) {
+                    mensajeError = '🔐 Debes iniciar sesión para subir canciones. Redirigiendo...';
+                    setTimeout(() => {
+                        window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                    }, 2000);
+                } else if (err.message.includes('size') || err.message.includes('too large')) {
+                    mensajeError = '❌ El archivo es muy grande. Máximo 50MB';
+                } else if (err.message.includes('mime') || err.message.includes('type')) {
+                    mensajeError = '❌ Formato de archivo no permitido';
+                } else {
+                    mensajeError = '❌ Error: ' + err.message;
+                }
+                
+                this.mostrarNotificacion(mensajeError, 'error');
+                alert(mensajeError);
 
                 // NO cerrar modal para que usuario pueda reintentar
             }
@@ -857,6 +942,19 @@ class ReproductorRomantico {
     }
 
     async eliminarCancion(id) {
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            alert('⚠️ Debes iniciar sesión para eliminar canciones');
+            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        // 🔐 Verificar permisos de rol
+        if (window.rolesService && !await window.rolesService.canModify()) {
+            window.rolesService.showNoPermissionMessage();
+            return;
+        }
+
         if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
 
         try {
@@ -914,9 +1012,12 @@ class ReproductorRomantico {
         }, 3000);
     }
 
-    mostrarPlaylist() {
+    async mostrarPlaylist() {
         // Pausar música
         if (this.playing) this.pause();
+
+        // 🔐 Verificar permisos para eliminar
+        const canModify = window.rolesService ? await window.rolesService.canModify() : false;
 
         // Si no hay canciones, mostrar mensaje
         if (this.playlist.length === 0) {
@@ -985,7 +1086,7 @@ class ReproductorRomantico {
                                 <div class="cancion-titulo-item">${cancion.titulo}</div>
                                 <div class="cancion-artista-item">${cancion.artista}</div>
                             </div>
-                            ${cancion.tipo === 'personalizada' ? `
+                            ${cancion.tipo === 'personalizada' && canModify ? `
                                 <button class="btn-eliminar-cancion" data-id="${cancion.id}" title="Eliminar">
                                     🗑️
                                 </button>

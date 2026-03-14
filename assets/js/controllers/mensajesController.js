@@ -28,8 +28,28 @@ class FormularioMensajes {
         boton.title = 'Escribe tu propio mensaje romántico';
         
         document.body.appendChild(boton);
+
+        // 🔐 Verificar permisos y ocultar si es invitado
+        (async () => {
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                boton.style.display = 'none';
+            }
+        })();
         
-        boton.addEventListener('click', () => {
+        boton.addEventListener('click', async () => {
+            // 🔐 Verificar autenticación
+            if (!window.authService || !window.authService.isAuthenticated()) {
+                alert('⚠️ Debes iniciar sesión para agregar mensajes');
+                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // 🔐 Verificar permisos (solo admin y super_admin)
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                window.rolesService.showNoPermissionMessage();
+                return;
+            }
+
             this.abrirFormulario();
         });
     }
@@ -283,6 +303,21 @@ class FormularioMensajes {
     async guardarMensaje(e) {
         e.preventDefault();
         
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            this.mostrarNotificacion('⚠️ Debes iniciar sesión para publicar mensajes', 'error');
+            setTimeout(() => {
+                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            }, 2000);
+            return;
+        }
+
+        // 🔐 Verificar permisos de rol
+        if (window.rolesService && !await window.rolesService.canModify()) {
+            window.rolesService.showNoPermissionMessage();
+            return;
+        }
+        
         const categoria = document.getElementById('categoriaSelect').value;
         const emoji = document.getElementById('emojiSelect').value || '❤️';
         const texto = document.getElementById('textoMensaje').value.trim();
@@ -295,12 +330,14 @@ class FormularioMensajes {
         }
         
         // Crear objeto mensaje (sin id, Supabase lo genera automáticamente)
+        const currentUser = window.authService.getCurrentUser();
         const mensaje = {
             categoria: categoria,
             emoji: emoji,
             texto: texto,
             nota: nota,
-            autor: autor
+            autor: autor,
+            user_id: currentUser.id
         };
         
         // Guardar en Supabase
@@ -347,6 +384,9 @@ class FormularioMensajes {
         const lista = document.getElementById('listaMensajesGuardados');
         const contador = document.getElementById('contadorGuardados');
         
+        // 🔐 Verificar permisos para eliminar
+        const canModify = window.rolesService ? await window.rolesService.canModify() : false;
+        
         try {
             if (!window.supabaseClient) {
                 console.error('❌ Supabase no está inicializado');
@@ -383,7 +423,7 @@ class FormularioMensajes {
                         <div class="mensaje-guardado-header">
                             <span class="mensaje-emoji">${mensaje.emoji || '💕'}</span>
                             <span class="mensaje-categoria-badge">${this.getCategoriaTexto(mensaje.categoria)}</span>
-                            <button class="btn-eliminar-mensaje" data-id="${mensaje.id}" title="Eliminar">🗑️</button>
+                            ${canModify ? `<button class="btn-eliminar-mensaje" data-id="${mensaje.id}" title="Eliminar">🗑️</button>` : ''}
                         </div>
                         <p class="mensaje-guardado-texto">${mensaje.texto}</p>
                         ${mensaje.nota ? `<p class="mensaje-guardado-nota">📝 ${mensaje.nota}</p>` : ''}
@@ -423,6 +463,19 @@ class FormularioMensajes {
     }
     
     async eliminarMensaje(id) {
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            alert('⚠️ Debes iniciar sesión para eliminar mensajes');
+            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        // 🔐 Verificar permisos de rol
+        if (window.rolesService && !await window.rolesService.canModify()) {
+            window.rolesService.showNoPermissionMessage();
+            return;
+        }
+
         if (!confirm('¿Estás segura de que quieres eliminar este mensaje?')) {
             return;
         }

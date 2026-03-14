@@ -8,10 +8,10 @@
         content="Página web romántica para Rocío, celebrando nuestro primer mes juntos con mensajes de amor personalizados.">
     <meta name="author" content="Leo">
     <meta name="theme-color" content="#e63946">
-    <title>NuestroMes ❤️ Para Rocío</title>
+    <title>Nuestro Nidito R❤️L</title>
 
     <!-- Favicon -->
-    <!-- <link rel="icon" type="image/svg+xml" href="img/corazon.svg"> -->
+    <link rel="icon" type="image/png" href="galeria/icono.png">
 
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/estilos.css">
@@ -27,8 +27,8 @@
 <body>
     <div class="container">
         <header class="hero">
-            <h1 class="titulo-principal">Para ti, Rocío MVC2 OUR1❤️</h1>
-            <p class="subtitulo">Nuestro riconcito</p>
+            <h1 class="titulo-principal">Para ti, Rocío❤️</h1>
+            <p class="subtitulo">❤️Nuestro Nidito❤️</p>
             <div class="fecha-especial">Rocío & Leonardo</div>
         </header>
 
@@ -97,17 +97,18 @@
             </a>
         </section>
 
-        <!-- Botón de acceso al calendario de adviento -->
-        <a href="views/calendario-adviento.html" class="btn-calendario-navidad" id="btnCalendarioNavidad"
-            title="Calendario de Adviento Navideño">
-            🎄
+        <!-- Botón de acceso a eventos especiales -->
+        <a href="views/Libreta.html" class="btn-eventos-especiales" id="btnEventosEspeciales"
+            title="Ver nuestra libreta de eventos">
+            📖
         </a>
 
-        <!-- Botón de acceso a eventos especiales -->
-        <a href="views/eventos-especiales.html" class="btn-eventos-especiales" id="btnEventosEspeciales"
-            title="Ver todos los eventos especiales">
-            🎪
-        </a>
+        <!-- Botón de autenticación -->
+        <div class="auth-container" id="authContainer">
+            <button class="btn-auth" id="btnAuth" title="Iniciar sesión">
+                🔐<span class="btn-auth-text"> Iniciar Sesión</span>
+            </button>
+        </div>
 
         <footer class="pie-pagina">
             <div class="contador-dias">
@@ -129,6 +130,8 @@
     <!-- Supabase SDK (necesario para storage y DB) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="assets/js/config/supabase.js"></script>
+    <script src="assets/js/services/authService.js"></script>
+    <script src="assets/js/services/rolesService.js"></script>
 
     <!--<script src="assets/js/ui/animations.js"></script> -->
     <script src="assets/js/ui/cursorEffects.js"></script>
@@ -139,36 +142,49 @@
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
-            const fechaInicio = new Date('2025-10-08'); // 8 de octubre 2025
-            const hoy = new Date();
-            const diferencia = hoy - fechaInicio;
-            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-
-            let texto = '';
-            if (dias === 0) {
-                texto = '¡Hoy comenzamos! 🎉';
-            } else if (dias === 1) {
-                texto = '1 día hermoso';
-            } else if (dias < 30) {
-                texto = dias + ' días increíbles';
-            } else if (dias < 60) {
-                texto = '1 mes maravilloso';
-            } else if (dias < 365) {
-                const meses = Math.floor(dias / 30);
-                const diasRestantes = dias % 30;
-                texto = meses + (meses === 1 ? ' mes' : ' meses');
-                if (diasRestantes > 0) {
-                    texto += ' y ' + diasRestantes + (diasRestantes === 1 ? ' día' : ' días');
+            // Fecha de inicio: 8 de octubre 2025 a las 00:00 UTC-3:30 (hora intermedia Bolivia-Argentina)
+            // Bolivia: UTC-4, Argentina: UTC-3 → Promedio: UTC-3:30
+            const fechaInicio = new Date('2025-10-08T00:00:00-03:30');
+            
+            // Obtener la hora actual en la zona horaria intermedia UTC-3:30
+            const ahora = new Date();
+            const offsetIntermedio = -3.5 * 60; // -210 minutos (UTC-3:30)
+            const offsetLocal = ahora.getTimezoneOffset(); // offset del navegador
+            const diferenciaOffset = offsetLocal - offsetIntermedio;
+            const horaIntermedia = new Date(ahora.getTime() + diferenciaOffset * 60000);
+            
+            // Calcular meses completos basándose en aniversarios mensuales (cada día 8)
+            let mesesCompletos = 0;
+            let fechaAniversario = new Date(fechaInicio);
+            
+            while (true) {
+                // Avanzar un mes
+                fechaAniversario.setMonth(fechaAniversario.getMonth() + 1);
+                
+                // Si el próximo aniversario es mayor que la hora actual, detener
+                if (fechaAniversario > horaIntermedia) {
+                    fechaAniversario.setMonth(fechaAniversario.getMonth() - 1); // Volver al último aniversario
+                    break;
                 }
+                mesesCompletos++;
+            }
+            
+            // Calcular días desde el último aniversario mensual
+            const diferenciaDias = Math.floor((horaIntermedia - fechaAniversario) / (1000 * 60 * 60 * 24));
+            
+            let texto = '';
+            if (mesesCompletos === 0 && diferenciaDias === 0) {
+                texto = '¡Hoy comenzamos! 🎉';
+            } else if (mesesCompletos === 0 && diferenciaDias === 1) {
+                texto = '1 día hermoso';
+            } else if (mesesCompletos === 0) {
+                texto = diferenciaDias + ' días increíbles';
+            } else if (mesesCompletos === 1 && diferenciaDias === 0) {
+                texto = '1 mes maravilloso';
             } else {
-                const anos = Math.floor(dias / 365);
-                const diasRestantes = dias % 365;
-                texto = anos + (anos === 1 ? ' año' : ' años');
-                if (diasRestantes > 0) {
-                    const meses = Math.floor(diasRestantes / 30);
-                    if (meses > 0) {
-                        texto += ' y ' + meses + (meses === 1 ? ' mes' : ' meses');
-                    }
+                texto = mesesCompletos + (mesesCompletos === 1 ? ' mes' : ' meses');
+                if (diferenciaDias > 0) {
+                    texto += ' y ' + diferenciaDias + (diferenciaDias === 1 ? ' día' : ' días');
                 }
             }
 
@@ -198,7 +214,153 @@
 
         // Actualizar cuando cambie localStorage
         window.addEventListener('storage', actualizarContadorMensajes);
+
+        // ============================================================================
+        // 🔐 SISTEMA DE AUTENTICACIÓN
+        // ============================================================================
+        
+        // Inicializar UI de autenticación
+        function initAuthUI() {
+            const btnAuth = document.getElementById('btnAuth');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (!btnAuth || !authContainer) return;
+            
+            // Verificar estado de autenticación
+            if (window.authService) {
+                window.authService.onAuthStateChange((event, session) => {
+                    updateAuthButton(session);
+                });
+            }
+        }
+        
+        // Actualizar botón según estado de autenticación
+        async function updateAuthButton(session) {
+            const btnAuth = document.getElementById('btnAuth');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (!btnAuth || !authContainer) return;
+            
+            // Limpiar contenido previo
+            authContainer.innerHTML = '';
+            
+            if (session && session.user) {
+                // Usuario autenticado
+                const user = session.user;
+                const username = user.user_metadata?.username || user.email;
+                const displayName = username.length > 15 ? username.substring(0, 12) + '...' : username;
+                
+                // Verificar si es super admin
+                const isSuperAdmin = await window.rolesService?.isSuperAdmin();
+                const userRole = await window.rolesService?.getCurrentUserRole();
+                const roleInfo = window.rolesService?.getRoleInfo(userRole);
+                
+                // Construir menú dinámicamente
+                let menuItems = '';
+                
+                // Opción de Panel Admin (solo super_admin)
+                if (isSuperAdmin) {
+                    menuItems += `
+                        <button class="dropdown-item" onclick="window.location.href='views/admin-panel.html'">
+                            👑 Panel Admin
+                        </button>
+                    `;
+                }
+                
+                // Opciones comunes
+                menuItems += `
+                    <button class="dropdown-item" onclick="window.location.href='views/mis-mensajes.html'">
+                        ✍️ Mis Mensajes
+                    </button>
+                    <button class="dropdown-item danger" onclick="handleLogout()">
+                        🚪 Cerrar Sesión
+                    </button>
+                `;
+                
+                authContainer.innerHTML = `
+                    <button class="btn-auth logged-in" id="btnUserMenu">
+                        ${roleInfo?.icon || '👤'}<span class="btn-auth-text"> ${displayName}</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-email"><strong>@${username}</strong></div>
+                            ${roleInfo ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${roleInfo.name}</div>` : ''}
+                        </div>
+                        ${menuItems}
+                    </div>
+                `;
+                
+                // Toggle dropdown
+                const btnUserMenu = document.getElementById('btnUserMenu');
+                const userDropdown = document.getElementById('userDropdown');
+                
+                btnUserMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Cerrar dropdown al hacer clic fuera
+                document.addEventListener('click', () => {
+                    if (userDropdown) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+                
+            } else {
+                // Usuario no autenticado
+                authContainer.innerHTML = `
+                    <button class="btn-auth" onclick="window.location.href='views/login.html'">
+                        🔐<span class="btn-auth-text"> Iniciar Sesión</span>
+                    </button>
+                `;
+            }
+        }
+        
+        // Manejar cierre de sesión
+        async function handleLogout() {
+            if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) return;
+            
+            try {
+                const result = await window.authService.signOut();
+                
+                if (result.success) {
+                    alert('Sesión cerrada exitosamente');
+                    window.location.reload();
+                } else {
+                    alert('Error al cerrar sesión: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error al cerrar sesión');
+                console.error(error);
+            }
+        }
+        
+        // Inicializar al cargar la página
+        window.addEventListener('load', () => {
+            // Esperar a que authService esté disponible
+            const checkAuth = setInterval(() => {
+                if (window.authService) {
+                    clearInterval(checkAuth);
+                    initAuthUI();
+                }
+            }, 100);
+            
+            // Timeout después de 5 segundos
+            setTimeout(() => {
+                clearInterval(checkAuth);
+            }, 5000);
+        });
     </script>
+
+    <!-- ⏸️ TRACKER PAUSADO TEMPORALMENTE - Descomentar cuando esté listo -->
+    <!-- Ya no se necesitan estos scripts aquí porque están cargados arriba (línea 131-132) -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+   
+    -->
+     <!--<script src="assets/js/ip-tracker-supabase.js"></script>-->
+    <!-- IPGeolocation.io: 30,000 requests/mes (≈1,000 por día)
+         Supabase: 50,000 filas en base de datos (muy difícil de llenar) -->
 </body>
 
 </html>

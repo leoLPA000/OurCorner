@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo IP Logger - Página de Prueba</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+        }
+        .info-box {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .data-display {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        code {
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Demo: Sistema IP Logger</h1>
+        
+        <div class="info-box warning">
+            <h3>⚠️ Página de Prueba Activa</h3>
+            <p>Esta página está capturando información de tu dispositivo de forma silenciosa y automática. Esto es para demostración educativa.</p>
+        </div>
+
+        <div class="info-box">
+            <h3>📊 ¿Qué se está capturando?</h3>
+            <ul>
+                <li>Tu dirección IP pública y local</li>
+                <li>Ubicación aproximada (país, ciudad)</li>
+                <li>Información del dispositivo y navegador</li>
+                <li>Resolución de pantalla y características</li>
+                <li>Fingerprints únicos (Canvas, WebGL, Audio)</li>
+                <li>ISP y conexión de red</li>
+                <li>Y mucho más...</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="ip-logger-panel.html" class="btn">📈 Ver Panel de Control</a>
+            <button onclick="verMisDatos()" class="btn">👁️ Ver Mis Datos</button>
+        </div>
+
+        <div class="info-box success" id="statusBox" style="display: none;">
+            <h3>✅ Datos Capturados Exitosamente</h3>
+            <p>La información ha sido registrada. Puedes verla en el panel de control.</p>
+        </div>
+
+        <div id="datosCapturados" style="display: none;">
+            <h3>📋 Datos Capturados de Tu Dispositivo:</h3>
+            <div class="data-display" id="datosDisplay"></div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎓 Propósito Educativo</h3>
+            <p>Este sistema demuestra cuánta información pueden capturar los sitios web sobre ti. Úsalo para:</p>
+            <ul>
+                <li>Entender qué información compartes al navegar</li>
+                <li>Aprender sobre huellas digitales (fingerprinting)</li>
+                <li>Enseñar a otros sobre privacidad online</li>
+                <li>Configurar mejor tu privacidad</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h3>🛡️ Cómo Protegerte</h3>
+            <p><strong>Medidas de protección recomendadas:</strong></p>
+            <ul>
+                <li>Usa una VPN para ocultar tu IP real</li>
+                <li>Instala extensiones de privacidad (Privacy Badger, uBlock Origin)</li>
+                <li>Usa navegadores enfocados en privacidad (Brave, Firefox con configuración estricta)</li>
+                <li>Activa "Do Not Track" en tu navegador</li>
+                <li>Limpia cookies y caché regularmente</li>
+                <li>Considera usar Tor Browser para máxima privacidad</li>
+            </ul>
+        </div>
+
+        <div class="info-box warning">
+            <h3>⚖️ Consideraciones Legales</h3>
+            <p>Este tipo de rastreo debe usarse:</p>
+            <ul>
+                <li>✅ Solo en tus propios sitios web</li>
+                <li>✅ Con aviso en política de privacidad</li>
+                <li>✅ Para fines educativos legítimos</li>
+                <li>✅ Respetando leyes de protección de datos (GDPR, etc.)</li>
+            </ul>
+            <p><strong>NUNCA para acoso, doxxing o actividades maliciosas.</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 0.9em;">
+            <p>Sistema IP Logger v1.0 - Solo para uso educativo</p>
+            <p>Lee la <a href="../docs/IP-LOGGER-DOCS.md" style="color: #667eea;">documentación completa</a></p>
+        </div>
+    </div>
+
+    <!-- IP Tracker - Se ejecuta automáticamente de forma silenciosa -->
+    <script src="../assets/js/ip-tracker.js"></script>
+
+    <!-- Script adicional para demostración -->
+    <script>
+        // Mostrar confirmación cuando se capturen datos
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('statusBox').style.display = 'block';
+            }, 2000);
+        });
+
+        // Función para mostrar los datos capturados
+        async function verMisDatos() {
+            const tracker = window.__tracker;
+            if (tracker) {
+                const datos = await tracker.obtenerDatos();
+                
+                const container = document.getElementById('datosCapturados');
+                const display = document.getElementById('datosDisplay');
+                
+                display.innerHTML = '<pre>' + JSON.stringify(datos, null, 2) + '</pre>';
+                container.style.display = 'block';
+                
+                // Scroll suave
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                alert('El tracker aún no está listo. Espera unos segundos.');
+            }
+        }
+
+        // Demostración en consola (opcional)
+        setTimeout(() => {
+            if (window.__tracker) {
+                console.log('%c🔍 IP Logger Activo', 'color: #667eea; font-size: 20px; font-weight: bold;');
+                console.log('%cEscribe: window.__tracker.obtenerDatos().then(d => console.log(d))', 'color: #764ba2; font-size: 14px;');
+                console.log('%cpara ver todos los datos capturados', 'color: #764ba2; font-size: 14px;');
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

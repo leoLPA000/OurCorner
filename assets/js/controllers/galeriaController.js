@@ -86,7 +86,27 @@ class GaleriaRomantica {
 
         document.body.appendChild(botonAdmin);
 
-        botonAdmin.addEventListener('click', () => {
+        // 🔐 Verificar permisos y ocultar si es invitado
+        (async () => {
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                botonAdmin.style.display = 'none';
+            }
+        })();
+
+        botonAdmin.addEventListener('click', async () => {
+            // 🔐 Verificar autenticación
+            if (!window.authService || !window.authService.isAuthenticated()) {
+                alert('⚠️ Debes iniciar sesión para agregar fotos');
+                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            
+            // 🔐 Verificar permisos (solo admin y super_admin)
+            if (window.rolesService && !await window.rolesService.canModify()) {
+                window.rolesService.showNoPermissionMessage();
+                return;
+            }
+            
             this.abrirFormularioFoto();
         });
     }
@@ -180,7 +200,7 @@ class GaleriaRomantica {
         document.body.style.overflow = '';
     }
 
-    mostrarFoto(index) {
+    async mostrarFoto(index) {
         this.currentIndex = index;
         const foto = this.fotos[index];
 
@@ -201,9 +221,9 @@ class GaleriaRomantica {
         document.querySelector('.contador-actual').textContent = index + 1;
         document.querySelector('.contador-total').textContent = this.fotos.length;
 
-        // Mostrar/ocultar botón eliminar (solo para fotos personalizadas)
+        // Mostrar/ocultar botón eliminar (solo para fotos personalizadas y con permisos)
         const btnEliminar = document.querySelector('.btn-eliminar-foto');
-        if (foto.tipo === 'personalizada') {
+        if (foto.tipo === 'personalizada' && window.rolesService && await window.rolesService.canModify()) {
             btnEliminar.style.display = 'block';
             btnEliminar.onclick = () => this.eliminarFoto(foto.id);
         } else {
@@ -401,6 +421,19 @@ class GaleriaRomantica {
     }
 
     async eliminarFoto(id) {
+        // 🔐 Verificar autenticación
+        if (!window.authService || !window.authService.isAuthenticated()) {
+            alert('⚠️ Debes iniciar sesión para eliminar fotos');
+            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+
+        // 🔐 Verificar permisos de rol
+        if (window.rolesService && !await window.rolesService.canModify()) {
+            window.rolesService.showNoPermissionMessage();
+            return;
+        }
+
         if (!confirm('¿Estás seguro de eliminar esta foto? 🗑️')) return;
 
         try {

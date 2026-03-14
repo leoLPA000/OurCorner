@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nuestros Eventos R❤️L</title>
+  <link rel="stylesheet" href="../assets/css/estilos.css">
+  <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../galeria/icono.png">
+  <!-- jQuery (requerido para Turn.js) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Turn.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS';
+      background-color: #fefefe;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    
+    .portada {
+      width: 400px;
+      height: 600px;
+      background: repeating-linear-gradient(
+        0deg,
+        #800080,
+        #C7B8EA 30px,
+        #800080 30px,
+        #C7B8EA 60px
+      );
+      border: 10px solid #C7B8EA;
+      border-left: 60px solid #800080;
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      cursor: pointer;
+    }
+
+    .titulo {
+      font-size: 2.5em;
+      color: #000000;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-top: 10px;
+    }
+
+    .titulo span {
+      display: inline-block;
+      background-color: #C7B8EA;
+      border-radius: 10px;
+      padding: 5px 10px;
+      margin: 0 3px;
+      transform: rotate(-5deg);
+    }
+
+    .imagen {
+      width: 100px;
+      margin: 15px auto;
+      display: block;
+    }
+
+    .etiqueta {
+      width: 80%;
+      height: 50px;
+      margin: 20px auto;
+      border: 2px solid pink;
+      border-radius: 10px;
+      background-color: white;
+      line-height: 50px;
+      font-size: 1.1em;
+      color: #000000;
+      text-align: center;
+    }
+
+    .decoracion {
+      position: absolute;
+      font-size: 2em;
+    }
+
+    .corazon {
+      color: #FFD700;
+    }
+
+    .estrella {
+      color: #aeefff;
+    }
+
+    .inferior {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      font-size: 0.9em;
+      color: #000000;
+    }
+
+  
+    #paginaInterior {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #ffffff;
+      z-index: 10;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cuaderno-abierto {
+      width: 900px;
+      height: 650px;
+      box-shadow: 0px 20px 30px rgba(0,0,0,0.2);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hoja {
+      width: 450px;
+      height: 650px;
+      background: repeating-linear-gradient(
+        to bottom,
+        #fff,
+        #fff 25px,
+        #ffc0cb4d 25px,
+        #ffc0cb4d 26px
+      );
+      padding: 30px;
+      font-size: 1em;
+      color: #555;
+      overflow-y: auto;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Hoja izquierda */
+    .hoja.izquierda {
+      border-left: 12px solid #800080;
+      border-right: none;
+    }
+
+    /* Hoja derecha */
+    .hoja.derecha {
+      border-left: none;
+      border-right: 12px solid #800080;
+    }
+
+    .hoja h2 {
+      color: #800080;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    .evento-card {
+      background: #fff;
+      border: 3px solid #C7B8EA;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 4px 8px rgba(128, 0, 128, 0.1);
+    }
+
+    .evento-titulo {
+      color: #800080;
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .evento-fecha {
+      color: #666;
+      font-size: 0.95em;
+      text-align: center;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .evento-descripcion {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+
+    .evento-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin: 15px 0;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .evento-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+    }
+
+    .firma-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px dashed #C7B8EA;
+    }
+
+    .firma-label {
+      color: #800080;
+      font-size: 1em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .firma-input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #C7B8EA;
+      border-radius: 8px;
+      font-family: 'Brush Script MT', cursive;
+      font-size: 1.2em;
+      color: #555;
+      background: #fefefe;
+      resize: none;
+    }
+
+    .firma-input:focus {
+      outline: none;
+      border-color: #800080;
+      box-shadow: 0 0 10px rgba(128, 0, 128, 0.2);
+    }
+
+    .navegacion-hojas {
+      position: absolute;
+      bottom: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 15;
+      pointer-events: all;
+    }
+
+    .zona-click {
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .zona-click:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+
+    .zona-click .indicador {
+      font-size: 1.5em;
+    }
+
+    /* Ocultar zonas deshabilitadas */
+    .zona-click.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagina-numero {
+      color: #800080;
+      font-size: 1em;
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    /* Estilos específicos de Libreta - los botones y toggle usan clases de estilos.css */
+    .cerrar {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 20px 30px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 20;
+      font-weight: bold;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4), 0 0 20px rgba(102, 126, 234, 0.2);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .cerrar:hover {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 35px rgba(118, 75, 162, 0.6), 0 0 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-inicio {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: linear-gradient(135deg, #2d5016, #4a7c2c);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 20px 30px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 20;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 25px rgba(45, 80, 22, 0.4), 0 0 20px rgba(61, 220, 132, 0.2);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .btn-inicio:hover {
+      background: linear-gradient(135deg, #4a7c2c, #3dc84b);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 35px rgba(45, 80, 22, 0.6), 0 0 40px rgba(61, 220, 132, 0.4);
+    }
+
+    /* Tema oscuro - estilos específicos de Libreta */
+    body.tema-oscuro {
+      background-color: #1a1a2e;
+    }
+
+    body.tema-oscuro .portada {
+      background: repeating-linear-gradient(
+        0deg,
+        #1a1a2e,
+        #16213e 30px,
+        #1a1a2e 30px,
+        #16213e 60px
+      );
+      border-color: #16213e;
+      border-left-color: #0f3460;
+    }
+
+    body.tema-oscuro .titulo span {
+      background-color: #16213e;
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .etiqueta {
+      background-color: #16213e;
+      color: #C7B8EA;
+      border-color: #800080;
+    }
+
+    body.tema-oscuro .inferior {
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro #paginaInterior {
+      background-color: #1a1a2e;
+    }
+
+    body.tema-oscuro .hoja {
+      background: repeating-linear-gradient(
+        to bottom,
+        #16213e,
+        #16213e 25px,
+        #800080 25px,
+        #800080 26px
+      );
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .hoja.izquierda {
+      border-left-color: #0f3460;
+      border-right-color: transparent;
+    }
+
+    body.tema-oscuro .hoja.derecha {
+      border-left-color: transparent;
+      border-right-color: #0f3460;
+    }
+
+    body.tema-oscuro .hoja h2 {
+      color: #ffc0cb;
+    }
+
+    body.tema-oscuro .evento-card {
+      background: #0f3460;
+      border-color: #800080;
+    }
+
+    body.tema-oscuro .evento-titulo {
+      color: #ffc0cb;
+    }
+
+    body.tema-oscuro .evento-fecha {
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .evento-descripcion {
+      color: #C7B8EA;
+    }
+
+    body.tema-oscuro .firma-input {
+      background: #0f3460;
+      color: #C7B8EA;
+      border-color: #800080;
+    }
+
+    body.tema-oscuro .hoja a {
+      color: #C7B8EA;
+      background: #0f3460 !important;
+    }
+
+    /* ============================================================================
+       ESTILOS DEL TEMA-TOGGLE SOLO PARA LIBRETA
+       Estos estilos sobrescriben los de estilos.css solo en esta página
+       ============================================================================ */
+    
+    /* Estilos base del toggle para desktop */
+    .tema-toggle {
+      padding: 25px 15px !important;
+      top: 150px !important;
+      right: 20px !important;
+    }
+
+    .toggle-icono {
+      font-size: 2rem !important;
+    }
+
+    .toggle-switch {
+      width: 60px !important;
+      height: 30px !important;
+    }
+
+    .toggle-slider:before {
+      height: 24px !important;
+      width: 24px !important;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(30px) !important;
+    }
+
+    .toggle-texto {
+      font-size: 2rem !important;
+    }
+
+    .navegacion-hojas {
+        bottom: 0;
+      }
+
+      .zona-click .indicador {
+        font-size: 2em;
+      }
+    
+    /* ============================================================================
+       MEDIA QUERIES - RESPONSIVE
+       ============================================================================ */
+    
+    /* Móviles y tablets pequeñas (≤768px) */
+    @media (max-width: 768px) {
+      .cuaderno-abierto {
+        width: 90vw;
+        height: 70vh;
+      }
+
+      .hoja {
+        width: 45vw;
+        height: 70vh;
+        padding: 15px;
+        font-size: 0.9em;
+      }
+
+      .navegacion-hojas {
+        bottom: -60px;
+        gap: 10px;
+      }
+
+      .zona-click {
+        padding: 10px 20px;
+        font-size: 0.9em;
+      }
+
+      /* Botones MÁS GRANDES para móvil */
+      .cerrar {
+        right: 10px !important;
+        top: 10px !important;
+        padding: 50px 70px !important;
+        font-size: 4em !important;
+        min-width: 200px !important;
+        border-radius: 30px !important;
+      }
+
+      .btn-inicio {
+        left: 10px !important;
+        top: 10px !important;
+        padding: 50px 70px !important;
+        font-size: 4em !important;
+        min-width: 200px !important;
+        border-radius: 30px !important;
+      }
+
+      .evento-card {
+        padding: 15px;
+      }
+
+      .evento-titulo {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="portada" id="portada" onclick="abrirCuaderno()">
+    <div class="titulo">
+      <span>N</span><span>O</span><span>T</span><span>E</span> LOVE
+    </div>
+
+    <img class="imagen" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG20.png" alt="Peluche Kawaii">
+
+    <div class="etiqueta">DEDICADO A ROCÍO ❤️</div>
+
+    <img class="imagen" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG43.png" alt="Sundae Kawaii">
+
+  
+    <div class="decoracion corazon" style="top: 20px; left: 80px;">❤</div>
+    <div class="decoracion estrella" style="top: 50px; right: 50px;">★</div>
+    <div class="decoracion estrella" style="bottom: 80px; left: 40px;">★</div>
+    <div class="decoracion corazon" style="bottom: 60px; right: 80px;">❤</div>
+
+    <div class="inferior">hecho con amor para ti</div>
+  </div>
+
+  <div id="paginaInterior">
+    <a href="../index.html" class="btn-inicio">🏠 Inicio</a>
+    <button class="cerrar" onclick="cerrarCuaderno()">✧ Cerrar</button>
+
+    <div class="cuaderno-abierto" id="flipbook">
+      
+      <!-- Hoja 1: Calendario de Adviento -->
+      <div class="hoja izquierda">
+        <h2>🎄 Calendario de Adviento</h2>
+        
+        <div class="evento-card">
+          <div class="evento-titulo">Navidad Mágica</div>
+          <div class="evento-fecha">📅 Diciembre 2025</div>
+          
+          <div class="evento-descripcion">
+            Este calendario de adviento fue creado especialmente para ti, mi amor. Cada día representa un momento mágico que compartimos juntos durante esta época tan especial del año. Abre cada casilla y descubre las sorpresas que he preparado para ti.
+          </div>
+          
+          <a href="calendario-adviento.html" class="evento-btn">
+            ✨ Abrir Calendario de Adviento
+          </a>
+        </div>
+
+        <div class="pagina-numero">Página 1 de 3</div>
+      </div>
+
+      <!-- Hoja 2: Fuegos Artificiales -->
+      <div class="hoja derecha">
+        <h2>🎆 Año Nuevo</h2>
+        
+        <div class="evento-card">
+          <div class="evento-titulo">Fuegos Artificiales</div>
+          <div class="evento-fecha">📅 31 de Diciembre 2025</div>
+          
+          <div class="evento-descripcion">
+            Celebramos juntos la llegada del nuevo año con esta hermosa página de fuegos artificiales. Cada clic crea un nuevo espectáculo de luces, así como cada momento contigo ilumina mi vida. Que este año nuevo traiga más momentos mágicos para nosotros.
+          </div>
+          
+          <a href="fuegos-artificiales.html" class="evento-btn">
+            🎇 Ver Fuegos Artificiales
+          </a>
+        </div>
+
+        <div class="pagina-numero">Página 2 de 3</div>
+      </div>
+
+      <!-- Hoja 3: Atardecer Estrellado -->
+      <div class="hoja izquierda">
+        <h2>🌌 Atardecer Estrellado</h2>
+        
+        <div class="evento-card">
+          <div class="evento-titulo">Nuestro Universo</div>
+          <div class="evento-fecha">📅 Siempre</div>
+          
+          <div class="evento-descripcion">
+            Un atardecer estrellado que representa nuestro amor infinito. Tú eres mi universo entero, y cada estrella en este cielo representa un "te amo" que quiero decirte. Haz clic en el cielo para crear fuegos artificiales y celebrar nuestro amor eterno.
+          </div>
+          
+          <a href="Atardecer_Estrellado.html" class="evento-btn">
+            💖 Ver Atardecer Estrellado
+          </a>
+        </div>
+
+        <div class="pagina-numero">Página 3 de 4</div>
+      </div>
+
+      <!-- Hoja 4: San Valentín -->
+      <div class="hoja derecha">
+        <h2>💝 San Valentín</h2>
+        
+        <div class="evento-card">
+          <div class="evento-titulo">Para mi San Valentín</div>
+          <div class="evento-fecha">📅 14 de Febrero</div>
+          
+          <div class="evento-descripcion">
+            En este día especial del amor y la amistad, he creado algo único para ti. Un jardín de rosas que crecen con un poema escrito especialmente para expresar todo lo que siento. Cada rosa representa un verso de amor, cada pétalo una palabra que sale de mi corazón.
+          </div>
+          
+          <div class="evento-descripcion" style="font-style: italic; text-align: center; color: #800080; margin-top: 15px; font-size: 0.95em;">
+            "En este día de San Valentín,<br>
+            mi amor por ti no tiene fin.<br>
+            Como una flor roja y brillante,<br>
+            mi corazón late por ti a cada instante 🌹❤️<br><br>
+            Rocío, eres mi sueño hecho realidad..."<br><br>
+            <strong>💝 de Leonardo Para Rocío 💝</strong>
+          </div>
+          
+          <a href="sanvalentin.html" class="evento-btn">
+            🌹 Ver Página de San Valentín
+          </a>
+        </div>
+
+        <div class="pagina-numero">Página 4 de 4</div>
+      </div>
+
+    <!-- Navegación entre hojas -->
+    <div class="navegacion-hojas">
+      <button class="zona-click zona-izquierda" onclick="cambiarHoja(-1)">
+        <span class="indicador">←</span> Anterior
+      </button>
+      <button class="zona-click zona-derecha" onclick="cambiarHoja(1)">
+        Siguiente <span class="indicador">→</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/ui/darkMode.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Variables globales
+      let flipbookIniciado = false;
+
+      // Función para abrir el cuaderno
+      window.abrirCuaderno = function() {
+        document.getElementById('portada').style.display = 'none';
+        document.getElementById('paginaInterior').style.display = 'flex';
+        
+        // Inicializar Turn.js solo una vez
+        if (!flipbookIniciado) {
+          inicializarFlipbook();
+          flipbookIniciado = true;
+        }
+        
+        actualizarBotones();
+      };
+
+      // Función para cerrar el cuaderno
+      window.cerrarCuaderno = function() {
+        document.getElementById('paginaInterior').style.display = 'none';
+        document.getElementById('portada').style.display = 'block';
+        
+        // Volver a la primera página
+        if (flipbookIniciado) {
+          $('#flipbook').turn('page', 1);
+        }
+      };
+
+      // Inicializar el flipbook con Turn.js
+      function inicializarFlipbook() {
+        $('#flipbook').turn({
+          width: 900,
+          height: 650,
+          elevation: 50,
+          gradients: true,
+          autoCenter: true,
+          acceleration: true,
+          duration: 1000,
+          pages: 4,
+          when: {
+            turning: function(event, page, view) {
+              // Prevenir volteo si está en los límites
+              const currentPage = $('#flipbook').turn('page');
+              if ((currentPage === 1 && page < 1) || (currentPage === 4 && page > 4)) {
+                event.preventDefault();
+              }
+            },
+            turned: function(event, page, view) {
+              actualizarBotones();
+            }
+          }
+        });
+
+        // Ajustar tamaño según la pantalla
+        ajustarTamanoFlipbook();
+      }
+
+      // Ajustar tamaño del flipbook según el viewport
+      function ajustarTamanoFlipbook() {
+        if (!flipbookIniciado) return;
+        
+        const containerWidth = window.innerWidth;
+        
+        if (containerWidth <= 768) {
+          const newWidth = Math.min(containerWidth * 0.9, 900);
+          const newHeight = Math.min(window.innerHeight * 0.7, 650);
+          $('#flipbook').turn('size', newWidth, newHeight);
+        } else {
+          $('#flipbook').turn('size', 900, 650);
+        }
+      }
+
+      // Función para cambiar de página (conectada a los botones)
+      window.cambiarHoja = function(direccion) {
+        if (!flipbookIniciado) return;
+        
+        if (direccion > 0) {
+          $('#flipbook').turn('next');
+        } else {
+          $('#flipbook').turn('previous');
+        }
+      };
+
+      // Actualizar estado de los botones
+      function actualizarBotones() {
+        if (!flipbookIniciado) return;
+        
+        const currentPage = $('#flipbook').turn('page');
+        const totalPages = $('#flipbook').turn('pages');
+        
+        const zonaIzq = $('.zona-izquierda');
+        const zonaDer = $('.zona-derecha');
+        
+        // Deshabilitar botón izquierdo en primera página
+        if (currentPage === 1) {
+          zonaIzq.addClass('disabled');
+        } else {
+          zonaIzq.removeClass('disabled');
+        }
+        
+        // Deshabilitar botón derecho en última página
+        if (currentPage === totalPages) {
+          zonaDer.addClass('disabled');
+        } else {
+          zonaDer.removeClass('disabled');
+        }
+      }
+
+      // Gestos táctiles para móvil
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const minSwipeDistance = 50;
+
+      $(document).on('touchstart', '#flipbook', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      $(document).on('touchend', '#flipbook', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        if (!flipbookIniciado) return;
+        
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+          if (swipeDistance > 0) {
+            // Deslizamiento hacia la derecha - página anterior
+            $('#flipbook').turn('previous');
+          } else {
+            // Deslizamiento hacia la izquierda - página siguiente
+            $('#flipbook').turn('next');
+          }
+        }
+      }
+
+      // Ajustar tamaño al redimensionar ventana
+      $(window).on('resize', function() {
+        ajustarTamanoFlipbook();
+      });
+    });
+  </script>
+
+</body>
+</html>
