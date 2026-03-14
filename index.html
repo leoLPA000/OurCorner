@@ -198,42 +198,11 @@
         // Calcular al cargar
         calcularDiasJuntos();
 
-        // Actualizar contador de mensajes personalizados desde Supabase
-        async function actualizarContadorMensajes() {
+        // Actualizar contador de mensajes personalizados
+        function actualizarContadorMensajes() {
+            const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
             const contador = document.getElementById('contadorMisMensajes');
-            if (!contador) return;
-
-            try {
-                // Verificar que Supabase esté inicializado
-                if (!window.supabaseClient) {
-                    // Si Supabase no está listo, usar localStorage como fallback
-                    const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
-                    const num = mensajes.length;
-                    contador.textContent = num === 0 ? 'Sin mensajes aún' :
-                        num === 1 ? '1 mensaje guardado' :
-                            `${num} mensajes guardados`;
-                    return;
-                }
-
-                // Obtener mensajes desde Supabase
-                const { data: mensajes, error } = await window.supabaseClient
-                    .from('mensajes')
-                    .select('id', { count: 'exact' });
-
-                if (error) {
-                    console.error('❌ Error al contar mensajes:', error);
-                    throw error;
-                }
-
-                const num = mensajes?.length || 0;
-                contador.textContent = num === 0 ? 'Sin mensajes aún' :
-                    num === 1 ? '1 mensaje guardado' :
-                        `${num} mensajes guardados`;
-
-            } catch (err) {
-                console.error('❌ Error al actualizar contador:', err);
-                // Fallback a localStorage
-                const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
+            if (contador) {
                 const num = mensajes.length;
                 contador.textContent = num === 0 ? 'Sin mensajes aún' :
                     num === 1 ? '1 mensaje guardado' :
@@ -241,23 +210,9 @@
             }
         }
 
-        // Actualizar al cargar
-        window.addEventListener('load', () => {
-            // Esperar a que Supabase esté disponible
-            const checkSupabase = setInterval(async () => {
-                if (window.supabaseClient) {
-                    clearInterval(checkSupabase);
-                    await actualizarContadorMensajes();
-                }
-            }, 100);
-            
-            // Timeout después de 3 segundos
-            setTimeout(() => {
-                clearInterval(checkSupabase);
-            }, 3000);
-        });
+        actualizarContadorMensajes();
 
-        // Actualizar cuando cambie localStorage (también hay mensajes locales)
+        // Actualizar cuando cambie localStorage
         window.addEventListener('storage', actualizarContadorMensajes);
 
         // ============================================================================

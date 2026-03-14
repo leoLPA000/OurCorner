@@ -336,9 +336,6 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   function showMenu() {
     menuReacciones.classList.remove('hidden');
     menuReacciones.classList.add('show');
-    
-    // Posicionar el menú de forma inteligente (como Facebook)
-    posicionarMenuInteligentemente();
   }
 
   function hideMenu() {
@@ -346,54 +343,10 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     setTimeout(() => menuReacciones.classList.add('hidden'), 200);
   }
 
-  function posicionarMenuInteligentemente() {
-    const btnRect = btnPrincipal.getBoundingClientRect();
-    const menuRect = menuReacciones.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
-    
-    let top, left;
-    
-    // Intentar posicionar arriba del botón (por defecto)
-    let positionAbove = btnRect.top - menuRect.height - 15;
-    
-    if (positionAbove > 0) {
-      // Hay espacio arriba
-      top = positionAbove;
-    } else {
-      // No hay espacio arriba, posicionar abajo
-      top = btnRect.bottom + 15;
-    }
-    
-    // Centrar horizontalmente relativo al botón
-    left = btnRect.left + (btnRect.width / 2) - (menuRect.width / 2);
-    
-    // Ajustar si se sale por los lados
-    const padding = 10;
-    if (left < padding) {
-      left = padding;
-    } else if (left + menuRect.width > viewportWidth - padding) {
-      left = viewportWidth - menuRect.width - padding;
-    }
-    
-    // Aplicar la posición
-    menuReacciones.style.top = top + 'px';
-    menuReacciones.style.left = left + 'px';
-    
-    console.log('📍 Menú posicionado en:', { top, left });
-  }
-
   // Ocultar menú al hacer click fuera
   document.addEventListener('click', (e) => {
     if (!reactionContainer.contains(e.target)) {
       hideMenu();
-    }
-  });
-
-  // Reposicionar menú cuando cambie el tamaño de la ventana
-  window.addEventListener('resize', () => {
-    if (menuReacciones.classList.contains('show')) {
-      posicionarMenuInteligentemente();
     }
   });
 
