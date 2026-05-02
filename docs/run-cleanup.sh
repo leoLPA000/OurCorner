@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# 🧹 Script Helper - Copiar comando de limpieza
+# Uso: Este archivo te ayuda a copiar el comando exacto para ejecutar en Supabase
+
+echo "=================================="
+echo "🧹 LIMPIEZA DE IP TRACKING"
+echo "=================================="
+echo ""
+echo "📋 Pasos a seguir:"
+echo ""
+echo "1️⃣  Ir a Supabase Dashboard → SQL Editor → New Query"
+echo ""
+echo "2️⃣  Copia y pega TODA esta ruta en tu terminal para ver el contenido:"
+echo ""
+echo "   cat docs/sql/CLEANUP-VISITOR-LOGS-AUTO.sql"
+echo ""
+echo "3️⃣  O abre directamente el archivo:"
+echo ""
+echo "   docs/sql/CLEANUP-VISITOR-LOGS-AUTO.sql"
+echo ""
+echo "4️⃣  Copia el CONTENIDO COMPLETO y pégalo en Supabase SQL Editor"
+echo ""
+echo "5️⃣  Haz click en ▶ RUN"
+echo ""
+echo "=================================="
+echo "📚 Documentación completa:"
+echo "   docs/GUIA-EJECUTAR-LIMPIEZA.md"
+echo "=================================="
