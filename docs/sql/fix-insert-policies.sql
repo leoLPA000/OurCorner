@@ -43,12 +43,7 @@ ON user_profiles FOR INSERT
 WITH CHECK (auth.role() = 'authenticated');
 
 -- ============================================================================
--- 5. VISITOR_LOGS - Mantener permisivo (analytics)
--- ============================================================================
--- Esta tabla es para tracking, mantenerla permisiva es OK
-
--- ============================================================================
--- 6. CARDS - Si existe
+-- 5. CARDS - Si existe
 -- ============================================================================
 
 DROP POLICY IF EXISTS "Allow public insert to cards" ON cards;

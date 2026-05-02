@@ -17,15 +17,5 @@ LANGUAGE SQL AS $$
 $$;
 
 -- ============================================================================
--- ARREGLAR VISITOR_LOGS - Cambiar INSERT a autenticado
--- ============================================================================
-
-DROP POLICY IF EXISTS "Visitor logs - INSERT público" ON visitor_logs;
-
-CREATE POLICY "Visitor logs - INSERT autenticado"
-ON visitor_logs FOR INSERT
-WITH CHECK (auth.role() = 'authenticated');
-
--- ============================================================================
 -- ✅ FIN
 -- ============================================================================
