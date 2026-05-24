@@ -366,10 +366,25 @@ class GaleriaRomantica {
                 const publicURL = publicUrlData?.publicUrl || '';
                 console.log('🔗 URL pública:', publicURL);
 
-                // Insertar metadatos en la tabla fotos
+                // Obtener el user_id actual para asignar como owner
+                const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
+                
+                if (userError || !user) {
+                    throw new Error('No se pudo obtener el usuario actual');
+                }
+
+                // Insertar metadatos en la tabla fotos con owner asignado
                 const { data: insertData, error: insertError } = await window.supabaseClient
                     .from('fotos')
-                    .insert([{ titulo, descripcion, url: publicURL, tipo: 'foto', path }])
+                    .insert([{ 
+                        titulo, 
+                        descripcion, 
+                        url: publicURL, 
+                        tipo: 'foto', 
+                        path,
+                        owner: user.id,
+                        publico: true
+                    }])
                     .select();
 
                 if (insertError) {
