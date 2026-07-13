@@ -532,6 +532,8 @@ class GaleriaRomantica {
     mostrarNotificacion(mensaje, tipo) {
         const notif = document.createElement('div');
         notif.className = `notificacion-foto ${tipo}`;
+        notif.setAttribute('role', 'status');
+        notif.setAttribute('aria-live', 'polite');
         notif.textContent = mensaje;
 
         document.body.appendChild(notif);

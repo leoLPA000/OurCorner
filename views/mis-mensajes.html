@@ -326,6 +326,8 @@
         function mostrarNotificacion(mensaje, tipo) {
             const notificacion = document.createElement('div');
             notificacion.className = `notificacion-toast notificacion-${tipo} show`;
+            notificacion.setAttribute('role', 'status');
+            notificacion.setAttribute('aria-live', 'polite');
             notificacion.innerHTML = `
                 <span class="notificacion-icono">${tipo === 'info' ? 'ℹ️' : '✅'}</span>
                 <span class="notificacion-texto">${escapeHtml(mensaje)}</span>

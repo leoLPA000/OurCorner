@@ -337,7 +337,15 @@ class FormularioMensajes {
             autor: autor,
             user_id: currentUser.id
         };
-        
+
+        // Deshabilitar botón mientras se guarda (mismo patrón que subir foto/canción)
+        const btnGuardar = document.querySelector('.btn-guardar');
+        const textoOriginalBtn = btnGuardar ? btnGuardar.innerHTML : null;
+        if (btnGuardar) {
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '⏳ Guardando...';
+        }
+
         // Guardar en Supabase
         try {
             if (!window.supabaseClient) {
@@ -345,36 +353,41 @@ class FormularioMensajes {
                 this.mostrarNotificacion('❌ Error: Supabase no inicializado', 'info');
                 return;
             }
-            
+
             const { data, error } = await window.supabaseClient
                 .from('mensajes')
                 .insert([mensaje])
                 .select();
-            
+
             if (error) throw error;
-            
+
             appLog('✅ Mensaje guardado en Supabase:', data);
-            
+
             // Mostrar notificación de éxito
             this.mostrarNotificacion('¡Mensaje guardado con éxito! 💕', 'success');
-            
+
             // Limpiar formulario
             document.getElementById('formNuevoMensaje').reset();
             document.getElementById('caracteresActuales').textContent = '0';
             document.getElementById('emojiPreview').textContent = '❤️';
-            
+
             // Ocultar vista previa
             this.ocultarVistaPrevia();
-            
+
             // Recargar lista de mensajes guardados
             await this.cargarMensajesGuardados();
-            
+
             // Crear explosión de corazones
             this.crearExplosionExito();
-            
+
         } catch (err) {
             console.error('❌ Error al guardar mensaje:', err);
             this.mostrarNotificacion(`❌ Error al guardar mensaje: ${err.message}`, 'info');
+        } finally {
+            if (btnGuardar) {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = textoOriginalBtn;
+            }
         }
     }
     
@@ -508,7 +521,9 @@ class FormularioMensajes {
         
         const notificacion = document.createElement('div');
         notificacion.className = `notificacion-toast notificacion-${tipo}`;
-        
+        notificacion.setAttribute('role', 'status');
+        notificacion.setAttribute('aria-live', 'polite');
+
         const iconos = {
             'success': '✅',
             'error': '❌',
