@@ -96,12 +96,10 @@ class GaleriaRomantica {
 
         botonAdmin.addEventListener('click', async () => {
             // 🔐 Verificar autenticación
-            if (!window.authService || !window.authService.isAuthenticated()) {
-                alert('⚠️ Debes iniciar sesión para agregar fotos');
-                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            if (!requireLogin('⚠️ Debes iniciar sesión para agregar fotos')) {
                 return;
             }
-            
+
             // 🔐 Verificar permisos (solo admin y super_admin)
             if (window.rolesService && !await window.rolesService.canModify()) {
                 window.rolesService.showNoPermissionMessage();
@@ -456,9 +454,7 @@ class GaleriaRomantica {
 
     async eliminarFoto(id) {
         // 🔐 Verificar autenticación
-        if (!window.authService || !window.authService.isAuthenticated()) {
-            alert('⚠️ Debes iniciar sesión para eliminar fotos');
-            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+        if (!requireLogin('⚠️ Debes iniciar sesión para eliminar fotos')) {
             return;
         }
 

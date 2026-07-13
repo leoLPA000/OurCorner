@@ -21,9 +21,7 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
   if (!mensajeId || !emoji) throw new Error('mensajeId y emoji son requeridos');
 
   // 🔐 Verificar autenticación
-  if (!window.authService || !window.authService.isAuthenticated()) {
-    alert('⚠️ Debes iniciar sesión para reaccionar');
-    window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+  if (!requireLogin('⚠️ Debes iniciar sesión para reaccionar')) {
     throw new Error('Usuario no autenticado');
   }
 

@@ -38,9 +38,7 @@ class FormularioMensajes {
         
         boton.addEventListener('click', async () => {
             // 🔐 Verificar autenticación
-            if (!window.authService || !window.authService.isAuthenticated()) {
-                alert('⚠️ Debes iniciar sesión para agregar mensajes');
-                window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+            if (!requireLogin('⚠️ Debes iniciar sesión para agregar mensajes')) {
                 return;
             }
 
@@ -464,9 +462,7 @@ class FormularioMensajes {
     
     async eliminarMensaje(id) {
         // 🔐 Verificar autenticación
-        if (!window.authService || !window.authService.isAuthenticated()) {
-            alert('⚠️ Debes iniciar sesión para eliminar mensajes');
-            window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+        if (!requireLogin('⚠️ Debes iniciar sesión para eliminar mensajes')) {
             return;
         }
 

@@ -1,7 +1,8 @@
 /**
  * 🛠️ Utilidades compartidas
  * - escapeHtml(): sanitiza texto antes de insertarlo con innerHTML
- * - appLog()/appWarn(): logging condicionado a entorno de desarrollo
+ * - appLog(): logging condicionado a entorno de desarrollo (localhost)
+ * - requireLogin(): gate de "debes iniciar sesión" reutilizado por varios controllers
  *
  * Cargar este script ANTES que cualquier otro script de assets/js.
  */
@@ -29,12 +30,34 @@
     }
 
     /**
-     * console.log condicionado: solo imprime en localhost o con ?debug=1
+     * console.log condicionado: solo imprime en localhost
      */
     function appLog(...args) {
         if (window.APP_DEBUG) console.log(...args);
     }
 
+    /**
+     * Gate reutilizable: si no hay sesión iniciada, muestra `mensaje` y redirige
+     * a login (conservando la página actual como `return`). Devuelve true si
+     * el usuario ya está autenticado, false si se disparó la redirección.
+     *
+     * Sustituye el bloque que se repetía igual en varios controllers:
+     *   if (!window.authService || !window.authService.isAuthenticated()) {
+     *       alert(mensaje);
+     *       window.location.href = '/OurCorner/views/login.html?return=' + ...;
+     *       return; // o throw, según el llamador
+     *   }
+     */
+    function requireLogin(mensaje) {
+        if (window.authService && window.authService.isAuthenticated()) {
+            return true;
+        }
+        alert(mensaje);
+        window.location.href = '/OurCorner/views/login.html?return=' + encodeURIComponent(window.location.pathname);
+        return false;
+    }
+
     window.escapeHtml = escapeHtml;
     window.appLog = appLog;
+    window.requireLogin = requireLogin;
 })();
