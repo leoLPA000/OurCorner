@@ -24,7 +24,9 @@ class AuthService {
         });
         
         // Verificar sesión actual al cargar
-        this.checkSession();
+        // `ready` permite a otros scripts esperar a que la sesión inicial
+        // termine de verificarse, en vez de usar timeouts arbitrarios.
+        this.ready = this.checkSession();
     }
     
     /**

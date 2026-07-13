@@ -7,6 +7,7 @@ class GaleriaRomantica {
 
     constructor() {
         this.currentIndex = 0;
+        this._canModify = false;
 
         // Galería base vacía - solo fotos personalizadas
         this.fotosBase = [];
@@ -186,10 +187,14 @@ class GaleriaRomantica {
         });
     }
 
-    abrir(index = 0) {
+    async abrir(index = 0) {
         const modal = document.querySelector('.galeria-modal');
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // Se consulta el rol una sola vez por apertura de galería (antes se
+        // repetía en cada cambio de foto, generando una consulta a Supabase por click)
+        this._canModify = window.rolesService ? await window.rolesService.canModify() : false;
 
         this.mostrarFoto(index);
     }
@@ -200,7 +205,7 @@ class GaleriaRomantica {
         document.body.style.overflow = '';
     }
 
-    async mostrarFoto(index) {
+    mostrarFoto(index) {
         this.currentIndex = index;
         const foto = this.fotos[index];
 
@@ -223,7 +228,7 @@ class GaleriaRomantica {
 
         // Mostrar/ocultar botón eliminar (solo para fotos personalizadas y con permisos)
         const btnEliminar = document.querySelector('.btn-eliminar-foto');
-        if (foto.tipo === 'personalizada' && window.rolesService && await window.rolesService.canModify()) {
+        if (foto.tipo === 'personalizada' && this._canModify) {
             btnEliminar.style.display = 'block';
             btnEliminar.onclick = () => this.eliminarFoto(foto.id);
         } else {
@@ -318,6 +323,20 @@ class GaleriaRomantica {
 
             const file = inputFoto.files[0];
             if (!file) return;
+
+            // ✅ Validar que sea una imagen (mismo criterio que ya usa musicaService para audio)
+            const esImagen = file.type.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i);
+            if (!esImagen) {
+                alert('❌ El archivo no parece ser una imagen. Por favor selecciona una imagen válida.');
+                return;
+            }
+
+            // ✅ Validar tamaño (máximo 20MB)
+            const maxSize = 20 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert(`❌ La imagen es muy grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo: 20MB`);
+                return;
+            }
 
             const titulo = document.getElementById('tituloFoto').value;
             const fecha = document.getElementById('fechaFoto').value;
