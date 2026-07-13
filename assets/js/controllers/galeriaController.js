@@ -145,7 +145,7 @@ class GaleriaRomantica {
                 <div class="galeria-thumbnails">
                     ${this.fotos.map((foto, index) => `
                         <div class="thumbnail ${index === 0 ? 'active' : ''}" data-index="${index}">
-                            <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" onerror="this.src='assets/images/placeholder.jpg'">
+                            <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" loading="lazy" onerror="this.src='assets/images/placeholder.jpg'">
                         </div>
                     `).join('')}
                 </div>
@@ -516,7 +516,7 @@ class GaleriaRomantica {
         if (thumbnailsContainer) {
             thumbnailsContainer.innerHTML = this.fotos.map((foto, index) => `
                 <div class="thumbnail ${index === this.currentIndex ? 'active' : ''}" data-index="${index}">
-                    <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" onerror="this.src='assets/images/placeholder.jpg'">
+                    <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" loading="lazy" onerror="this.src='assets/images/placeholder.jpg'">
                 </div>
             `).join('');
 

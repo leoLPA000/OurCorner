@@ -500,9 +500,9 @@
         }
 
         // Inicializar cuando todo esté listo
-        window.addEventListener('load', () => {
-            setTimeout(init, 500); // Esperar a que servicios se inicialicen
-        });
+        // Los scripts de assets/js se cargan sin defer/async antes de este bloque,
+        // por lo que window.authService/rolesService ya existen sin necesidad de espera arbitraria.
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>

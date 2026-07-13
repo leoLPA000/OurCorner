@@ -339,20 +339,9 @@
         }
         
         // Inicializar al cargar la página
-        window.addEventListener('load', () => {
-            // Esperar a que authService esté disponible
-            const checkAuth = setInterval(() => {
-                if (window.authService) {
-                    clearInterval(checkAuth);
-                    initAuthUI();
-                }
-            }, 100);
-            
-            // Timeout después de 5 segundos
-            setTimeout(() => {
-                clearInterval(checkAuth);
-            }, 5000);
-        });
+        // Los scripts de assets/js se cargan sin defer/async antes de este bloque,
+        // por lo que window.authService ya existe en este punto sin necesidad de sondeo.
+        window.addEventListener('load', initAuthUI);
     </script>
 
 
