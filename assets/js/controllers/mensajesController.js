@@ -157,7 +157,7 @@ class FormularioMensajes {
                             class="form-input"
                             placeholder="Tu nombre..."
                             maxlength="50"
-                            value="Rocío"
+                            value=""
                         >
                     </div>
                     

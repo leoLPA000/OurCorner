@@ -31,7 +31,7 @@ class GaleriaRomantica {
                 const fotosPersonalizadas = (data || []).map(f => ({
                     src: f.url,
                     titulo: f.titulo,
-                    fecha: new Date(f.creado_en).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
+                    fecha: this.formatearFecha(f.fecha_foto) || new Date(f.creado_en).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
                     descripcion: f.descripcion || '',
                     tipo: 'personalizada',
                     id: f.id,
@@ -57,6 +57,22 @@ class GaleriaRomantica {
         this.crearBotonGaleria();
         this.crearModal();
         this.bindEventos();
+    }
+
+    /**
+     * Formatea una fecha tipo DATE ("YYYY-MM-DD") para mostrarla en español,
+     * construyendo la fecha en local para evitar el desfase de un día que
+     * ocurre al pasar un string de fecha directamente a `new Date(...)`.
+     */
+    formatearFecha(fechaISO) {
+        if (!fechaISO) return null;
+        const [year, month, day] = fechaISO.split('-').map(Number);
+        if (!year || !month || !day) return null;
+        return new Date(year, month - 1, day).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     }
 
     crearBotonGaleria() {
@@ -281,7 +297,7 @@ class GaleriaRomantica {
                     
                     <div class="form-grupo">
                         <label for="fechaFoto">Fecha:</label>
-                        <input type="text" id="fechaFoto" placeholder="Ej: Octubre 2025" maxlength="30" required>
+                        <input type="date" id="fechaFoto" required>
                     </div>
                     
                     <div class="form-grupo">
@@ -393,14 +409,15 @@ class GaleriaRomantica {
                 // Insertar metadatos en la tabla fotos con owner asignado
                 const { data: insertData, error: insertError } = await window.supabaseClient
                     .from('fotos')
-                    .insert([{ 
-                        titulo, 
-                        descripcion, 
-                        url: publicURL, 
-                        tipo: 'foto', 
+                    .insert([{
+                        titulo,
+                        descripcion,
+                        url: publicURL,
+                        tipo: 'foto',
                         path,
                         owner: user.id,
-                        publico: true
+                        publico: true,
+                        fecha_foto: fecha || null
                     }])
                     .select();
 

@@ -1878,6 +1878,7 @@ body.tema-oscuro .cancion-artista-item {
 }
 
 .form-grupo input[type="text"],
+.form-grupo input[type="date"],
 .form-grupo textarea {
     padding: 12px 15px;
     border: 2px solid var(--rosa-claro);
@@ -1888,6 +1889,7 @@ body.tema-oscuro .cancion-artista-item {
 }
 
 .form-grupo input[type="text"]:focus,
+.form-grupo input[type="date"]:focus,
 .form-grupo textarea:focus {
     outline: none;
     border-color: var(--rojo-amor);
@@ -2039,6 +2041,7 @@ body.tema-oscuro .form-grupo label {
 }
 
 body.tema-oscuro .form-grupo input[type="text"],
+body.tema-oscuro .form-grupo input[type="date"],
 body.tema-oscuro .form-grupo textarea {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 107, 157, 0.3);
@@ -2046,6 +2049,7 @@ body.tema-oscuro .form-grupo textarea {
 }
 
 body.tema-oscuro .form-grupo input[type="text"]:focus,
+body.tema-oscuro .form-grupo input[type="date"]:focus,
 body.tema-oscuro .form-grupo textarea:focus {
     border-color: var(--acento-oscuro);
     box-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
