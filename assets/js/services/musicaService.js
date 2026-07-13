@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎵 REPRODUCTOR DE MÚSICA ROMÁNTICA
  * Sistema de audio con controles personalizados
  */
@@ -85,7 +85,7 @@ class ReproductorRomantico {
                 }));
 
                 this.playlist = [...this.playlistBase, ...cancionesPersonalizadas];
-                console.log('✅ Playlist cargada desde Supabase:', this.playlist.length, 'canciones');
+                appLog('✅ Playlist cargada desde Supabase:', this.playlist.length, 'canciones');
                 return;
             } else {
                 console.error('❌ Supabase no está inicializado');
@@ -263,7 +263,7 @@ class ReproductorRomantico {
     }
 
     crearControles() {
-        console.log('🎵 Creando controles del reproductor...');
+        appLog('🎵 Creando controles del reproductor...');
 
         const controles = document.createElement('div');
         controles.className = 'reproductor-container cargando';
@@ -312,7 +312,7 @@ class ReproductorRomantico {
         `;
 
         document.body.appendChild(controles);
-        console.log('✅ Controles agregados al DOM');
+        appLog('✅ Controles agregados al DOM');
         // Habilitar interacción inmediatamente para evitar que overlays o problemas de CORS de audio bloqueen los clicks
         // (la clase 'cargando' se usa solo para apariencia; permitimos interacciones de todas formas)
         controles.classList.remove('cargando');
@@ -332,7 +332,7 @@ class ReproductorRomantico {
         botonFlotante.style.display = 'none';
         document.body.appendChild(botonFlotante);
 
-        console.log('✅ Reproductor creado completamente');
+        appLog('✅ Reproductor creado completamente');
     }
 
     bindEventos() {
@@ -396,7 +396,7 @@ class ReproductorRomantico {
             btnMinimizar.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔽 Minimizando reproductor...');
+                appLog('🔽 Minimizando reproductor...');
                 this.minimizar();
             });
         } else {
@@ -440,7 +440,7 @@ class ReproductorRomantico {
                     return;
                 }
                 
-                console.log('➕ Abriendo formulario de canción...');
+                appLog('➕ Abriendo formulario de canción...');
                 this.abrirFormularioCancion();
             });
         } else {
@@ -453,14 +453,14 @@ class ReproductorRomantico {
             btnPlaylist.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('📋 Mostrando playlist...');
+                appLog('📋 Mostrando playlist...');
                 this.mostrarPlaylist();
             });
         } else {
             console.error('❌ No se encontró .btn-ver-playlist');
         }
 
-        console.log('✅ Eventos del reproductor vinculados correctamente');
+        appLog('✅ Eventos del reproductor vinculados correctamente');
     }
 
     // Mostrar un botón flotante para reanudar la reproducción cuando el navegador bloquea el autoplay
@@ -554,7 +554,7 @@ class ReproductorRomantico {
                 })
                 .catch(err => {
                     // Autoplay bloqueado: mostrar botón de reanudar
-                    console.log('Autoplay bloqueado, mostrando botón:', err);
+                    appLog('Autoplay bloqueado, mostrando botón:', err);
                     this.showResumeButton();
                 });
         }
@@ -786,14 +786,14 @@ class ReproductorRomantico {
             try {
                 if (!window.supabaseClient) throw new Error('Supabase no inicializado');
 
-                console.log('📤 Iniciando subida de archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', (file.size / 1024 / 1024).toFixed(2) + 'MB');
+                appLog('📤 Iniciando subida de archivo:', file.name, 'Tipo:', file.type, 'Tamaño:', (file.size / 1024 / 1024).toFixed(2) + 'MB');
 
                 // Generar path seguro
                 const timestamp = Date.now();
                 const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
                 const path = `musica/${timestamp}_${safeName}`;
 
-                console.log('📁 Path generado:', path);
+                appLog('📁 Path generado:', path);
                 
                 // ✅ Determinar contentType automáticamente
                 let contentType = file.type;
@@ -814,7 +814,7 @@ class ReproductorRomantico {
                     };
                     contentType = mimeTypes[extension] || 'audio/mpeg'; // default a audio/mpeg
                 }
-                console.log('📝 Content-Type:', contentType);
+                appLog('📝 Content-Type:', contentType);
 
                 // Subir archivo con contentType específico
                 const { data: uploadData, error: uploadError } = await window.supabaseClient
@@ -830,7 +830,7 @@ class ReproductorRomantico {
                     throw uploadError;
                 }
 
-                console.log('✅ Archivo subido:', uploadData);
+                appLog('✅ Archivo subido:', uploadData);
 
                 // Obtener URL pública
                 const { data: publicUrlData } = window.supabaseClient
@@ -839,7 +839,7 @@ class ReproductorRomantico {
                     .getPublicUrl(path);
 
                 const publicURL = publicUrlData?.publicUrl || '';
-                console.log('🔗 URL pública:', publicURL);
+                appLog('🔗 URL pública:', publicURL);
 
                 // Insertar metadatos en la tabla canciones
                 const { data: insertData, error: insertError } = await window.supabaseClient
@@ -852,7 +852,7 @@ class ReproductorRomantico {
                     throw insertError;
                 }
 
-                console.log('✅ Metadata insertada:', insertData);
+                appLog('✅ Metadata insertada:', insertData);
 
                 modal.remove();
                 this.mostrarNotificacion('¡Canción agregada exitosamente! 🎵💕', 'success');
@@ -932,7 +932,7 @@ class ReproductorRomantico {
                     path: cancion.path
                 }]);
 
-                console.log('✅ Canción guardada en Supabase:', cancion.titulo);
+                appLog('✅ Canción guardada en Supabase:', cancion.titulo);
                 await this.cargarPlaylist();
             } catch (err) {
                 console.error('❌ Error al guardar canción en Supabase:', err);
@@ -1083,8 +1083,8 @@ class ReproductorRomantico {
                         <div class="cancion-item ${index === this.currentTrack ? 'actual' : ''}" data-index="${index}">
                             <div class="cancion-numero">${index + 1}</div>
                             <div class="cancion-info-item">
-                                <div class="cancion-titulo-item">${cancion.titulo}</div>
-                                <div class="cancion-artista-item">${cancion.artista}</div>
+                                <div class="cancion-titulo-item">${escapeHtml(cancion.titulo)}</div>
+                                <div class="cancion-artista-item">${escapeHtml(cancion.artista)}</div>
                             </div>
                             ${cancion.tipo === 'personalizada' && canModify ? `
                                 <button class="btn-eliminar-cancion" data-id="${cancion.id}" title="Eliminar">

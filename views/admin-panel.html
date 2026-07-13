@@ -319,6 +319,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="../assets/js/utils/helpers.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="../assets/js/config/supabase.js"></script>
     <script src="../assets/js/services/authService.js"></script>
@@ -356,7 +357,7 @@
                 console.error('Error al inicializar:', error);
                 document.getElementById('loadingState').innerHTML = `
                     <div class="error-message">
-                        Error al cargar el panel: ${error.message}
+                        Error al cargar el panel: ${escapeHtml(error.message)}
                     </div>
                 `;
             }
@@ -425,7 +426,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
-                        <strong>${user.email}</strong>
+                        <strong>${escapeHtml(user.email)}</strong>
                     </td>
                     <td>
                         <span class="role-badge role-${user.role}">

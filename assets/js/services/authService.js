@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔐 SERVICIO DE AUTENTICACIÓN
  * Gestión completa de autenticación con Supabase Auth
  * Permite login/registro con email y contraseña
@@ -17,9 +17,9 @@ class AuthService {
         
         // Escuchar cambios en el estado de autenticación
         this.supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔄 Auth state changed:', event, session?.user?.email);
+            appLog('🔄 Auth state changed:', event, session?.user?.email);
             this.currentUser = session?.user || null;
-            console.log('✅ currentUser actualizado:', this.currentUser?.email || 'null');
+            appLog('✅ currentUser actualizado:', this.currentUser?.email || 'null');
             this.notifyAuthStateChange(event, session);
         });
         
@@ -41,7 +41,7 @@ class AuthService {
             
             if (session) {
                 this.currentUser = session.user;
-                console.log('Sesión activa detectada:', session.user.email);
+                appLog('Sesión activa detectada:', session.user.email);
                 return session;
             }
             
@@ -134,7 +134,7 @@ class AuthService {
                     }
                 }
 
-                console.log('Usuario registrado exitosamente:', username);
+                appLog('Usuario registrado exitosamente:', username);
                 
                 // Supabase SIEMPRE requiere confirmación de email por defecto
                 // El usuario debe verificar su email antes de poder iniciar sesión
@@ -208,7 +208,7 @@ class AuthService {
                 }
                 
                 this.currentUser = data.user;
-                console.log('Login exitoso:', username);
+                appLog('Login exitoso:', username);
                 return {
                     success: true,
                     user: data.user,
@@ -244,7 +244,7 @@ class AuthService {
             }
             
             if (data.user) {
-                console.log('Usuario registrado exitosamente:', data.user.email);
+                appLog('Usuario registrado exitosamente:', data.user.email);
                 
                 // Verificar si necesita confirmar email
                 if (data.user.identities && data.user.identities.length === 0) {
@@ -286,7 +286,7 @@ class AuthService {
             
             if (data.user) {
                 this.currentUser = data.user;
-                console.log('Login exitoso:', data.user.email);
+                appLog('Login exitoso:', data.user.email);
                 return {
                     success: true,
                     user: data.user,
@@ -314,7 +314,7 @@ class AuthService {
             }
             
             this.currentUser = null;
-            console.log('Sesión cerrada exitosamente');
+            appLog('Sesión cerrada exitosamente');
             return { success: true };
         } catch (error) {
             console.error('Error en signOut:', error);
@@ -430,12 +430,12 @@ class AuthService {
             // Verificar si hay sesión en Supabase de forma síncrona
             const session = this.supabase?.auth?.getSession();
             if (session) {
-                console.log('⚠️ currentUser era null, recuperando de sesión...');
+                appLog('⚠️ currentUser era null, recuperando de sesión...');
             }
         }
         
         const isAuth = this.currentUser !== null;
-        console.log('🔐 isAuthenticated:', isAuth, 'currentUser:', this.currentUser?.email || 'null');
+        appLog('🔐 isAuthenticated:', isAuth, 'currentUser:', this.currentUser?.email || 'null');
         return isAuth;
     }
     
@@ -522,4 +522,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthService;
 }
 
-console.log('AuthService inicializado');
+appLog('AuthService inicializado');

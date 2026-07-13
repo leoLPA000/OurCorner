@@ -1,4 +1,4 @@
-// reacciones.js
+﻿// reacciones.js
 // Funciones para manejar reacciones con Supabase
 // Requiere que `supabaseClient` esté inicializado en `supabaseConfig.js` y disponible globalmente (window.supabaseClient).
 
@@ -41,7 +41,7 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
 
   try {
     // Buscar si existe alguna reacción para este mensaje (sin importar session_id)
-    console.log(`🔍 Buscando reacción existente para mensaje: ${mensajeId}`);
+    appLog(`🔍 Buscando reacción existente para mensaje: ${mensajeId}`);
 
     const { data: reacciones, error: errorCheck } = await client
       .from('reacciones')
@@ -49,7 +49,7 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
       .eq('mensaje_id', mensajeId)
       .limit(1);
 
-    console.log(`📊 Resultado de búsqueda:`, { reacciones, errorCheck });
+    appLog(`📊 Resultado de búsqueda:`, { reacciones, errorCheck });
 
     if (errorCheck) {
       console.error('Error verificando reacciones existentes:', errorCheck);
@@ -57,12 +57,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
     }
 
     const existente = reacciones && reacciones.length > 0 ? reacciones[0] : null;
-    console.log(`✅ Reacción existente encontrada:`, existente);
+    appLog(`✅ Reacción existente encontrada:`, existente);
 
     if (existente) {
       if (existente.emoji === emoji) {
         // Si es la misma reacción, la eliminamos (toggle off)
-        console.log('🗑️ Eliminando reacción:', existente);
+        appLog('🗑️ Eliminando reacción:', existente);
 
         const { error: errorDelete } = await client
           .from('reacciones')
@@ -74,11 +74,11 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
           throw errorDelete;
         }
 
-        console.log('✅ Reacción eliminada');
+        appLog('✅ Reacción eliminada');
         return { action: 'removed', emoji };
       } else {
         // Si es diferente reacción, la actualizamos
-        console.log('🔄 Actualizando emoji:', existente.emoji, '→', emoji);
+        appLog('🔄 Actualizando emoji:', existente.emoji, '→', emoji);
 
         const { error: errorUpdate } = await client
           .from('reacciones')
@@ -90,12 +90,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
           throw errorUpdate;
         }
 
-        console.log('✅ Emoji actualizado');
+        appLog('✅ Emoji actualizado');
         return { action: 'updated', emoji, previous: existente.emoji };
       }
     } else {
       // No existe, crear nueva
-      console.log('➕ Creando nueva reacción:', emoji);
+      appLog('➕ Creando nueva reacción:', emoji);
 
       const { error } = await client
         .from('reacciones')
@@ -106,7 +106,7 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
         throw error;
       }
 
-      console.log('✅ Reacción creada');
+      appLog('✅ Reacción creada');
       return { action: 'added', emoji };
     }
   } catch (err) {
@@ -132,7 +132,7 @@ async function obtenerEmojiActual(mensajeId) {
     }
 
     const emoji = data ? data.emoji : null;
-    console.log(`📝 Emoji actual para ${mensajeId}:`, emoji);
+    appLog(`📝 Emoji actual para ${mensajeId}:`, emoji);
     return emoji;
   } catch (err) {
     console.error('Error en obtenerEmojiActual:', err);
@@ -182,11 +182,11 @@ function suscribirReacciones(onUpdate) {
 
 // Helper para montar botón de reacciones con menú desplegable
 async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
-  console.log('🔧 Montando botón de reacciones para mensaje:', mensajeId);
+  appLog('🔧 Montando botón de reacciones para mensaje:', mensajeId);
 
   // 🔐 Verificar permisos
   const canReact = window.rolesService ? await window.rolesService.canModify() : true;
-  console.log('🔐 Usuario puede reaccionar:', canReact);
+  appLog('🔐 Usuario puede reaccionar:', canReact);
 
   // Limpiar contenedor
   contenedor.innerHTML = '';
@@ -206,7 +206,7 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   // Obtener emoji actual y actualizar botón
   obtenerEmojiActual(mensajeId).then(emoji => {
     const hasReaction = !!emoji;
-    console.log(`📝 Emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
+    appLog(`📝 Emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
     updateMainButton(btnPrincipal, emoji, hasReaction);
   }).catch(err => {
     console.warn('Error obteniendo emoji actual:', err);
@@ -270,18 +270,18 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
 
       // Click rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
-      console.log(`🎯 Estado del botón: ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
+      appLog(`🎯 Estado del botón: ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
 
       if (hasReacted) {
         // Ya hay reacción, obtenerla y quitarla
         const currentEmoji = await obtenerEmojiActual(mensajeId);
-        console.log('🗑️ Quitando reacción con click rápido:', currentEmoji);
+        appLog('🗑️ Quitando reacción con click rápido:', currentEmoji);
         await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor);
       } else {
         // No hay reacción, agregar el emoji mostrado
         const emojiElement = btnPrincipal.querySelector('.reaction-emoji');
         const emojiToAdd = emojiElement ? emojiElement.textContent : '❤️';
-        console.log('💕 Agregando reacción con click rápido:', emojiToAdd);
+        appLog('💕 Agregando reacción con click rápido:', emojiToAdd);
         await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor);
       }
     }
@@ -315,18 +315,18 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
 
       // Touch rápido - verificar estado actual del botón
       const hasReacted = btnPrincipal.classList.contains('reacted');
-      console.log(`🎯 Estado del botón (touch): ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
+      appLog(`🎯 Estado del botón (touch): ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
 
       if (hasReacted) {
         // Ya hay reacción, obtenerla y quitarla
         const currentEmoji = await obtenerEmojiActual(mensajeId);
-        console.log('🗑️ Quitando reacción con touch rápido:', currentEmoji);
+        appLog('🗑️ Quitando reacción con touch rápido:', currentEmoji);
         await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor);
       } else {
         // No hay reacción, agregar el emoji mostrado
         const emojiElement = btnPrincipal.querySelector('.reaction-emoji');
         const emojiToAdd = emojiElement ? emojiElement.textContent : '❤️';
-        console.log('💕 Agregando reacción con touch rápido:', emojiToAdd);
+        appLog('💕 Agregando reacción con touch rápido:', emojiToAdd);
         await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor);
       }
     }
@@ -366,14 +366,14 @@ function updateMainButton(btn, emoji, hasReaction) {
   `;
 
   btn.className = `btn-reaction-main ${hasReaction ? 'reacted' : ''}`;
-  console.log(`🔄 Botón actualizado - emoji: ${displayEmoji}, resaltado: ${hasReaction}`);
+  appLog(`🔄 Botón actualizado - emoji: ${displayEmoji}, resaltado: ${hasReaction}`);
 }
 
 
 async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
   try {
     btnPrincipal.disabled = true;
-    console.log(`${emoji} Procesando reacción...`);
+    appLog(`${emoji} Procesando reacción...`);
 
     // 🔐 Verificar permisos antes de reaccionar
     if (window.rolesService && !await window.rolesService.canModify()) {
@@ -382,7 +382,7 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
     }
 
     const result = await insertarOActualizarReaccion(mensajeId, emoji);
-    console.log('✅ Resultado:', result);
+    appLog('✅ Resultado:', result);
 
     // Obtener estado actual después de la operación
     const currentEmoji = await obtenerEmojiActual(mensajeId);

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔐 SERVICIO DE ROLES Y PERMISOS
  * Gestión de roles: super_admin, admin, invitado
  */
@@ -28,7 +28,7 @@ class RolesService {
             const { data: { session } } = await this.supabase.auth.getSession();
             
             if (!session || !session.user) {
-                console.log('⚠️ No hay usuario autenticado');
+                appLog('⚠️ No hay usuario autenticado');
                 return null;
             }
 
@@ -46,7 +46,7 @@ class RolesService {
             }
 
             this.currentRole = data?.role || this.roles.INVITADO;
-            console.log('✅ Rol del usuario:', this.currentRole);
+            appLog('✅ Rol del usuario:', this.currentRole);
             return this.currentRole;
         } catch (err) {
             console.error('❌ Error en getCurrentUserRole:', err);
@@ -97,7 +97,7 @@ class RolesService {
     async canModify() {
         const result = await this.isAdmin();
         const currentRole = this.currentRole;
-        console.log(`🔐 canModify() llamado - Rol: ${currentRole}, Puede modificar: ${result}`);
+        appLog(`🔐 canModify() llamado - Rol: ${currentRole}, Puede modificar: ${result}`);
         return result;
     }
 
@@ -175,7 +175,7 @@ class RolesService {
 
             // Si no existe, usar UPSERT para crear o actualizar
             if (error || !data || data.length === 0) {
-                console.log('⚠️ Usuario sin rol asignado, creando entrada...');
+                appLog('⚠️ Usuario sin rol asignado, creando entrada...');
                 
                 // Obtener el email del usuario
                 const { data: userData, error: userError } = await this.supabase.auth.admin.getUserById(userId);
@@ -196,7 +196,7 @@ class RolesService {
                 data = upsertData;
             }
 
-            console.log('✅ Rol actualizado exitosamente');
+            appLog('✅ Rol actualizado exitosamente');
             return { success: true, data };
         } catch (err) {
             console.error('❌ Error al cambiar rol:', err);
@@ -253,4 +253,4 @@ class RolesService {
 
 // Inicializar servicio globalmente
 window.rolesService = new RolesService();
-console.log('✅ RolesService inicializado');
+appLog('✅ RolesService inicializado');

@@ -1,4 +1,4 @@
-// Efectos de cursor con partículas románticas
+﻿// Efectos de cursor con partículas románticas
 class CursorEffects {
     constructor() {
         this.particles = [];
@@ -291,10 +291,10 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.cursorEffects = new CursorEffects();
         new RomanticEnhancements();
-        console.log('💕 Efectos de cursor activados para Rocío');
+        appLog('💕 Efectos de cursor activados para Rocío');
     });
 } else {
     window.cursorEffects = new CursorEffects();
     new RomanticEnhancements();
-    console.log('💕 Efectos de cursor activados para Rocío');
+    appLog('💕 Efectos de cursor activados para Rocío');
 }

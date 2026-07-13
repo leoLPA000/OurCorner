@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 📸 GALERÍA DE FOTOS ROMÁNTICA
  * Lightbox con carrusel y efectos suaves
  */
@@ -38,7 +38,7 @@ class GaleriaRomantica {
                 }));
 
                 this.fotos = [...this.fotosBase, ...fotosPersonalizadas];
-                console.log('✅ Fotos cargadas desde Supabase:', this.fotos.length);
+                appLog('✅ Fotos cargadas desde Supabase:', this.fotos.length);
                 return;
             } else {
                 console.error('❌ Supabase no está inicializado');
@@ -144,7 +144,7 @@ class GaleriaRomantica {
                 <div class="galeria-thumbnails">
                     ${this.fotos.map((foto, index) => `
                         <div class="thumbnail ${index === 0 ? 'active' : ''}" data-index="${index}">
-                            <img src="${foto.src}" alt="${foto.titulo}" onerror="this.src='assets/images/placeholder.jpg'">
+                            <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" onerror="this.src='assets/images/placeholder.jpg'">
                         </div>
                     `).join('')}
                 </div>
@@ -330,8 +330,8 @@ class GaleriaRomantica {
             btnGuardar.disabled = true;
 
             try {
-                console.log('📤 Iniciando subida de foto...');
-                console.log('Supabase disponible:', !!window.supabaseClient);
+                appLog('📤 Iniciando subida de foto...');
+                appLog('Supabase disponible:', !!window.supabaseClient);
 
                 if (!window.supabaseClient) {
                     throw new Error('Supabase no inicializado - cayendo a localStorage');
@@ -342,7 +342,7 @@ class GaleriaRomantica {
                 const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
                 const path = `fotos/${timestamp}_${safeName}`;
 
-                console.log('📁 Path generado:', path);
+                appLog('📁 Path generado:', path);
 
                 // Subir archivo
                 const { data: uploadData, error: uploadError } = await window.supabaseClient
@@ -355,7 +355,7 @@ class GaleriaRomantica {
                     throw uploadError;
                 }
 
-                console.log('✅ Archivo subido:', uploadData);
+                appLog('✅ Archivo subido:', uploadData);
 
                 // Obtener URL pública
                 const { data: publicUrlData } = window.supabaseClient
@@ -364,7 +364,7 @@ class GaleriaRomantica {
                     .getPublicUrl(path);
 
                 const publicURL = publicUrlData?.publicUrl || '';
-                console.log('🔗 URL pública:', publicURL);
+                appLog('🔗 URL pública:', publicURL);
 
                 // Obtener el user_id actual para asignar como owner
                 const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
@@ -392,7 +392,7 @@ class GaleriaRomantica {
                     throw insertError;
                 }
 
-                console.log('✅ Metadata insertada:', insertData);
+                appLog('✅ Metadata insertada:', insertData);
 
                 modal.remove();
                 this.mostrarNotificacion('¡Foto agregada exitosamente! 📸💕', 'success');
@@ -497,7 +497,7 @@ class GaleriaRomantica {
         if (thumbnailsContainer) {
             thumbnailsContainer.innerHTML = this.fotos.map((foto, index) => `
                 <div class="thumbnail ${index === this.currentIndex ? 'active' : ''}" data-index="${index}">
-                    <img src="${foto.src}" alt="${foto.titulo}" onerror="this.src='assets/images/placeholder.jpg'">
+                    <img src="${escapeHtml(foto.src)}" alt="${escapeHtml(foto.titulo)}" onerror="this.src='assets/images/placeholder.jpg'">
                 </div>
             `).join('');
 

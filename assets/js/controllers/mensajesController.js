@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 📝 FORMULARIO DE NUEVOS MENSAJES
  * Sistema para que Rocío agregue sus propios mensajes románticos
  */
@@ -355,7 +355,7 @@ class FormularioMensajes {
             
             if (error) throw error;
             
-            console.log('✅ Mensaje guardado en Supabase:', data);
+            appLog('✅ Mensaje guardado en Supabase:', data);
             
             // Mostrar notificación de éxito
             this.mostrarNotificacion('¡Mensaje guardado con éxito! 💕', 'success');
@@ -402,7 +402,7 @@ class FormularioMensajes {
             
             if (error) throw error;
             
-            console.log('✅ Mensajes cargados desde Supabase:', mensajesGuardados.length);
+            appLog('✅ Mensajes cargados desde Supabase:', mensajesGuardados.length);
             
             contador.textContent = `(${mensajesGuardados.length})`;
             
@@ -425,10 +425,10 @@ class FormularioMensajes {
                             <span class="mensaje-categoria-badge">${this.getCategoriaTexto(mensaje.categoria)}</span>
                             ${canModify ? `<button class="btn-eliminar-mensaje" data-id="${mensaje.id}" title="Eliminar">🗑️</button>` : ''}
                         </div>
-                        <p class="mensaje-guardado-texto">${mensaje.texto}</p>
-                        ${mensaje.nota ? `<p class="mensaje-guardado-nota">📝 ${mensaje.nota}</p>` : ''}
+                        <p class="mensaje-guardado-texto">${escapeHtml(mensaje.texto)}</p>
+                        ${mensaje.nota ? `<p class="mensaje-guardado-nota">📝 ${escapeHtml(mensaje.nota)}</p>` : ''}
                         <div class="mensaje-guardado-footer">
-                            <span class="mensaje-autor">— ${mensaje.autor || 'Anónimo'}</span>
+                            <span class="mensaje-autor">— ${escapeHtml(mensaje.autor || 'Anónimo')}</span>
                             <span class="mensaje-fecha">${fecha}</span>
                         </div>
                     </div>
@@ -494,7 +494,7 @@ class FormularioMensajes {
             
             if (error) throw error;
             
-            console.log('✅ Mensaje eliminado de Supabase');
+            appLog('✅ Mensaje eliminado de Supabase');
             
             this.mostrarNotificacion('Mensaje eliminado', 'info');
             await this.cargarMensajesGuardados();
@@ -522,7 +522,7 @@ class FormularioMensajes {
         
         notificacion.innerHTML = `
             <span class="notificacion-icono">${iconos[tipo]}</span>
-            <span class="notificacion-texto">${mensaje}</span>
+            <span class="notificacion-texto">${escapeHtml(mensaje)}</span>
         `;
         
         document.body.appendChild(notificacion);

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Supabase configuration for NuestroMes
 
 Usage:
@@ -32,4 +32,4 @@ window.supabaseClient = supabaseClient;
 // Example usage in other JS files:
 // const { data, error } = await window.supabaseClient.storage.from('archivos').upload(...)
 
-console.log('Supabase client initialized:', !!supabaseClient);
+appLog('Supabase client initialized:', !!supabaseClient);
