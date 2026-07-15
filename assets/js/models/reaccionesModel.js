@@ -1,9 +1,18 @@
-﻿// reacciones.js
+// reacciones.js
 // Funciones para manejar reacciones con Supabase
 // Requiere que `supabaseClient` esté inicializado en `supabaseConfig.js` y disponible globalmente (window.supabaseClient).
 
 // Emojis por defecto que mostraremos (puedes personalizar)
 const DEFAULT_EMOJIS = ['❤️', '😂', '😍'];
+
+// Nombre de cada reacción, al estilo Facebook (❤️ "Me encanta", etc.)
+const NOMBRES_REACCION = {
+  '😂': 'Me divierte',
+  '❤️': 'Me encanta',
+  '😍': 'Me fascina',
+  '🥹': 'Me conmueve',
+  '🫂': 'Te abrazo'
+};
 
 // Obtener ID del usuario autenticado
 function obtenerIdSesion() {
@@ -12,7 +21,7 @@ function obtenerIdSesion() {
     const user = window.authService.getCurrentUser();
     return user.id;
   }
-  
+
   // Si no está autenticado, retornar null
   return null;
 }
@@ -38,13 +47,17 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
   if (!sessionId) throw new Error('No se pudo obtener ID de usuario');
 
   try {
-    // Buscar si existe alguna reacción para este mensaje (sin importar session_id)
-    appLog(`🔍 Buscando reacción existente para mensaje: ${mensajeId}`);
+    // Buscar si YO (usuario actual) ya reaccioné a este mensaje.
+    // Antes esta consulta no filtraba por session_id, así que encontraba la
+    // reacción de CUALQUIER usuario y la trataba como "la" reacción del
+    // mensaje — por eso una cuenta veía "ya reaccionado" con la reacción de otra.
+    appLog(`🔍 Buscando mi reacción existente para mensaje: ${mensajeId}`);
 
     const { data: reacciones, error: errorCheck } = await client
       .from('reacciones')
       .select('id, emoji')
       .eq('mensaje_id', mensajeId)
+      .eq('session_id', sessionId)
       .limit(1);
 
     appLog(`📊 Resultado de búsqueda:`, { reacciones, errorCheck });
@@ -55,12 +68,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
     }
 
     const existente = reacciones && reacciones.length > 0 ? reacciones[0] : null;
-    appLog(`✅ Reacción existente encontrada:`, existente);
+    appLog(`✅ Mi reacción existente:`, existente);
 
     if (existente) {
       if (existente.emoji === emoji) {
         // Si es la misma reacción, la eliminamos (toggle off)
-        appLog('🗑️ Eliminando reacción:', existente);
+        appLog('🗑️ Eliminando mi reacción:', existente);
 
         const { error: errorDelete } = await client
           .from('reacciones')
@@ -75,12 +88,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
         appLog('✅ Reacción eliminada');
         return { action: 'removed', emoji };
       } else {
-        // Si es diferente reacción, la actualizamos
-        appLog('🔄 Actualizando emoji:', existente.emoji, '→', emoji);
+        // Si es diferente reacción, la actualizamos (solo mi propia fila)
+        appLog('🔄 Actualizando mi emoji:', existente.emoji, '→', emoji);
 
         const { error: errorUpdate } = await client
           .from('reacciones')
-          .update({ emoji, session_id: sessionId })
+          .update({ emoji })
           .eq('id', existente.id);
 
         if (errorUpdate) {
@@ -92,12 +105,12 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
         return { action: 'updated', emoji, previous: existente.emoji };
       }
     } else {
-      // No existe, crear nueva
-      appLog('➕ Creando nueva reacción:', emoji);
+      // No existe MI reacción a este mensaje, crear una nueva propia
+      appLog('➕ Creando nueva reacción propia:', emoji);
 
       const { error } = await client
         .from('reacciones')
-        .insert([{ mensaje_id: mensajeId, emoji, session_id: sessionId }]);
+        .insert([{ mensaje_id: mensajeId, emoji, session_id: sessionId, user_id: sessionId }]);
 
       if (error) {
         console.error('❌ Error al crear:', error);
@@ -113,24 +126,27 @@ async function insertarOActualizarReaccion(mensajeId, emoji) {
   }
 }
 
+// Devuelve el emoji con el que el usuario ACTUAL reaccionó a un mensaje, o null.
 async function obtenerEmojiActual(mensajeId) {
   const client = window.supabaseClient;
-  if (!client) return null;
+  const sessionId = obtenerIdSesion();
+  if (!client || !sessionId) return null;
 
   try {
     const { data, error } = await client
       .from('reacciones')
       .select('emoji')
       .eq('mensaje_id', mensajeId)
+      .eq('session_id', sessionId)
       .maybeSingle();
 
     if (error) {
-      console.error('❌ Error obteniendo emoji actual:', error);
+      console.error('❌ Error obteniendo mi emoji actual:', error);
       return null;
     }
 
     const emoji = data ? data.emoji : null;
-    appLog(`📝 Emoji actual para ${mensajeId}:`, emoji);
+    appLog(`📝 Mi emoji actual para ${mensajeId}:`, emoji);
     return emoji;
   } catch (err) {
     console.error('Error en obtenerEmojiActual:', err);
@@ -138,12 +154,28 @@ async function obtenerEmojiActual(mensajeId) {
   }
 }
 
+// Devuelve el conteo agregado de TODAS las reacciones de un mensaje (de todos
+// los usuarios), ej: { '❤️': 3, '😂': 1 } — usado para el resumen estilo Facebook.
 async function obtenerConteosPorMensaje(mensajeId) {
-  if (!mensajeId) return {};
+  const client = window.supabaseClient;
+  if (!client || !mensajeId) return {};
 
   try {
-    const emoji = await obtenerEmojiActual(mensajeId);
-    return emoji ? { [emoji]: 1 } : {};
+    const { data, error } = await client
+      .from('reacciones')
+      .select('emoji')
+      .eq('mensaje_id', mensajeId);
+
+    if (error) {
+      console.error('❌ Error obteniendo conteos:', error);
+      return {};
+    }
+
+    const counts = {};
+    (data || []).forEach(r => {
+      counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+    });
+    return counts;
   } catch (err) {
     console.error('Error obteniendo conteos:', err);
     return {};
@@ -178,6 +210,25 @@ function suscribirReacciones(onUpdate) {
   return channel;
 }
 
+// Arma el resumen agregado estilo Facebook (emojis usados + total), oculto si no hay reacciones
+function renderResumenReacciones(el, counts) {
+  if (!el) return;
+  const entries = Object.entries(counts || {}).filter(([, c]) => c > 0);
+
+  if (entries.length === 0) {
+    el.innerHTML = '';
+    el.classList.remove('visible');
+    return;
+  }
+
+  entries.sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((sum, [, c]) => sum + c, 0);
+  const iconos = entries.slice(0, 3).map(([emoji]) => `<span class="resumen-emoji">${emoji}</span>`).join('');
+
+  el.innerHTML = `${iconos}<span class="resumen-total">${total}</span>`;
+  el.classList.add('visible');
+}
+
 // Helper para montar botón de reacciones con menú desplegable
 async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
   appLog('🔧 Montando botón de reacciones para mensaje:', mensajeId);
@@ -194,21 +245,23 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   const reactionContainer = document.createElement('div');
   reactionContainer.className = 'reaction-main-container';
 
-  // Botón principal con contador total
+  // Botón principal
   const btnPrincipal = document.createElement('button');
   btnPrincipal.className = 'btn-reaction-main';
+  updateMainButton(btnPrincipal, null, false);
 
-  // Calcular total inicial
-  const totalReacciones = Object.values(initialCounts).reduce((sum, count) => sum + count, 0);
+  // Resumen agregado (estilo Facebook: emojis usados + total, de todos los usuarios)
+  const resumenReacciones = document.createElement('div');
+  resumenReacciones.className = 'reaction-summary';
+  renderResumenReacciones(resumenReacciones, initialCounts);
 
-  // Obtener emoji actual y actualizar botón
+  // Obtener MI emoji actual y actualizar botón
   obtenerEmojiActual(mensajeId).then(emoji => {
     const hasReaction = !!emoji;
-    appLog(`📝 Emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
+    appLog(`📝 Mi emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
     updateMainButton(btnPrincipal, emoji, hasReaction);
   }).catch(err => {
-    console.warn('Error obteniendo emoji actual:', err);
-    // Fallback: sin reacción
+    console.warn('Error obteniendo mi emoji actual:', err);
     updateMainButton(btnPrincipal, null, false);
   });
 
@@ -222,11 +275,12 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     btnEmoji.className = 'reaction-option';
     btnEmoji.textContent = emoji;
     btnEmoji.dataset.emoji = emoji;
+    btnEmoji.title = NOMBRES_REACCION[emoji] || '';
 
     btnEmoji.addEventListener('click', async (e) => {
       e.stopPropagation();
       hideMenu();
-      await handleReaction(mensajeId, emoji, btnPrincipal, contenedor);
+      await handleReaction(mensajeId, emoji, btnPrincipal, contenedor, resumenReacciones);
     });
 
     menuReacciones.appendChild(btnEmoji);
@@ -245,6 +299,7 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
     reactionContainer.appendChild(btnPrincipal);
     reactionContainer.appendChild(menuReacciones);
     contenedor.appendChild(reactionContainer);
+    contenedor.appendChild(resumenReacciones);
     return; // No agregar eventos si no tiene permisos
   }
 
@@ -271,16 +326,15 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
       appLog(`🎯 Estado del botón: ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
 
       if (hasReacted) {
-        // Ya hay reacción, obtenerla y quitarla
+        // Ya hay reacción mía, quitarla
         const currentEmoji = await obtenerEmojiActual(mensajeId);
-        appLog('🗑️ Quitando reacción con click rápido:', currentEmoji);
-        await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor);
+        appLog('🗑️ Quitando mi reacción con click rápido:', currentEmoji);
+        await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor, resumenReacciones);
       } else {
-        // No hay reacción, agregar el emoji mostrado
-        const emojiElement = btnPrincipal.querySelector('.reaction-emoji');
-        const emojiToAdd = emojiElement ? emojiElement.textContent : '❤️';
+        // No hay reacción mía, agregar el emoji por defecto
+        const emojiToAdd = '❤️';
         appLog('💕 Agregando reacción con click rápido:', emojiToAdd);
-        await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor);
+        await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor, resumenReacciones);
       }
     }
     isHolding = false;
@@ -316,23 +370,41 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
       appLog(`🎯 Estado del botón (touch): ${hasReacted ? 'reaccionado' : 'no reaccionado'}`);
 
       if (hasReacted) {
-        // Ya hay reacción, obtenerla y quitarla
         const currentEmoji = await obtenerEmojiActual(mensajeId);
-        appLog('🗑️ Quitando reacción con touch rápido:', currentEmoji);
-        await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor);
+        appLog('🗑️ Quitando mi reacción con touch rápido:', currentEmoji);
+        await handleReaction(mensajeId, currentEmoji, btnPrincipal, contenedor, resumenReacciones);
       } else {
-        // No hay reacción, agregar el emoji mostrado
-        const emojiElement = btnPrincipal.querySelector('.reaction-emoji');
-        const emojiToAdd = emojiElement ? emojiElement.textContent : '❤️';
+        const emojiToAdd = '❤️';
         appLog('💕 Agregando reacción con touch rápido:', emojiToAdd);
-        await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor);
+        await handleReaction(mensajeId, emojiToAdd, btnPrincipal, contenedor, resumenReacciones);
       }
     }
     isHolding = false;
   });
 
   function showMenu() {
+    // Quitar "hidden" primero para poder medir su ancho real (display distinto de none)
     menuReacciones.classList.remove('hidden');
+
+    // Centrar el menú sobre el botón y ajustar (clamp) para que no se corte
+    // en pantallas angostas. Se calcula en píxeles absolutos por JS en vez de
+    // usar `transform: translateX(calc(-50% + var(...)))`, porque al combinar
+    // una variable CSS dentro de un calc() de una propiedad con `transition`
+    // el navegador no siempre recalcula el valor mostrado.
+    const contRect = reactionContainer.getBoundingClientRect();
+    const menuWidth = menuReacciones.offsetWidth;
+    let left = (contRect.width / 2) - (menuWidth / 2);
+
+    const margen = 8;
+    const menuLeftAbs = contRect.left + left;
+    const menuRightAbs = menuLeftAbs + menuWidth;
+    if (menuLeftAbs < margen) {
+      left += margen - menuLeftAbs;
+    } else if (menuRightAbs > window.innerWidth - margen) {
+      left -= menuRightAbs - (window.innerWidth - margen);
+    }
+
+    menuReacciones.style.left = `${left}px`;
     menuReacciones.classList.add('show');
   }
 
@@ -351,16 +423,16 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   reactionContainer.appendChild(btnPrincipal);
   reactionContainer.appendChild(menuReacciones);
   contenedor.appendChild(reactionContainer);
+  contenedor.appendChild(resumenReacciones);
 }
 
 function updateMainButton(btn, emoji, hasReaction) {
   const displayEmoji = emoji || '❤️';
-  const countText = hasReaction ? ' • 1' : '';
+  const label = hasReaction ? (NOMBRES_REACCION[emoji] || 'Reaccionaste') : 'Reaccionar';
 
   btn.innerHTML = `
     <span class="reaction-emoji">${displayEmoji}</span>
-    <span class="reaction-text"></span>
-    <span class="reaction-count">${countText}</span>
+    <span class="reaction-text">${label}</span>
   `;
 
   btn.className = `btn-reaction-main ${hasReaction ? 'reacted' : ''}`;
@@ -368,7 +440,7 @@ function updateMainButton(btn, emoji, hasReaction) {
 }
 
 
-async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
+async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor, resumenReacciones) {
   try {
     btnPrincipal.disabled = true;
     appLog(`${emoji} Procesando reacción...`);
@@ -382,11 +454,14 @@ async function handleReaction(mensajeId, emoji, btnPrincipal, contenedor) {
     const result = await insertarOActualizarReaccion(mensajeId, emoji);
     appLog('✅ Resultado:', result);
 
-    // Obtener estado actual después de la operación
-    const currentEmoji = await obtenerEmojiActual(mensajeId);
-    const hasReaction = !!currentEmoji;
+    // Refrescar mi estado y el resumen agregado de todos los usuarios
+    const [miReaccion, counts] = await Promise.all([
+      obtenerEmojiActual(mensajeId),
+      obtenerConteosPorMensaje(mensajeId)
+    ]);
 
-    updateMainButton(btnPrincipal, currentEmoji, hasReaction);
+    updateMainButton(btnPrincipal, miReaccion, !!miReaccion);
+    renderResumenReacciones(resumenReacciones, counts);
     showReactionFeedback(contenedor, result.action, emoji);
 
   } catch (err) {

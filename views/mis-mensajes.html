@@ -235,30 +235,48 @@
                         }
 
                         const btnPrincipal = card.querySelector('.btn-reaction-main');
+                        const resumen = card.querySelector('.reaction-summary');
                         if (!btnPrincipal) {
                             console.warn('⚠️ Botón principal no encontrado para', mensajeId);
                             return;
                         }
 
                         try {
-                            // Obtener emoji actual
-                            const emoji = await window.Reacciones.obtenerEmojiActual(mensajeId);
+                            // Refrescar mi propia reacción y el resumen agregado de todos los usuarios
+                            // (el cambio en tiempo real puede venir de OTRA cuenta reaccionando)
+                            const [emoji, counts] = await Promise.all([
+                                window.Reacciones.obtenerEmojiActual(mensajeId),
+                                window.Reacciones.obtenerConteosPorMensaje(mensajeId)
+                            ]);
                             const hasReaction = !!emoji;
-                            
-                            appLog('✅ Emoji actual:', emoji, '- tiene reacción:', hasReaction);
 
-                            // Actualizar botón
+                            appLog('✅ Mi emoji actual:', emoji, '- tiene reacción:', hasReaction, '- conteos:', counts);
+
                             const displayEmoji = emoji || '❤️';
-                            const countText = hasReaction ? ' • 1' : '';
-                            
+                            const NOMBRES_REACCION = { '😂': 'Me divierte', '❤️': 'Me encanta', '😍': 'Me fascina', '🥹': 'Me conmueve', '🫂': 'Te abrazo' };
+                            const label = hasReaction ? (NOMBRES_REACCION[emoji] || 'Reaccionaste') : 'Reaccionar';
+
                             btnPrincipal.innerHTML = `
                                 <span class="reaction-emoji">${displayEmoji}</span>
-                                <span class="reaction-text"></span>
-                                <span class="reaction-count">${countText}</span>
+                                <span class="reaction-text">${label}</span>
                             `;
-                            
                             btnPrincipal.className = `btn-reaction-main ${hasReaction ? 'reacted' : ''}`;
-                            appLog('🔄 Botón actualizado en tiempo real');
+
+                            if (resumen) {
+                                const entries = Object.entries(counts || {}).filter(([, c]) => c > 0);
+                                if (entries.length === 0) {
+                                    resumen.innerHTML = '';
+                                    resumen.classList.remove('visible');
+                                } else {
+                                    entries.sort((a, b) => b[1] - a[1]);
+                                    const total = entries.reduce((sum, [, c]) => sum + c, 0);
+                                    const iconos = entries.slice(0, 3).map(([e]) => `<span class="resumen-emoji">${e}</span>`).join('');
+                                    resumen.innerHTML = `${iconos}<span class="resumen-total">${total}</span>`;
+                                    resumen.classList.add('visible');
+                                }
+                            }
+
+                            appLog('🔄 Botón y resumen actualizados en tiempo real');
                         } catch (err) {
                             console.error('❌ Error actualizando botón en tiempo real:', err);
                         }
@@ -601,16 +619,12 @@
             font-weight: 600;
         }
 
-        .reaction-count {
-            opacity: 0.8;
-            font-size: 0.85rem;
-        }
-
         .reaction-menu {
             position: absolute;
             bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            /* `left` se calcula en JS (con clamp de viewport) antes de mostrarse;
+               el valor de aquí es solo un respaldo mientras no se ha medido. */
+            left: 0;
             background: white;
             border: 1px solid rgba(0, 0, 0, 0.12);
             border-radius: 25px;
@@ -621,19 +635,54 @@
             z-index: 1000;
             margin-bottom: 8px;
             opacity: 0;
-            transform: translateX(-50%) translateY(10px) scale(0.9);
-            transition: all 0.2s ease;
+            transform: translateY(10px) scale(0.9);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
             pointer-events: none;
+            max-width: calc(100vw - 16px);
         }
 
         .reaction-menu.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
+            transform: translateY(0) scale(1);
             pointer-events: auto;
         }
 
         .reaction-menu.hidden {
             display: none;
+        }
+
+        /* Resumen agregado estilo Facebook: emojis usados + total de todos los usuarios */
+        .reaction-summary {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            margin-left: 10px;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #65676b;
+            font-weight: 600;
+        }
+
+        .reaction-summary.visible {
+            display: inline-flex;
+        }
+
+        .resumen-emoji {
+            font-size: 1rem;
+            margin-right: -6px;
+        }
+
+        .resumen-total {
+            margin-left: 8px;
+        }
+
+        .reacciones-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .reaction-option {
@@ -653,7 +702,7 @@
 
         .reaction-option:hover {
             background: rgba(0, 0, 0, 0.05);
-            transform: scale(1.2);
+            transform: scale(1.35) translateY(-6px);
         }
 
         .reaction-feedback {
@@ -714,6 +763,34 @@
 
         body.tema-oscuro .reaction-option:hover {
             background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.tema-oscuro .reaction-summary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--texto-oscuro);
+        }
+
+        /* Responsive: evitar que el botón y el resumen se corten en pantallas angostas */
+        @media (max-width: 480px) {
+            .reacciones-container {
+                width: 100%;
+            }
+
+            .btn-reaction-main {
+                padding: 10px 16px;
+                font-size: 0.88rem;
+            }
+
+            .reaction-summary {
+                font-size: 0.78rem;
+                padding: 5px 8px;
+            }
+
+            .reaction-option {
+                width: 36px;
+                height: 36px;
+                font-size: 1.3rem;
+            }
         }
     </style>
 </body>
