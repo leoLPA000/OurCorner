@@ -182,6 +182,49 @@ async function obtenerConteosPorMensaje(mensajeId) {
   }
 }
 
+// Trae las reacciones de VARIOS mensajes en UNA sola consulta (en vez de 2 consultas
+// por mensaje). Devuelve { conteos: {mensajeId: {emoji: cantidad}}, misReacciones: {mensajeId: emoji} }.
+// Pensado para pantallas con listas largas (ej. mis-mensajes.html), donde antes se
+// disparaban ~2 peticiones a Supabase por cada mensaje mostrado.
+async function obtenerReaccionesDeMensajes(mensajeIds) {
+  const client = window.supabaseClient;
+  if (!client || !mensajeIds || mensajeIds.length === 0) {
+    return { conteos: {}, misReacciones: {} };
+  }
+
+  const sessionId = obtenerIdSesion();
+
+  try {
+    const { data, error } = await client
+      .from('reacciones')
+      .select('mensaje_id, emoji, session_id')
+      .in('mensaje_id', mensajeIds);
+
+    if (error) {
+      console.error('❌ Error obteniendo reacciones en lote:', error);
+      return { conteos: {}, misReacciones: {} };
+    }
+
+    const conteos = {};
+    const misReacciones = {};
+
+    (data || []).forEach(r => {
+      if (!conteos[r.mensaje_id]) conteos[r.mensaje_id] = {};
+      conteos[r.mensaje_id][r.emoji] = (conteos[r.mensaje_id][r.emoji] || 0) + 1;
+
+      if (sessionId && r.session_id === sessionId) {
+        misReacciones[r.mensaje_id] = r.emoji;
+      }
+    });
+
+    appLog(`📦 Reacciones en lote obtenidas para ${mensajeIds.length} mensajes`);
+    return { conteos, misReacciones };
+  } catch (err) {
+    console.error('Error en obtenerReaccionesDeMensajes:', err);
+    return { conteos: {}, misReacciones: {} };
+  }
+}
+
 
 // Suscribirse a cambios en la tabla reacciones para actualizar en tiempo real
 // callback recibirá ({ mensajeId, emoji, event })
@@ -230,11 +273,14 @@ function renderResumenReacciones(el, counts) {
 }
 
 // Helper para montar botón de reacciones con menú desplegable
-async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}) {
+async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}, miReaccionInicial, canReactInicial) {
   appLog('🔧 Montando botón de reacciones para mensaje:', mensajeId);
 
-  // 🔐 Verificar permisos
-  const canReact = window.rolesService ? await window.rolesService.canModify() : true;
+  // 🔐 Verificar permisos. Si el llamador ya lo calculó (ej. una sola vez para
+  // toda una lista de mensajes), se reutiliza en vez de volver a consultar.
+  const canReact = canReactInicial !== undefined
+    ? canReactInicial
+    : (window.rolesService ? await window.rolesService.canModify() : true);
   appLog('🔐 Usuario puede reaccionar:', canReact);
 
   // Limpiar contenedor
@@ -255,15 +301,21 @@ async function montarBotonesDeReaccion(contenedor, mensajeId, initialCounts = {}
   resumenReacciones.className = 'reaction-summary';
   renderResumenReacciones(resumenReacciones, initialCounts);
 
-  // Obtener MI emoji actual y actualizar botón
-  obtenerEmojiActual(mensajeId).then(emoji => {
-    const hasReaction = !!emoji;
-    appLog(`📝 Mi emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
-    updateMainButton(btnPrincipal, emoji, hasReaction);
-  }).catch(err => {
-    console.warn('Error obteniendo mi emoji actual:', err);
-    updateMainButton(btnPrincipal, null, false);
-  });
+  // Obtener MI emoji actual y actualizar botón.
+  // Si ya se pasó `miReaccionInicial` (consulta en lote hecha por el llamador),
+  // se usa directo y se evita una consulta a Supabase por cada mensaje.
+  if (miReaccionInicial !== undefined) {
+    updateMainButton(btnPrincipal, miReaccionInicial, !!miReaccionInicial);
+  } else {
+    obtenerEmojiActual(mensajeId).then(emoji => {
+      const hasReaction = !!emoji;
+      appLog(`📝 Mi emoji actual para ${mensajeId}:`, emoji, '- tiene reacción:', hasReaction);
+      updateMainButton(btnPrincipal, emoji, hasReaction);
+    }).catch(err => {
+      console.warn('Error obteniendo mi emoji actual:', err);
+      updateMainButton(btnPrincipal, null, false);
+    });
+  }
 
   // Menú desplegable
   const menuReacciones = document.createElement('div');
@@ -501,6 +553,7 @@ if (typeof window !== 'undefined') {
   window.Reacciones = {
     insertarOActualizarReaccion,
     obtenerConteosPorMensaje,
+    obtenerReaccionesDeMensajes,
     obtenerEmojiActual,
     suscribirReacciones,
     montarBotonesDeReaccion,

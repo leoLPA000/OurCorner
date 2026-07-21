@@ -149,52 +149,49 @@
 
 
 
-                // Montar botones de reacciones para cada tarjeta
+                // Montar botones de reacciones para cada tarjeta.
+                // Antes se hacían ~4 consultas a Supabase POR CADA mensaje (conteos,
+                // mi reacción, y permisos dos veces) — con muchos mensajes eso son
+                // cientos de peticiones simultáneas y la página se sentía lenta.
+                // Ahora se resuelve todo en un puñado de consultas, una sola vez.
                 appLog('🔍 Buscando tarjetas de mensajes...');
-                document.querySelectorAll('.mensaje-personalizado').forEach(async article => {
-                    const mensajeId = article.dataset.id;
-                    appLog('📝 Procesando mensaje ID:', mensajeId);
 
-                    if (!mensajeId) {
-                        console.warn('❌ Tarjeta sin ID:', article);
-                        return;
-                    }
+                if (!window.Reacciones) {
+                    console.error('❌ window.Reacciones no está disponible');
+                } else {
+                    const articles = Array.from(document.querySelectorAll('.mensaje-personalizado'));
+                    const mensajeIds = articles.map(a => a.dataset.id).filter(Boolean);
 
-                    // Contenedor para los botones
-                    let wrapper = article.querySelector('.reacciones-wrapper');
-                    if (!wrapper) {
-                        wrapper = document.createElement('div');
-                        wrapper.className = 'reacciones-wrapper';
-                        article.appendChild(wrapper);
-                        appLog('📦 Wrapper creado para mensaje:', mensajeId);
-                    }
+                    const [{ conteos, misReacciones }, puedeModificar] = await Promise.all([
+                        window.Reacciones.obtenerReaccionesDeMensajes(mensajeIds),
+                        window.rolesService ? window.rolesService.canModify() : Promise.resolve(false)
+                    ]);
 
-                    // Verificar que las funciones estén disponibles
-                    if (!window.Reacciones) {
-                        console.error('❌ window.Reacciones no está disponible');
-                        // Crear botones básicos como fallback
-                        wrapper.innerHTML = `
-                            <div class="reacciones-barra">
-                                <button class="btn-like-principal" onclick="appLog('Reacción temporal')">
-                                    ❤️ <span>Me gusta</span> <span>0</span>
-                                </button>
-                                <button class="btn-emoji">😂 <span>0</span></button>
-                                <button class="btn-emoji">😍 <span>0</span></button>
-                            </div>
-                        `;
-                        return;
-                    }
+                    articles.forEach(article => {
+                        const mensajeId = article.dataset.id;
+                        if (!mensajeId) {
+                            console.warn('❌ Tarjeta sin ID:', article);
+                            return;
+                        }
 
-                    // Obtener conteos iniciales
-                    try {
-                        appLog('🔢 Obteniendo conteos para:', mensajeId);
-                        const counts = await window.Reacciones.obtenerConteosPorMensaje(mensajeId);
-                        appLog('📊 Conteos obtenidos:', counts);
+                        // Contenedor para los botones
+                        let wrapper = article.querySelector('.reacciones-wrapper');
+                        if (!wrapper) {
+                            wrapper = document.createElement('div');
+                            wrapper.className = 'reacciones-wrapper';
+                            article.appendChild(wrapper);
+                        }
 
-                        window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, counts);
+                        window.Reacciones.montarBotonesDeReaccion(
+                            wrapper,
+                            mensajeId,
+                            conteos[mensajeId] || {},
+                            misReacciones[mensajeId] || null,
+                            puedeModificar
+                        );
 
                         // 🔐 Solo mostrar botón de eliminar si tiene permisos
-                        if (window.rolesService && await window.rolesService.canModify()) {
+                        if (puedeModificar) {
                             const btnEliminar = document.createElement('button');
                             btnEliminar.className = 'btn-eliminar-mensaje-vista';
                             btnEliminar.dataset.id = mensajeId;
@@ -203,23 +200,10 @@
                             btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
                             wrapper.appendChild(btnEliminar);
                         }
-                    } catch (err) {
-                        console.error('❌ Error cargando conteos:', err);
-                        // Montar sin conteos iniciales
-                        window.Reacciones.montarBotonesDeReaccion(wrapper, mensajeId, {});
+                    });
 
-                        // 🔐 Solo mostrar botón de eliminar si tiene permisos
-                        if (window.rolesService && await window.rolesService.canModify()) {
-                            const btnEliminar = document.createElement('button');
-                            btnEliminar.className = 'btn-eliminar-mensaje-vista';
-                            btnEliminar.dataset.id = mensajeId;
-                            btnEliminar.title = 'Eliminar mensaje';
-                            btnEliminar.innerHTML = '🗑️ Eliminar';
-                            btnEliminar.addEventListener('click', () => eliminarMensajeVista(mensajeId));
-                            wrapper.appendChild(btnEliminar);
-                        }
-                    }
-                });
+                    appLog(`✅ Reacciones y permisos resueltos para ${mensajeIds.length} mensajes en lote`);
+                }
 
                 // Suscripción en tiempo real para actualizar cuando cambien
                 if (window.Reacciones && window.Reacciones.suscribirReacciones) {
