@@ -1,0 +1,99 @@
+/* ========================================
+   MENÚ FLOTANTE (reemplaza el antiguo botón de "Ver libreta de eventos")
+   Basado en views/menu/style27.css ("Magic Social Share Menu"), preservando
+   su mismo diseño (círculo blanco, iconos de marca) y animación (rotación +
+   escala escalonada). Único cambio necesario: el abanico original gira 360°
+   asumiendo espacio libre alrededor; anclado en una esquina de la pantalla
+   eso dejaría íconos fuera de la vista, así que aquí el abanico se limita a
+   90° (mismo mecanismo de transición, solo el ángulo cambia).
+   ======================================== */
+
+.menu-flotante {
+    position: fixed;
+    /* El contenedor es el mismo círculo de 280px del diseño original; se
+       desplaza con valores negativos para que el botón (su centro) quede
+       exactamente donde estaba el ícono de la libreta (70x70 en 30px/30px). */
+    top: -75px;
+    left: -75px;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    /* El contenedor no debe bloquear clics sobre el contenido de la página */
+    pointer-events: none;
+}
+
+.menu-flotante-toggle {
+    position: relative;
+    height: 60px;
+    width: 60px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: 1.25s;
+    z-index: 5;
+    pointer-events: auto;
+}
+
+.menu-flotante.active .menu-flotante-toggle {
+    transform: rotate(360deg);
+    box-shadow:
+        0 6px 8px rgba(0, 0, 0, 0.15),
+        0 0 0 2px #333,
+        0 0 0 8px #fff;
+}
+
+.menu-flotante li {
+    position: absolute;
+    left: 0;
+    list-style: none;
+    transition: 0.5s;
+    /* Abanico de 90° (en vez del círculo completo original) para que los
+       8 íconos queden siempre visibles al abrir desde una esquina: el +180°
+       reorienta el punto de partida de "izquierda" (el original, pensado
+       para un menú centrado) a "derecha", de modo que el abanico se abra
+       hacia abajo-derecha, la única zona visible desde esa esquina.
+       El escalado va combinado dentro de `transform` (no como propiedad
+       `scale` aparte) para máxima compatibilidad entre navegadores. */
+    transform: rotate(calc(180deg + 90deg / 7 * var(--i))) scale(0);
+    transform-origin: 140px;
+    transition-delay: calc(0.05s * var(--i));
+    pointer-events: none;
+}
+
+.menu-flotante.active li {
+    transform: rotate(calc(180deg + 90deg / 7 * var(--i))) scale(1);
+    pointer-events: auto;
+}
+
+.menu-flotante li a {
+    position: relative;
+    display: flex;
+    transform: rotate(calc(-180deg - 90deg / 7 * var(--i)));
+    width: 60px;
+    height: 60px;
+    background-color: #fff;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.75rem;
+    color: var(--clr);
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15);
+    transition: 0.5s;
+    text-decoration: none;
+}
+
+.menu-flotante li:hover a {
+    font-size: 2.5rem;
+    box-shadow:
+        0 0 0 2px var(--clr),
+        0 0 0 6px #fff;
+}

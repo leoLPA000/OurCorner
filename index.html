@@ -16,6 +16,8 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/estilos.css">
     <link rel="stylesheet" href="assets/css/boton-navidad.css">
+    <link rel="stylesheet" href="assets/css/menu-flotante.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,11 +99,38 @@
             </a>
         </section>
 
-        <!-- Botón de acceso a eventos especiales -->
-        <a href="views/Libreta.html" class="btn-eventos-especiales" id="btnEventosEspeciales"
-            title="Ver nuestra libreta de eventos">
-            📖
-        </a>
+        <!-- Menú flotante (antes: botón de acceso a la libreta de eventos).
+             El icono de Facebook lleva ahora a la libreta; los demás quedan
+             como marcadores de posición para futuras redes. -->
+        <div class="menu-flotante" id="menuFlotante">
+            <div class="menu-flotante-toggle" id="menuFlotanteToggle" title="Ver nuestra libreta de eventos">
+                <ion-icon name="share-social"></ion-icon>
+            </div>
+            <li style="--i: 0; --clr: #1877f2">
+                <a href="views/Libreta.html" title="Ver nuestra libreta de eventos"><i class="fab fa-facebook-f"></i></a>
+            </li>
+            <li style="--i: 1; --clr: #25d366">
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+            </li>
+            <li style="--i: 2; --clr: #1b1e21">
+                <a href="#"><i class="fab fa-x-twitter"></i></a>
+            </li>
+            <li style="--i: 3; --clr: #ff5733">
+                <a href="#"><i class="fab fa-reddit-alien"></i></a>
+            </li>
+            <li style="--i: 4; --clr: #0a66c2">
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </li>
+            <li style="--i: 5; --clr: #c32aa3">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </li>
+            <li style="--i: 6; --clr: #1b1e21">
+                <a href="#"><i class="fab fa-github"></i></a>
+            </li>
+            <li style="--i: 7; --clr: #ff0000">
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </li>
+        </div>
 
         <!-- Botón de autenticación -->
         <div class="auth-container" id="authContainer">
@@ -129,6 +158,14 @@
 
     <!-- Utilidades compartidas (sanitización y logging) -->
     <script src="assets/js/utils/helpers.js"></script>
+
+    <!-- Menú flotante (iconos de ion-icon para el botón de abrir/cerrar) -->
+    <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script>
+        document.getElementById('menuFlotanteToggle').addEventListener('click', () => {
+            document.getElementById('menuFlotante').classList.toggle('active');
+        });
+    </script>
 
     <!-- Supabase SDK (necesario para storage y DB) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
