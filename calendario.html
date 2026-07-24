@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="feminine">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Calendario de Recuerdos | Rocío & Leonardo</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Tema Femenino por defecto */
+            --bg-gradient-start: #fff0f5;
+            --bg-gradient-end: #ffe4e1;
+            --primary-color: #d63384;
+            --primary-hover: #b8256f;
+            --secondary-color: #ff85a2;
+            --accent-color: #ff477e;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-border: rgba(214, 51, 132, 0.2);
+            --text-main: #4a2e35;
+            --header-gradient: linear-gradient(135deg, #e83e8c, #ff758c);
+            --badge-bg: #ffe0e9;
+            --badge-text: #c2185b;
+            --day-hover: #ffd6e0;
+            --active-day: #f8d7da;
+            --shadow-color: rgba(214, 51, 132, 0.15);
+        }
+
+        [data-theme="masculine"] {
+            /* Tema Masculino */
+            --bg-gradient-start: #eef7ff;
+            --bg-gradient-end: #d8ecff;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-color: #4dabf7;
+            --accent-color: #00b4d8;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-border: rgba(13, 110, 253, 0.2);
+            --text-main: #1e293b;
+            --header-gradient: linear-gradient(135deg, #0d6efd, #00b4d8);
+            --badge-bg: #e0f2fe;
+            --badge-text: #0369a1;
+            --day-hover: #bae6fd;
+            --active-day: #cfe2ff;
+            --shadow-color: rgba(13, 110, 253, 0.15);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            min-height: 100vh;
+            color: var(--text-main);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .romantic-title {
+            font-weight: 900;
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+            letter-spacing: -0.5px;
+        }
+
+        /* Navbar & Header */
+        .custom-navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .theme-toggle-btn {
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .hero-banner {
+            background: var(--header-gradient);
+            color: white;
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Cards & Containers */
+        .main-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        /* Calendar Styling */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--card-border);
+        }
+
+        .calendar-day-header {
+            background: var(--card-bg);
+            padding: 12px 5px;
+            text-align: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+        }
+
+        .calendar-day {
+            background: var(--card-bg);
+            min-height: 110px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .calendar-day:hover {
+            background: var(--day-hover);
+            transform: scale(0.99);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+            background: rgba(245, 245, 245, 0.5);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary-color);
+            background: var(--active-day);
+        }
+
+        .day-number {
+            font-weight: 800;
+            font-size: 1.1rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .today .day-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .day-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .indicator-badge {
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 700;
+        }
+
+        /* Memories Feed Cards */
+        .memory-card {
+            border: none;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 1.2rem;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .memory-type-badge {
+            background: var(--header-gradient);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .memory-img {
+            max-height: 280px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        /* Audio / Music Card styling */
+        .music-embed {
+            background: linear-gradient(135deg, #1e1e2f, #2d2b45);
+            color: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+
+        /* Buttons & Forms */
+        .btn-romantic {
+            background: var(--header-gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-romantic:hover {
+            color: white;
+            opacity: 0.92;
+            transform: translateY(-2px);
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--header-gradient);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .nav-pills .nav-link {
+            color: var(--text-main);
+            font-weight: 700;
+            border-radius: 20px;
+            padding: 8px 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar custom-navbar sticky-top navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <i class="bi bi-heart-fill fs-4 text-danger"></i>
+                <span class="fw-bold">Nuestro Nidito R&L</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-secondary theme-toggle-btn p-2 rounded-circle d-flex align-items-center justify-content-center"
+                    id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar Modo Femenino / Masculino" style="width: 42px; height: 42px;">
+                    <i class="bi bi-gender-female fs-5" id="themeIcon"></i>
+                </button>
+
+                <a href="index.html" class="btn btn-sm btn-outline-secondary rounded-pill">
+                    <i class="bi bi-house-door-fill"></i> Inicio
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-4">
+
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <h1 class="romantic-title fw-bold mb-1">Nuestro Calendario de Historias</h1>
+            <p class="lead mb-0 fs-6 fw-bold">
+                <i class="bi bi-stars"></i> Un espacio eterno para escribir nuestra historia, guardar momentos y dedicar
+                música.
+            </p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills justify-content-center mb-4 gap-2" id="mainTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active d-flex align-items-center gap-2" id="calendar-tab" data-bs-toggle="tab"
+                    data-bs-target="#calendar-pane" type="button" role="tab">
+                    <i class="bi bi-calendar3"></i> Calendario
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link d-flex align-items-center gap-2" id="wall-tab" data-bs-toggle="tab"
+                    data-bs-target="#wall-pane" type="button" role="tab">
+                    <i class="bi bi-journal-bookmark-fill"></i> Muro de Recuerdos
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+
+            <!-- TAB 1: CALENDARIO -->
+            <div class="tab-pane fade show active" id="calendar-pane" role="tabpanel">
+                <div class="main-card">
+                    <!-- Controles de Mes -->
+                    <div class="calendar-header">
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="prevMonth()">
+                            <i class="bi bi-chevron-left"></i> Anterior
+                        </button>
+
+                        <div class="text-center">
+                            <h3 class="fw-bold mb-0 text-capitalize" id="currentMonthYear">Cargando...</h3>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                onclick="goToToday()">Hoy</button>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="nextMonth()">
+                                Siguiente <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Días de la semana -->
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header">Lun</div>
+                        <div class="calendar-day-header">Mar</div>
+                        <div class="calendar-day-header">Mié</div>
+                        <div class="calendar-day-header">Jue</div>
+                        <div class="calendar-day-header">Vie</div>
+                        <div class="calendar-day-header">Sáb</div>
+                        <div class="calendar-day-header">Dom</div>
+                    </div>
+
+                    <!-- Grilla de Días -->
+                    <div class="calendar-grid" id="calendarDaysGrid">
+                        <!-- Se llena dinámicamente con JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: MURO DE RECUERDOS -->
+            <div class="tab-pane fade" id="wall-pane" role="tabpanel">
+                <div class="main-card p-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                                <i class="bi bi-heart-pulse-fill text-danger"></i> Colección de Todos Nuestros Recuerdos
+                            </h4>
+                            <p class="text-muted small mb-0">Revisa todas nuestras cartas, imágenes, poemas y música
+                                dedicada.</p>
+                        </div>
+                        <!-- Filtro con iconos -->
+                        <input type="hidden" id="filterCategorySelect" value="all">
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 bg-white border fw-bold"
+                                type="button" id="filterDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedFilterLabel" class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-grid-fill text-secondary"></i> Ver todas las categorías
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu shadow" aria-labelledby="filterDropdownBtn">
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('all', '<i class=\'bi bi-grid-fill text-secondary\'></i> Ver todas las categorías')"><i
+                                            class="bi bi-grid-fill text-secondary"></i> Ver todas las
+                                        categorías</button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('poema', '<i class=\'bi bi-journal-text text-danger\'></i> Poemas y Frases')"><i
+                                            class="bi bi-journal-text text-danger"></i> Poemas y Frases</button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('historia', '<i class=\'bi bi-book text-primary\'></i> Sucedió en el día')"><i
+                                            class="bi bi-book text-primary"></i> Sucedió en el día</button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('chistoso', '<i class=\'bi bi-emoji-smile-fill text-warning\'></i> Momentos Chistosos')"><i
+                                            class="bi bi-emoji-smile-fill text-warning"></i> Momentos Chistosos</button>
+                                </li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('musica', '<i class=\'bi bi-music-note-beamed text-info\'></i> Música Dedicada')"><i
+                                            class="bi bi-music-note-beamed text-info"></i> Música Dedicada</button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('tarjeta', '<i class=\'bi bi-envelope-heart-fill text-danger\'></i> Tarjetitas de Amor')"><i
+                                            class="bi bi-envelope-heart-fill text-danger"></i> Tarjetitas de
+                                        Amor</button></li>
+                                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        onclick="setWallFilter('planes', '<i class=\'bi bi-stars text-warning\'></i> Planes y Sueños')"><i
+                                            class="bi bi-stars text-warning"></i> Planes y Sueños</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Feed Grid -->
+                    <div class="row" id="memoriesWallGrid">
+                        <!-- Carga dinámica -->
+                    </div>
+
+                    <!-- Contenedor Paginador (5 por página) -->
+                    <nav class="mt-4" id="memoriesWallPagination">
+                        <!-- Carga dinámica de botones de página -->
+                    </nav>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL: DETALLES Y REGISTROS DEL DÍA SELECCIONADO -->
+    <div class="modal fade" id="dayDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header text-white"
+                    style="background: var(--header-gradient); border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-event-fill"></i> Recuerdos del <span
+                            id="modalSelectedDateText">--</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <!-- Lista de recuerdos guardados en este día -->
+                    <div id="dayMemoriesList" class="mb-4">
+                        <!-- Dinámico -->
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Formulario para agregar un nuevo recuerdo -->
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle-fill text-primary"></i> Agregar Nuevo Recuerdo a esta fecha
+                    </h5>
+
+                    <form id="newMemoryForm" onsubmit="handleSaveMemory(event)">
+                        <input type="hidden" id="selectedDateInput">
+
+                        <div class="row g-3">
+                            <!-- Tipo de Recuerdo con Iconos -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Tipo de Recuerdo</label>
+                                <input type="hidden" id="memoryTypeSelect" value="poema" required>
+                                <div class="dropdown w-100">
+                                    <button
+                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between text-start bg-white border fw-bold"
+                                        type="button" id="memoryTypeDropdownBtn" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <span id="selectedCategoryLabel" class="d-flex align-items-center gap-2">
+                                            <i class="bi bi-journal-text text-danger fs-5"></i> Poema / Frase de amor
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu w-100 shadow" aria-labelledby="memoryTypeDropdownBtn">
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('poema', '<i class=\'bi bi-journal-text text-danger fs-5\'></i> Poema / Frase de amor')">
+                                                <i class="bi bi-journal-text text-danger fs-5"></i> Poema / Frase de
+                                                amor
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('historia', '<i class=\'bi bi-book text-primary fs-5\'></i> Algo sucedido en el día')">
+                                                <i class="bi bi-book text-primary fs-5"></i> Algo sucedido en el día
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('chistoso', '<i class=\'bi bi-emoji-smile-fill text-warning fs-5\'></i> Algo chistoso')">
+                                                <i class="bi bi-emoji-smile-fill text-warning fs-5"></i> Algo chistoso
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('musica', '<i class=\'bi bi-music-note-beamed text-info fs-5\'></i> Música dedicada')">
+                                                <i class="bi bi-music-note-beamed text-info fs-5"></i> Música dedicada
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('tarjeta', '<i class=\'bi bi-envelope-heart-fill text-danger fs-5\'></i> Tarjetita de Amor')">
+                                                <i class="bi bi-envelope-heart-fill text-danger fs-5"></i> Tarjetita de
+                                                Amor
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button"
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                onclick="selectFormCategory('planes', '<i class=\'bi bi-stars text-warning fs-5\'></i> Algo que me gustaría hacer')">
+                                                <i class="bi bi-stars text-warning fs-5"></i> Algo que me gustaría hacer
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Título opcional -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Título o Asunto</label>
+                                <input type="text" class="form-control" id="memoryTitleInput"
+                                    placeholder="Ej: Pensando en ti hoy..." required>
+                            </div>
+
+                            <!-- Contenido del Mensaje -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold small">Detalles o Mensaje de amor</label>
+                                <textarea class="form-control" id="memoryContentInput" rows="4"
+                                    placeholder="Escribe aquí tu frase, historia, poema o lo que desees dedicar..."
+                                    required></textarea>
+                            </div>
+
+                            <!-- Música (Enlace de YouTube u otro) -->
+                            <div class="col-12" id="musicInputGroup">
+                                <label class="form-label fw-bold small"><i
+                                        class="bi bi-music-note-beamed text-danger"></i> Enlace de Música o Video de
+                                    YouTube (Opcional)</label>
+                                <input type="url" class="form-control" id="memoryMusicUrl"
+                                    placeholder="Ej: https://www.youtube.com/watch?v=... o https://youtu.be/...">
+                            </div>
+
+                            <!-- Carga de Imagen -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold small"><i class="bi bi-image text-primary"></i> Subir
+                                    Imagen / Fotografía (Opcional)</label>
+                                <input type="file" class="form-control" id="memoryImageInput" accept="image/*"
+                                    onchange="previewImage(this)">
+                                <div id="imagePreviewContainer" class="mt-2 text-center d-none">
+                                    <img id="imagePreview" src="" class="img-fluid rounded-3 border"
+                                        style="max-height: 200px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light rounded-pill fw-bold"
+                                data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-romantic">
+                                <i class="bi bi-heart-fill"></i> Guardar Recuerdo
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- App Scripts logic -->
+    <script>
+        // --- ESTADO GLOBAL Y VARIABLES ---
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth(); // 0-11
+        let currentTheme = localStorage.getItem('app_theme') || 'feminine';
+        let memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+
+        // Configuración inicial al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(currentTheme);
+            renderCalendar(currentYear, currentMonth);
+            renderMemoriesWall();
+        });
+
+        // --- SISTEMA DE TEMAS (FEMENINO / MASCULINO) ---
+        function applyTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('app_theme', theme);
+
+            const themeIcon = document.getElementById('themeIcon');
+            const themeBtn = document.getElementById('themeToggleBtn');
+
+            if (theme === 'masculine') {
+                themeIcon.className = 'bi bi-gender-male fs-5 text-primary';
+                if (themeBtn) themeBtn.title = 'Modo Masculino (Clic para cambiar a Femenino)';
+            } else {
+                themeIcon.className = 'bi bi-gender-female fs-5 text-danger';
+                if (themeBtn) themeBtn.title = 'Modo Femenino (Clic para cambiar a Masculino)';
+            }
+        }
+
+        function toggleTheme() {
+            const nextTheme = currentTheme === 'feminine' ? 'masculine' : 'feminine';
+            applyTheme(nextTheme);
+        }
+
+        // --- CALENDARIO INTERACTIVO ---
+        const monthNames = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+
+        function renderCalendar(year, month) {
+            document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+
+            const grid = document.getElementById('calendarDaysGrid');
+            grid.innerHTML = '';
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            // Convertir a Lunes = 0, ..., Domingo = 6
+            const startingDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            // Días del mes anterior
+            for (let i = startingDay; i > 0; i--) {
+                const prevDayNum = daysInPrevMonth - i + 1;
+                const prevDateStr = formatDateStr(year, month - 1, prevDayNum);
+                const dayEl = createDayCell(prevDayNum, prevDateStr, true);
+                grid.appendChild(dayEl);
+            }
+
+            // Días del mes actual
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = formatDateStr(year, month, day);
+                const isToday = isCurrentMonth && day === today.getDate();
+                const dayEl = createDayCell(day, dateStr, false, isToday);
+                grid.appendChild(dayEl);
+            }
+
+            // Días del mes siguiente para completar grilla (múltiplo de 7)
+            const totalCells = startingDay + daysInMonth;
+            const remainingCells = (7 - (totalCells % 7)) % 7;
+            for (let i = 1; i <= remainingCells; i++) {
+                const nextDateStr = formatDateStr(year, month + 1, i);
+                const dayEl = createDayCell(i, nextDateStr, true);
+                grid.appendChild(dayEl);
+            }
+        }
+
+        function formatDateStr(y, m, d) {
+            const dateObj = new Date(y, m, d);
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function createDayCell(dayNum, dateStr, isOtherMonth, isToday = false) {
+            const div = document.createElement('div');
+            div.className = `calendar-day ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`;
+            div.onclick = () => openDayDetailModal(dateStr);
+
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'day-number';
+            numberSpan.textContent = dayNum;
+            div.appendChild(numberSpan);
+
+            // Indicadores de elementos guardados en esta fecha
+            const dayMemories = memoriesData.filter(m => m.date === dateStr);
+            if (dayMemories.length > 0) {
+                const indicatorsContainer = document.createElement('div');
+                indicatorsContainer.className = 'day-indicators';
+
+                const counts = {};
+                dayMemories.forEach(m => {
+                    counts[m.type] = (counts[m.type] || 0) + 1;
+                });
+
+                Object.keys(counts).forEach(type => {
+                    const badge = document.createElement('span');
+                    badge.className = 'indicator-badge';
+                    badge.innerHTML = `${getCategoryIcon(type)} ${counts[type]}`;
+                    indicatorsContainer.appendChild(badge);
+                });
+
+                div.appendChild(indicatorsContainer);
+            }
+
+            return div;
+        }
+
+        function prevMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentYear, currentMonth);
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentYear, currentMonth);
+        }
+
+        function goToToday() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            renderCalendar(currentYear, currentMonth);
+        }
+
+        // --- HELPER PARA DETECTAR Y REPRODUCIR YOUTUBE / MÚSICA ---
+        function getMusicEmbedHtml(url) {
+            if (!url) return '';
+
+            const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+            const iconClass = isYouTube ? 'bi-youtube text-danger' : 'bi-music-note-beamed text-warning';
+            const badgeText = isYouTube ? 'YouTube' : 'Música';
+
+            return `
+                <div class="music-card-container mt-3 mb-2 p-3 rounded-3 shadow-sm border" style="background: linear-gradient(135deg, #1e1e2f, #2d2b45); color: white;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-white bg-opacity-10 d-flex align-items-center justify-content-center p-2" style="width: 44px; height: 44px;">
+                                <i class="bi ${iconClass} fs-3"></i>
+                            </div>
+                            <div>
+                                <strong class="d-block text-white" style="font-size: 0.95rem;"><i class="bi bi-music-note-beamed text-warning"></i> Canción Dedicada (${badgeText})</strong>
+                                <small class="text-white-50">Toca el botón para escuchar nuestra música</small>
+                            </div>
+                        </div>
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light rounded-pill px-3 fw-bold d-flex align-items-center gap-2 shadow-sm">
+                            <i class="bi bi-play-circle-fill fs-5 text-danger"></i> Escuchar Canción
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- GESTIÓN DE RECUERDOS Y MODAL ---
+        function openDayDetailModal(dateStr) {
+            document.getElementById('selectedDateInput').value = dateStr;
+            document.getElementById('modalSelectedDateText').textContent = dateStr;
+
+            renderDayMemories(dateStr);
+
+            const modal = new bootstrap.Modal(document.getElementById('dayDetailModal'));
+            modal.show();
+        }
+
+        function renderDayMemories(dateStr) {
+            const container = document.getElementById('dayMemoriesList');
+            container.innerHTML = '';
+
+            const items = memoriesData.filter(m => m.date === dateStr);
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-journal-x fs-1 opacity-50 mb-2"></i>
+                        <p class="mb-0 fw-bold">Aún no hay recuerdos guardados en esta fecha.</p>
+                        <small>¡Sé el primero en agregar una frase, foto, canción o historia!</small>
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card p-3 border mb-3';
+
+                let mediaHtml = '';
+                if (item.image) {
+                    mediaHtml = `<img src="${item.image}" class="memory-img mb-3">`;
+                }
+
+                const musicHtml = getMusicEmbedHtml(item.musicUrl);
+
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="memory-type-badge d-flex align-items-center gap-1">
+                            ${getCategoryIcon(item.type)} ${getCategoryName(item.type)}
+                        </span>
+                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar este recuerdo">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                    <h5 class="fw-bold mb-1">${item.title}</h5>
+                    <p class="mb-2 text-secondary" style="white-space: pre-line;">${item.content}</p>
+                    ${mediaHtml}
+                    ${musicHtml}
+                    <div class="text-end mt-2">
+                        <span class="text-muted" style="font-size: 0.75rem;">Guardado con amor</span>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        let base64ImageData = null;
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    base64ImageData = e.target.result;
+                    document.getElementById('imagePreview').src = base64ImageData;
+                    document.getElementById('imagePreviewContainer').classList.remove('d-none');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleSaveMemory(event) {
+            event.preventDefault();
+            const date = document.getElementById('selectedDateInput').value;
+            const type = document.getElementById('memoryTypeSelect').value;
+            const title = document.getElementById('memoryTitleInput').value;
+            const content = document.getElementById('memoryContentInput').value;
+            const musicUrl = document.getElementById('memoryMusicUrl').value;
+
+            const newMemory = {
+                id: 'mem_' + Date.now(),
+                date: date,
+                type: type,
+                title: title,
+                content: content,
+                musicUrl: musicUrl || null,
+                image: base64ImageData || null,
+                createdAt: new Date().toISOString()
+            };
+
+            memoriesData.unshift(newMemory);
+            localStorage.setItem('our_calendar_memories', JSON.stringify(memoriesData));
+
+            // Reset form
+            document.getElementById('newMemoryForm').reset();
+            document.getElementById('imagePreviewContainer').classList.add('d-none');
+            base64ImageData = null;
+
+            // Refresh UI
+            renderDayMemories(date);
+            renderCalendar(currentYear, currentMonth);
+            renderMemoriesWall();
+
+            // Cerrar automáticamente el modal para regresar a la vista del calendario
+            const modalEl = document.getElementById('dayDetailModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
+
+        function deleteMemory(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este recuerdo?')) {
+                memoriesData = memoriesData.filter(m => m.id !== id);
+                localStorage.setItem('our_calendar_memories', JSON.stringify(memoriesData));
+
+                const date = document.getElementById('selectedDateInput').value;
+                renderDayMemories(date);
+                renderCalendar(currentYear, currentMonth);
+                renderMemoriesWall();
+            }
+        }
+
+        function selectFormCategory(val, labelHtml) {
+            document.getElementById('memoryTypeSelect').value = val;
+            document.getElementById('selectedCategoryLabel').innerHTML = labelHtml;
+        }
+
+        let wallCurrentPage = 1;
+        const wallItemsPerPage = 5;
+
+        function setWallFilter(cat, labelHtml) {
+            document.getElementById('filterCategorySelect').value = cat;
+            document.getElementById('selectedFilterLabel').innerHTML = labelHtml;
+            wallCurrentPage = 1;
+            renderMemoriesWall(1);
+        }
+
+        // --- MURO DE RECUERDOS CON PAGINACIÓN (TAB 2) ---
+        function renderMemoriesWall(page = wallCurrentPage) {
+            wallCurrentPage = page;
+            const grid = document.getElementById('memoriesWallGrid');
+            const paginationContainer = document.getElementById('memoriesWallPagination');
+
+            grid.innerHTML = '';
+            if (paginationContainer) paginationContainer.innerHTML = '';
+
+            const selectedCat = document.getElementById('filterCategorySelect').value;
+            const filtered = selectedCat === 'all'
+                ? memoriesData
+                : memoriesData.filter(m => m.type === selectedCat);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="bi bi-heartbreak fs-1 mb-2 opacity-50"></i>
+                        <h5 class="fw-bold">No hay recuerdos en esta categoría</h5>
+                        <p class="small">Sé el primero en guardar historias en nuestro calendario.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Paginador: Máximo 5 por página
+            const totalPages = Math.ceil(filtered.length / wallItemsPerPage);
+            if (wallCurrentPage > totalPages) wallCurrentPage = totalPages;
+            if (wallCurrentPage < 1) wallCurrentPage = 1;
+
+            const startIndex = (wallCurrentPage - 1) * wallItemsPerPage;
+            const pageItems = filtered.slice(startIndex, startIndex + wallItemsPerPage);
+
+            pageItems.forEach(item => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 mb-4';
+
+                let mediaContent = '';
+                if (item.image) {
+                    mediaContent = `<img src="${item.image}" class="memory-img mb-2">`;
+                }
+
+                const musicContent = getMusicEmbedHtml(item.musicUrl);
+
+                col.innerHTML = `
+                    <div class="memory-card p-3 h-100 d-flex flex-column justify-content-between border shadow-sm">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="memory-type-badge d-flex align-items-center gap-1">
+                                    ${getCategoryIcon(item.type)} ${getCategoryName(item.type)}
+                                </span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-calendar-event"></i> ${item.date}
+                                </span>
+                            </div>
+                            <h5 class="fw-bold mb-2">${item.title}</h5>
+                            <p class="text-secondary small mb-3" style="white-space: pre-line;">${item.content}</p>
+                            ${mediaContent}
+                            ${musicContent}
+                        </div>
+                        <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-3">
+                            <span class="text-muted" style="font-size: 0.75rem;">Para Siempre</span>
+                            <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar recuerdo">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+
+            // Controles de Paginación
+            if (totalPages > 1 && paginationContainer) {
+                let paginationHtml = `<ul class="pagination pagination-md justify-content-center mb-0 gap-1 flex-wrap">`;
+
+                // Botón Anterior
+                paginationHtml += `
+                    <li class="page-item ${wallCurrentPage === 1 ? 'disabled' : ''}">
+                        <button class="page-link rounded-3 fw-bold" onclick="renderMemoriesWall(${wallCurrentPage - 1})">
+                            <i class="bi bi-chevron-left"></i> Anterior
+                        </button>
+                    </li>
+                `;
+
+                // Botones numerados
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHtml += `
+                        <li class="page-item ${i === wallCurrentPage ? 'active' : ''}">
+                            <button class="page-link rounded-3 fw-bold" onclick="renderMemoriesWall(${i})">${i}</button>
+                        </li>
+                    `;
+                }
+
+                // Botón Siguiente
+                paginationHtml += `
+                    <li class="page-item ${wallCurrentPage === totalPages ? 'disabled' : ''}">
+                        <button class="page-link rounded-3 fw-bold" onclick="renderMemoriesWall(${wallCurrentPage + 1})">
+                            Siguiente <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                `;
+
+                paginationHtml += `</ul>`;
+                paginationContainer.innerHTML = paginationHtml;
+            }
+        }
+
+        // --- HELPERS DE CATEGORÍA E ICONOS ---
+        function getCategoryIcon(type) {
+            switch (type) {
+                case 'poema': return '<i class="bi bi-journal-text"></i>';
+                case 'historia': return '<i class="bi bi-book"></i>';
+                case 'chistoso': return '<i class="bi bi-emoji-smile-fill"></i>';
+                case 'musica': return '<i class="bi bi-music-note-beamed"></i>';
+                case 'tarjeta': return '<i class="bi bi-envelope-heart-fill"></i>';
+                case 'planes': return '<i class="bi bi-stars"></i>';
+                default: return '<i class="bi bi-heart-fill"></i>';
+            }
+        }
+
+        function getCategoryName(type) {
+            switch (type) {
+                case 'poema': return 'Poema / Frase';
+                case 'historia': return 'Sucedió hoy';
+                case 'chistoso': return 'Momento Chistoso';
+                case 'musica': return 'Música Dedicada';
+                case 'tarjeta': return 'Tarjetita de Amor';
+                case 'planes': return 'Lo que quiero hacer';
+                default: return 'Recuerdo';
+            }
+        }
+    </script>
+</body>
+
+</html>
