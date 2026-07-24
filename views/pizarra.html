@@ -118,6 +118,22 @@
       .tool-grid { grid-template-columns: repeat(2, 1fr); }
       .shape-grid { grid-template-columns: repeat(3, 1fr); }
     }
+    /* ── Modo visor (cuando se abre un dibujo compartido) ── */
+    body.viewer-mode .tools-panel { display: none !important; }
+    body.viewer-mode .workspace { grid-template-columns: 1fr !important; }
+    body.viewer-mode .canvas-actions { display: none !important; }
+    body.viewer-mode .canvas-footer { display: none !important; }
+    body.viewer-mode .canvas-meta { display: none !important; }
+    body.viewer-mode #board { height: clamp(55vh, 72vh, 80vh); cursor: default !important; pointer-events: none; }
+    .viewer-bar { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    body.viewer-mode .viewer-bar { display: flex; }
+    body.viewer-mode .canvas-heading { font-size: .82rem; }
+    .viewer-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--rose); color: var(--pink-deep); font: 700 .65rem 'DM Mono', monospace; padding: 4px 10px; border-radius: 99px; }
+    .viewer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .viewer-dl { border: 0; color: #fff; background: var(--pink); font-size: .72rem; font-weight: 800; padding: 9px 14px; border-radius: 11px; cursor: pointer; }
+    .viewer-dl:hover { background: var(--pink-deep); }
+    .viewer-own { border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-size: .72rem; font-weight: 700; padding: 9px 14px; border-radius: 11px; cursor: pointer; text-decoration: none; }
+    .viewer-own:hover { border-color: #efa0bc; color: var(--pink-deep); }
     /* ── Temas de fondo del canvas ── */
     .theme-grid-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .theme-dot { width: 27px; height: 27px; border: 2.5px solid transparent; border-radius: 50%; cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; outline: 1.5px solid #f0dfe8; padding: 0; flex-shrink: 0; }
@@ -244,6 +260,18 @@
             <div><h1 class="canvas-heading">Moodboard de hoy</h1><span class="canvas-meta">PULSA Y ARRASTRA PARA DIBUJAR</span></div>
             <div class="canvas-actions"><div class="zoom-bar" aria-label="Controles de zoom"><button class="icon-action" id="zoomOutBtn" title="Alejar">−</button><input class="zoom-range" id="zoomRange" type="range" min="50" max="200" value="100" step="1" aria-label="Zoom"><span class="zoom-value" id="zoomValue">100%</span><button class="icon-action" id="zoomInBtn" title="Acercar">+</button><button class="icon-action" id="zoomResetBtn" title="Restablecer zoom">⟳</button></div><button class="icon-action" id="undoBtn" title="Deshacer">↶</button><button class="icon-action" id="redoBtn" title="Rehacer">↷</button><button class="icon-action" id="clearBtn" title="Limpiar pizarra">⌫</button></div>
           </div>
+          <!-- Barra del visor (visible solo en modo compartido) -->
+          <div class="viewer-bar">
+            <div>
+              <span class="viewer-badge">👁 Dibujo compartido</span>
+              <div id="viewerTitulo" style="font-size:.8rem;font-weight:700;color:var(--ink);margin-top:5px;"></div>
+            </div>
+            <div class="viewer-actions">
+              <button class="viewer-dl" id="viewerDownloadBtn">↓ Descargar</button>
+              <a href="pizarra.html" class="viewer-own">✎ Crear el mío</a>
+            </div>
+          </div>
+
           <div class="canvas-wrap"><canvas id="board" aria-label="Pizarra interactiva"></canvas><div id="textEditorPanel" class="text-editor-panel"><textarea id="textEditor" class="text-editor" maxlength="1000" placeholder="Escribe aquí..." aria-label="Texto para la pizarra"></textarea><select id="textFont" class="text-font" aria-label="Tipo de letra"><option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans</option><option value="Pacifico, cursive">Pacifico</option><option value="'DM Mono', monospace">DM Mono</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option></select><select id="textWeight" class="text-weight" aria-label="Grosor del texto"><option value="400">Normal</option><option value="700">Negrita</option></select><select id="textWidth" class="text-width" aria-label="Ancho del texto"><option value="220">Compacto</option><option value="320" selected>Medio</option><option value="450">Amplio</option></select><button id="textSubmit" class="text-submit" type="button">Añadir a la pizarra</button></div><div id="deleteOverlay" style="display:none"><button id="deleteObjectBtn" title="Eliminar elemento">🗑️ Eliminar</button></div></div>
           <div class="canvas-footer">
             <div><span class="tip">💗 Hecho con color, café y un poquito de drama. En móvil, usa dos dedos para ampliar y recorrer.</span><br><span class="draft-status" id="draftStatus">Borrador guardado localmente ✓</span></div>
@@ -845,13 +873,35 @@
       try {
         const { data, error } = await sb.from('pizarras').select('board_data, titulo').eq('id', pizarraId).single();
         if (error || !data) return;
+
+        // Activar modo visor
+        document.body.classList.add('viewer-mode');
+        const titulo = data.titulo || 'Dibujo compartido';
+        const viewerTitulo = document.getElementById('viewerTitulo');
+        if (viewerTitulo) viewerTitulo.textContent = titulo;
+        document.querySelector('.canvas-heading').textContent = titulo;
+
+        // Cargar objetos y tema
         objects = data.board_data.objects || [];
         if (data.board_data.currentTheme) {
           currentTheme = data.board_data.currentTheme;
           document.querySelectorAll('.theme-dot').forEach(b => b.classList.toggle('active', b.dataset.theme === currentTheme));
         }
-        render(); snapshot();
-        updateStatusPill('Dibujo: ' + (data.titulo || 'compartido'), true);
+        render();
+
+        // Botón descargar del visor
+        document.getElementById('viewerDownloadBtn').addEventListener('click', () => {
+          document.getElementById('downloadBtn').click();
+        });
+
+        // Marcar la notificación como leída
+        if (currentUser) {
+          sb.from('notificaciones')
+            .update({ leida: true })
+            .eq('recipient_id', currentUser.id)
+            .filter('payload->>pizarra_id', 'eq', pizarraId)
+            .then(() => {});
+        }
       } catch (e) { console.error('loadSharedPizarra:', e); }
     }
 
@@ -869,6 +919,8 @@
 
     // ── Restaurar borrador local al iniciar ──
     (function tryRestoreDraft() {
+      // No restaurar borrador si se está viendo un dibujo compartido
+      if (new URLSearchParams(window.location.search).get('pizarra')) return;
       try {
         const raw = localStorage.getItem(DRAFT_KEY);
         if (!raw) return;
