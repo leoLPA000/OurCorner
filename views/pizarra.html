@@ -108,7 +108,7 @@
     }
     @media (max-width: 480px) {
       .canvas-head { align-items: flex-start; flex-wrap: wrap; }
-      .canvas-meta { display: none; }
+      .canvas-meta { font-size: .55rem; }
       .canvas-actions { width: 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
       .zoom-bar { width: 100%; }
       .zoom-range { flex: 1; min-width: 0; }
@@ -128,6 +128,22 @@
     #deleteObjectBtn { border: 0; background: none; font-size: .78rem; font-weight: 700; color: var(--pink-deep); cursor: pointer; padding: 4px 2px; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; gap: 6px; }
     #deleteObjectBtn:hover { color: #9b1d4b; }
     @keyframes fadeInOverlay { from { opacity: 0; transform: translateY(5px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    /* ── Botón volver ── */
+    .btn-volver {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 12px; border: 1.5px solid var(--line);
+      background: rgba(255,255,255,.9); color: var(--pink-deep);
+      font: 700 .75rem 'Plus Jakarta Sans', sans-serif;
+      text-decoration: none; white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(191,55,109,.1);
+      transition: .18s ease; flex-shrink: 0;
+    }
+    .btn-volver:hover { background: var(--rose); border-color: var(--pink); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(191,55,109,.18); }
+    .btn-volver:active { transform: translateY(0); }
+    @media (max-width: 480px) {
+      .btn-volver span { display: none; }
+      .btn-volver { padding: 8px 10px; font-size: .85rem; }
+    }
     /* ── Botones de nube ── */
     .footer-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .cloud-btn { border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: .72rem; font-weight: 700; padding: 10px 13px; border-radius: 11px; cursor: not-allowed; opacity: .55; position: relative; }
@@ -145,9 +161,12 @@
   <main class="app-shell">
     <header class="topbar">
       <div class="container-xl">
-        <div class="brand-wrap">
-          <div class="brand-mark">♡</div>
-          <div><div class="brand-script">Blush Board</div><p class="brand-title">Tu pizarra para crear sin permiso</p></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <a href="../index.html" class="btn-volver" aria-label="Volver al inicio">← <span>Inicio</span></a>
+          <div class="brand-wrap">
+            <div class="brand-mark">♡</div>
+            <div><div class="brand-script">Blush Board</div><p class="brand-title">Tu pizarra para crear sin permiso</p></div>
+          </div>
         </div>
         <div class="status-pill" id="statusPill"><span class="status-dot"></span> espacio local · listo para jugar</div>
       </div>
