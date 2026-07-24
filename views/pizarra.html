@@ -844,7 +844,7 @@
         list.innerHTML = users.map(u => `
           <button class="share-user-btn" onclick="sendShare('${u.user_id}','${u.username.replace(/'/g,"\\'")}')">
             <span class="avatar">👤</span>
-            <div><div class="uname">@${u.username}</div><div class="uemail">${u.email}</div></div>
+            <div><div class="uname">@${u.username}</div></div>
           </button>`).join('');
       } catch (e) {
         list.innerHTML = '<p style="color:#e74c3c;font-size:.75rem;text-align:center;padding:12px">Error al cargar usuarios.</p>';
