@@ -149,6 +149,19 @@
     .cloud-btn { border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: .72rem; font-weight: 700; padding: 10px 13px; border-radius: 11px; cursor: not-allowed; opacity: .55; position: relative; }
     .cloud-btn:not(:disabled):hover { border-color: #efa0bc; color: var(--pink-deep); opacity: 1; cursor: pointer; }
     .draft-status { font-size: .65rem; color: #6bd09d; font-family: 'DM Mono', monospace; opacity: 0; transition: opacity .4s; white-space: nowrap; }
+    /* ── Modal compartir ── */
+    #shareModal { position: fixed; inset: 0; background: rgba(52,35,48,.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .share-box { background: #fff; border-radius: 22px; padding: 26px; width: min(380px,100%); box-shadow: 0 24px 60px rgba(117,48,83,.22); }
+    .share-box h3 { margin: 0 0 4px; font-size: 1rem; color: var(--ink); }
+    .share-box p { margin: 0 0 18px; font-size: .75rem; color: var(--muted); }
+    .share-user-btn { display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); background: var(--cream); border-radius: 14px; padding: 12px 16px; cursor: pointer; text-align: left; width: 100%; transition: .15s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .share-user-btn:hover { border-color: var(--pink); background: var(--rose); }
+    .share-user-btn .avatar { font-size: 1.4rem; flex-shrink: 0; }
+    .share-user-btn .uname { font-size: .82rem; font-weight: 700; color: var(--ink); }
+    .share-user-btn .uemail { font-size: .68rem; color: var(--muted); }
+    #shareUserList { display: flex; flex-direction: column; gap: 10px; max-height: 240px; overflow-y: auto; }
+    .share-cancel { margin-top: 16px; width: 100%; border: 1.5px solid var(--line); background: #fff; border-radius: 11px; padding: 10px; font-size: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .share-cancel:hover { border-color: #efa0bc; color: var(--pink-deep); }
     /* ── Banner de restauración ── */
     #restoreBanner { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #fff; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: 0 8px 28px rgba(117,48,83,.15); padding: 14px 20px; display: flex; align-items: center; gap: 14px; z-index: 50; font-size: .8rem; font-weight: 600; color: var(--ink); transition: opacity .3s; }
     #restoreBanner button { border: 0; border-radius: 9px; padding: 7px 14px; font-size: .74rem; font-weight: 800; cursor: pointer; }
@@ -245,6 +258,16 @@
     </section>
   </main>
 
+  <!-- Modal: compartir dibujo -->
+  <div id="shareModal">
+    <div class="share-box">
+      <h3>🎨 Compartir dibujo</h3>
+      <p>Elige a quién enviarle este dibujo</p>
+      <div id="shareUserList"></div>
+      <button class="share-cancel" id="cancelShareBtn">Cancelar</button>
+    </div>
+  </div>
+
   <!-- Banner de restauración de borrador -->
   <div id="restoreBanner" style="display:none">
     <span>📋 Tienes un borrador guardado. ¿Lo restauramos?</span>
@@ -252,6 +275,7 @@
     <button class="btn-discard" id="btnDiscard">Descartar</button>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   <script>
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
@@ -716,6 +740,132 @@
     canvas.addEventListener('pointerup', finishPointer); canvas.addEventListener('pointercancel', finishPointer); canvas.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') endDraw(); });
     window.addEventListener('resize', () => resizeCanvas(true));
     resizeCanvas(false); snapshot(); render();
+
+    // ── Supabase: guardar en nube y compartir ──
+    const SB_URL = 'https://lrjbpnzkvueralkqrsfd.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyamJwbnprdnVlcmFsa3Fyc2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzNzE4MTMsImV4cCI6MjA3Nzk0NzgxM30.ybbfydRMmAMbaRi2UaF0kq-NiVxBzwS3oX54tCm5EXE';
+    const sb = supabase.createClient(SB_URL, SB_KEY);
+    let currentUser = null;
+    let lastSavedId = null;
+
+    async function initPizarraAuth() {
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        currentUser = session.user;
+
+        const { data: roleData } = await sb.from('user_roles').select('role').eq('user_id', currentUser.id).single();
+        const role = roleData?.role || 'invitado';
+
+        if (role === 'admin' || role === 'super_admin') {
+          const saveBtn = document.getElementById('cloudSaveBtn');
+          const shareBtn = document.getElementById('shareEmailBtn');
+          saveBtn.disabled = false;
+          saveBtn.title = 'Guardar dibujo en la nube';
+          shareBtn.disabled = false;
+          shareBtn.title = 'Compartir con otro usuario';
+        }
+
+        // Cargar pizarra compartida si viene por URL (?pizarra=id)
+        const pid = new URLSearchParams(window.location.search).get('pizarra');
+        if (pid) loadSharedPizarra(pid);
+      } catch (e) { console.error('initPizarraAuth:', e); }
+    }
+
+    async function saveToCloud() {
+      if (!currentUser) { alert('Debes iniciar sesión para guardar.'); return; }
+      if (objects.length === 0) { alert('La pizarra está vacía, dibuja algo primero.'); return; }
+      const btn = document.getElementById('cloudSaveBtn');
+      btn.textContent = '☁ Guardando…'; btn.disabled = true;
+      try {
+        if (lastSavedId) {
+          const { error } = await sb.from('pizarras')
+            .update({ board_data: { objects, currentTheme }, actualizado_en: new Date().toISOString() })
+            .eq('id', lastSavedId).eq('owner_id', currentUser.id);
+          if (error) throw error;
+        } else {
+          const titulo = 'Dibujo del ' + new Date().toLocaleDateString('es', { day: 'numeric', month: 'long' });
+          const { data, error } = await sb.from('pizarras')
+            .insert({ owner_id: currentUser.id, titulo, board_data: { objects, currentTheme } })
+            .select('id').single();
+          if (error) throw error;
+          lastSavedId = data.id;
+        }
+        updateStatusPill('Guardado en nube ✓', true);
+      } catch (e) {
+        console.error(e);
+        alert('Error al guardar: ' + e.message);
+      } finally {
+        btn.textContent = '☁ Guardar en nube'; btn.disabled = false;
+      }
+    }
+
+    async function openShareModal() {
+      if (!lastSavedId) { alert('Primero guarda el dibujo en la nube (botón ☁).'); return; }
+      const list = document.getElementById('shareUserList');
+      list.innerHTML = '<p style="color:#8d6e82;font-size:.75rem;text-align:center;padding:12px">Cargando usuarios…</p>';
+      document.getElementById('shareModal').style.display = 'flex';
+      try {
+        const { data: users, error } = await sb.from('user_profiles')
+          .select('user_id, username, email').neq('user_id', currentUser.id);
+        if (error) throw error;
+        if (!users || users.length === 0) {
+          list.innerHTML = '<p style="color:#8d6e82;font-size:.75rem;text-align:center;padding:12px">No hay otros usuarios registrados.</p>';
+          return;
+        }
+        list.innerHTML = users.map(u => `
+          <button class="share-user-btn" onclick="sendShare('${u.user_id}','${u.username.replace(/'/g,"\\'")}')">
+            <span class="avatar">👤</span>
+            <div><div class="uname">@${u.username}</div><div class="uemail">${u.email}</div></div>
+          </button>`).join('');
+      } catch (e) {
+        list.innerHTML = '<p style="color:#e74c3c;font-size:.75rem;text-align:center;padding:12px">Error al cargar usuarios.</p>';
+        console.error(e);
+      }
+    }
+
+    async function sendShare(recipientId, recipientUsername) {
+      try {
+        const { error } = await sb.from('notificaciones').insert({
+          recipient_id: recipientId,
+          sender_id: currentUser.id,
+          tipo: 'pizarra_compartida',
+          payload: { pizarra_id: lastSavedId }
+        });
+        if (error) throw error;
+        document.getElementById('shareModal').style.display = 'none';
+        updateStatusPill('Enviado a @' + recipientUsername + ' ✓', true);
+      } catch (e) {
+        alert('Error al compartir: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    async function loadSharedPizarra(pizarraId) {
+      try {
+        const { data, error } = await sb.from('pizarras').select('board_data, titulo').eq('id', pizarraId).single();
+        if (error || !data) return;
+        objects = data.board_data.objects || [];
+        if (data.board_data.currentTheme) {
+          currentTheme = data.board_data.currentTheme;
+          document.querySelectorAll('.theme-dot').forEach(b => b.classList.toggle('active', b.dataset.theme === currentTheme));
+        }
+        render(); snapshot();
+        updateStatusPill('Dibujo: ' + (data.titulo || 'compartido'), true);
+      } catch (e) { console.error('loadSharedPizarra:', e); }
+    }
+
+    document.getElementById('cloudSaveBtn').addEventListener('click', saveToCloud);
+    document.getElementById('shareEmailBtn').addEventListener('click', openShareModal);
+    document.getElementById('cancelShareBtn').addEventListener('click', () => {
+      document.getElementById('shareModal').style.display = 'none';
+    });
+    document.getElementById('shareModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('shareModal'))
+        document.getElementById('shareModal').style.display = 'none';
+    });
+
+    initPizarraAuth();
 
     // ── Restaurar borrador local al iniciar ──
     (function tryRestoreDraft() {
