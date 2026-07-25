@@ -274,7 +274,7 @@
     <!-- Navbar -->
     <nav class="navbar custom-navbar sticky-top navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
                 <i class="bi bi-heart-fill fs-4 text-danger"></i>
                 <span class="fw-bold">Nuestro Nidito R&L</span>
             </a>
@@ -285,7 +285,7 @@
                     <i class="bi bi-gender-female fs-5" id="themeIcon"></i>
                 </button>
 
-                <a href="index.html" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <a href="../index.html" class="btn btn-sm btn-outline-secondary rounded-pill">
                     <i class="bi bi-house-door-fill"></i> Inicio
                 </a>
             </div>
@@ -449,6 +449,8 @@
                         <!-- Dinámico -->
                     </div>
 
+                    <div id="addMemorySection">
+
                     <hr class="my-4">
 
                     <!-- Formulario para agregar un nuevo recuerdo -->
@@ -526,15 +528,14 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Título o Asunto</label>
                                 <input type="text" class="form-control" id="memoryTitleInput"
-                                    placeholder="Ej: Pensando en ti hoy..." required>
+                                    placeholder="Ej: Pensando en ti hoy...">
                             </div>
 
                             <!-- Contenido del Mensaje -->
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Detalles o Mensaje de amor</label>
                                 <textarea class="form-control" id="memoryContentInput" rows="4"
-                                    placeholder="Escribe aquí tu frase, historia, poema o lo que desees dedicar..."
-                                    required></textarea>
+                                    placeholder="Escribe aquí tu frase, historia, poema o lo que desees dedicar..."></textarea>
                             </div>
 
                             <!-- Música (Enlace de YouTube u otro) -->
@@ -559,20 +560,34 @@
                             </div>
                         </div>
 
+                            <!-- Invitar a usuario (visible solo cuando hay sesión) -->
+                            <div class="col-12" id="taggedUserGroup" style="display:none;">
+                                <label class="form-label fw-bold small">
+                                    <i class="bi bi-person-plus-fill text-primary"></i> Invitar a (Opcional)
+                                </label>
+                                <select id="taggedUserSelect" class="form-select">
+                                    <option value="">— Solo para mí —</option>
+                                </select>
+                                <div class="form-text">La persona invitada verá este evento en su propio calendario y recibirá una notificación.</div>
+                            </div>
+
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <button type="button" class="btn btn-light rounded-pill fw-bold"
                                 data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-romantic">
+                            <button type="submit" class="btn btn-romantic" id="saveMemoryBtn">
                                 <i class="bi bi-heart-fill"></i> Guardar Recuerdo
                             </button>
                         </div>
                     </form>
+                    </div><!-- /addMemorySection -->
 
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <!-- Bootstrap 5.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -582,14 +597,145 @@
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth(); // 0-11
         let currentTheme = localStorage.getItem('app_theme') || 'feminine';
-        let memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+        let memoriesData = [];
+
+        // Supabase
+        const SB_URL = 'https://lrjbpnzkvueralkqrsfd.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyamJwbnprdnVlcmFsa3Fyc2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzNzE4MTMsImV4cCI6MjA3Nzk0NzgxM30.ybbfydRMmAMbaRi2UaF0kq-NiVxBzwS3oX54tCm5EXE';
+        let sbClient = null;
+        let sbUser = null;
 
         // Configuración inicial al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             applyTheme(currentTheme);
+            initCalendario();
+        });
+
+        // --- INICIALIZACIÓN CON SUPABASE ---
+        let canEdit = false;
+
+        async function initCalendario() {
+            try {
+                sbClient = supabase.createClient(SB_URL, SB_KEY);
+                const { data: { session } } = await sbClient.auth.getSession();
+
+                if (session) {
+                    sbUser = session.user;
+
+                    // Verificar rol
+                    const { data: roleData } = await sbClient
+                        .from('user_roles')
+                        .select('role')
+                        .eq('user_id', sbUser.id)
+                        .single();
+                    const role = roleData?.role || 'invitado';
+                    canEdit = role === 'admin' || role === 'super_admin';
+
+                    const tasks = [loadFromSupabase()];
+                    if (canEdit) tasks.push(loadUsersForTagging());
+                    await Promise.all(tasks);
+
+                    if (canEdit) {
+                        document.getElementById('taggedUserGroup').style.display = 'block';
+                    } else {
+                        document.getElementById('addMemorySection').style.display = 'none';
+                    }
+                } else {
+                    memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+                }
+            } catch (e) {
+                console.warn('Supabase no disponible, usando localStorage:', e.message);
+                memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+            }
+
             renderCalendar(currentYear, currentMonth);
             renderMemoriesWall();
-        });
+        }
+
+        async function loadFromSupabase() {
+            // invitados solo ven sus propios eventos; admins ven también los que comparten
+            const query = canEdit
+                ? sbClient.from('calendario_eventos').select('*')
+                    .or(`owner_id.eq.${sbUser.id},tagged_user_id.eq.${sbUser.id}`)
+                : sbClient.from('calendario_eventos').select('*')
+                    .eq('owner_id', sbUser.id);
+
+            const { data, error } = await query.order('creado_en', { ascending: false });
+
+            if (!error && data) {
+                memoriesData = data.map(e => ({
+                    id: e.id,
+                    date: e.fecha,
+                    type: e.tipo || 'poema',
+                    title: e.titulo || '',
+                    content: e.contenido || '',
+                    musicUrl: e.music_url || null,
+                    image: null,
+                    taggedUserId: e.tagged_user_id,
+                    ownerId: e.owner_id,
+                    createdAt: e.creado_en,
+                    isShared: e.owner_id !== sbUser.id
+                }));
+            }
+        }
+
+        async function loadUsersForTagging() {
+            const { data } = await sbClient
+                .from('user_profiles')
+                .select('user_id, username')
+                .neq('user_id', sbUser.id);
+
+            const select = document.getElementById('taggedUserSelect');
+            if (data) {
+                data.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.user_id;
+                    opt.textContent = `@${u.username}`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        async function saveToSupabase({ date, type, title, content, musicUrl, taggedUserId }) {
+            const { data, error } = await sbClient
+                .from('calendario_eventos')
+                .insert({
+                    owner_id: sbUser.id,
+                    fecha: date,
+                    tipo: type,
+                    titulo: title || null,
+                    contenido: content || null,
+                    music_url: musicUrl || null,
+                    tagged_user_id: taggedUserId || null
+                })
+                .select('*')
+                .single();
+
+            if (error) throw error;
+
+            if (taggedUserId) {
+                await sbClient.from('notificaciones').insert({
+                    recipient_id: taggedUserId,
+                    sender_id: sbUser.id,
+                    tipo: 'calendario_invitacion',
+                    payload: { evento_id: data.id, fecha: date, titulo: title || 'Sin título' }
+                });
+            }
+
+            return {
+                id: data.id,
+                date: data.fecha,
+                type: data.tipo || 'poema',
+                title: data.titulo || '',
+                content: data.contenido || '',
+                musicUrl: data.music_url || null,
+                image: null,
+                taggedUserId: data.tagged_user_id,
+                ownerId: data.owner_id,
+                createdAt: data.creado_en,
+                isShared: false
+            };
+        }
 
         // --- SISTEMA DE TEMAS (FEMENINO / MASCULINO) ---
         function applyTheme(theme) {
@@ -794,18 +940,31 @@
                 }
 
                 const musicHtml = getMusicEmbedHtml(item.musicUrl);
+                const titleHtml = item.title
+                    ? `<h5 class="fw-bold mb-1">${item.title}</h5>`
+                    : '';
+                const contentHtml = item.content
+                    ? `<p class="mb-2 text-secondary" style="white-space: pre-line;">${item.content}</p>`
+                    : '';
+                const sharedBadge = item.isShared
+                    ? `<span class="badge bg-info text-white ms-2" title="Evento compartido contigo"><i class="bi bi-people-fill"></i> Compartido</span>`
+                    : '';
+                const deleteBtn = !item.isShared
+                    ? `<button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar este recuerdo"><i class="bi bi-trash-fill"></i></button>`
+                    : '';
 
                 card.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="memory-type-badge d-flex align-items-center gap-1">
-                            ${getCategoryIcon(item.type)} ${getCategoryName(item.type)}
-                        </span>
-                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar este recuerdo">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
+                        <div class="d-flex align-items-center flex-wrap gap-1">
+                            <span class="memory-type-badge d-flex align-items-center gap-1">
+                                ${getCategoryIcon(item.type)} ${getCategoryName(item.type)}
+                            </span>
+                            ${sharedBadge}
+                        </div>
+                        ${deleteBtn}
                     </div>
-                    <h5 class="fw-bold mb-1">${item.title}</h5>
-                    <p class="mb-2 text-secondary" style="white-space: pre-line;">${item.content}</p>
+                    ${titleHtml}
+                    ${contentHtml}
                     ${mediaHtml}
                     ${musicHtml}
                     <div class="text-end mt-2">
@@ -833,54 +992,90 @@
 
         function handleSaveMemory(event) {
             event.preventDefault();
+
+            // Bloquear si tiene sesión pero es invitado
+            if (sbClient && sbUser && !canEdit) return;
+
             const date = document.getElementById('selectedDateInput').value;
             const type = document.getElementById('memoryTypeSelect').value;
-            const title = document.getElementById('memoryTitleInput').value;
-            const content = document.getElementById('memoryContentInput').value;
-            const musicUrl = document.getElementById('memoryMusicUrl').value;
+            const title = document.getElementById('memoryTitleInput').value.trim();
+            const content = document.getElementById('memoryContentInput').value.trim();
+            const musicUrl = document.getElementById('memoryMusicUrl').value.trim();
+            const taggedUserId = document.getElementById('taggedUserSelect')?.value || '';
 
-            const newMemory = {
-                id: 'mem_' + Date.now(),
-                date: date,
-                type: type,
-                title: title,
-                content: content,
-                musicUrl: musicUrl || null,
-                image: base64ImageData || null,
-                createdAt: new Date().toISOString()
-            };
+            if (!title && !content && !musicUrl && !base64ImageData) {
+                alert('Por favor agrega al menos algún contenido.');
+                return;
+            }
 
-            memoriesData.unshift(newMemory);
-            localStorage.setItem('our_calendar_memories', JSON.stringify(memoriesData));
+            const btn = document.getElementById('saveMemoryBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
 
-            // Reset form
-            document.getElementById('newMemoryForm').reset();
-            document.getElementById('imagePreviewContainer').classList.add('d-none');
-            base64ImageData = null;
-
-            // Refresh UI
-            renderDayMemories(date);
-            renderCalendar(currentYear, currentMonth);
-            renderMemoriesWall();
-
-            // Cerrar automáticamente el modal para regresar a la vista del calendario
-            const modalEl = document.getElementById('dayDetailModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) {
-                modalInstance.hide();
+            if (sbClient && sbUser) {
+                saveToSupabase({ date, type, title, content, musicUrl, taggedUserId })
+                    .then(newEntry => {
+                        memoriesData.unshift(newEntry);
+                        afterSave(date);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Error al guardar: ' + err.message);
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-heart-fill"></i> Guardar Recuerdo';
+                    });
+            } else {
+                const newMemory = {
+                    id: 'mem_' + Date.now(),
+                    date, type,
+                    title: title || '',
+                    content: content || '',
+                    musicUrl: musicUrl || null,
+                    image: base64ImageData || null,
+                    createdAt: new Date().toISOString()
+                };
+                memoriesData.unshift(newMemory);
+                localStorage.setItem('our_calendar_memories', JSON.stringify(memoriesData));
+                afterSave(date);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-heart-fill"></i> Guardar Recuerdo';
             }
         }
 
-        function deleteMemory(id) {
-            if (confirm('¿Estás seguro de que deseas eliminar este recuerdo?')) {
+        function afterSave(date) {
+            document.getElementById('newMemoryForm').reset();
+            document.getElementById('imagePreviewContainer').classList.add('d-none');
+            base64ImageData = null;
+            renderDayMemories(date);
+            renderCalendar(currentYear, currentMonth);
+            renderMemoriesWall();
+            const modalEl = document.getElementById('dayDetailModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+
+        async function deleteMemory(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este recuerdo?')) return;
+
+            if (sbClient && sbUser) {
+                const { error } = await sbClient
+                    .from('calendario_eventos')
+                    .delete()
+                    .eq('id', id)
+                    .eq('owner_id', sbUser.id);
+                if (error) { alert('Error al eliminar: ' + error.message); return; }
+            } else {
                 memoriesData = memoriesData.filter(m => m.id !== id);
                 localStorage.setItem('our_calendar_memories', JSON.stringify(memoriesData));
-
-                const date = document.getElementById('selectedDateInput').value;
-                renderDayMemories(date);
-                renderCalendar(currentYear, currentMonth);
-                renderMemoriesWall();
             }
+
+            memoriesData = memoriesData.filter(m => m.id !== id);
+            const date = document.getElementById('selectedDateInput').value;
+            renderDayMemories(date);
+            renderCalendar(currentYear, currentMonth);
+            renderMemoriesWall();
         }
 
         function selectFormCategory(val, labelHtml) {
@@ -941,28 +1136,41 @@
                 }
 
                 const musicContent = getMusicEmbedHtml(item.musicUrl);
+                const titleHtml = item.title
+                    ? `<h5 class="fw-bold mb-2">${item.title}</h5>`
+                    : '';
+                const contentHtml = item.content
+                    ? `<p class="text-secondary small mb-3" style="white-space: pre-line;">${item.content}</p>`
+                    : '';
+                const sharedBadge = item.isShared
+                    ? `<span class="badge bg-info text-white" title="Compartido contigo"><i class="bi bi-people-fill"></i></span>`
+                    : '';
+                const deleteBtn = !item.isShared
+                    ? `<button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar recuerdo"><i class="bi bi-trash-fill"></i></button>`
+                    : '<span></span>';
 
                 col.innerHTML = `
                     <div class="memory-card p-3 h-100 d-flex flex-column justify-content-between border shadow-sm">
                         <div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
                                 <span class="memory-type-badge d-flex align-items-center gap-1">
                                     ${getCategoryIcon(item.type)} ${getCategoryName(item.type)}
                                 </span>
-                                <span class="badge bg-light text-dark border">
-                                    <i class="bi bi-calendar-event"></i> ${item.date}
-                                </span>
+                                <div class="d-flex align-items-center gap-1">
+                                    ${sharedBadge}
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-calendar-event"></i> ${item.date}
+                                    </span>
+                                </div>
                             </div>
-                            <h5 class="fw-bold mb-2">${item.title}</h5>
-                            <p class="text-secondary small mb-3" style="white-space: pre-line;">${item.content}</p>
+                            ${titleHtml}
+                            ${contentHtml}
                             ${mediaContent}
                             ${musicContent}
                         </div>
                         <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-3">
                             <span class="text-muted" style="font-size: 0.75rem;">Para Siempre</span>
-                            <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteMemory('${item.id}')" title="Eliminar recuerdo">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
+                            ${deleteBtn}
                         </div>
                     </div>
                 `;

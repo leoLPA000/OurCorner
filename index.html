@@ -112,8 +112,8 @@
             <li style="--i: 1; --clr: #ec6090">
                 <a href="views/pizarra.html" title="Pizarra creativa"><i class="fa-solid fa-palette"></i></a>
             </li>
-            <li style="--i: 2; --clr: #1b1e21">
-                <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <li style="--i: 2; --clr: #d63384">
+                <a href="views/calendario.html" title="Calendario de Recuerdos"><i class="fa-solid fa-calendar-days"></i></a>
             </li>
             <li style="--i: 3; --clr: #ff5733">
                 <a href="#"><i class="fab fa-reddit-alien"></i></a>
@@ -441,17 +441,31 @@
             }
 
             list.innerHTML = notifData.map(n => {
-                const pizarraId = n.payload?.pizarra_id;
                 const fecha = new Date(n.creado_en).toLocaleDateString('es', { day:'numeric', month:'short' });
                 const bg = n.leida ? '#fff' : '#fff8fc';
                 const dot = n.leida ? '' : '<span style="width:8px;height:8px;background:#ec6090;border-radius:50%;flex-shrink:0;display:inline-block;margin-left:auto;"></span>';
+
+                let icon, titulo, linkHtml;
+                if (n.tipo === 'calendario_invitacion') {
+                    const tituloEvento = n.payload?.titulo || 'Evento';
+                    const fechaEvento = n.payload?.fecha ? ` · ${n.payload.fecha}` : '';
+                    icon = '📅';
+                    titulo = `Evento compartido: ${tituloEvento}${fechaEvento}`;
+                    linkHtml = `<a href="views/calendario.html" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver calendario →</a>`;
+                } else {
+                    const pizarraId = n.payload?.pizarra_id;
+                    icon = '🎨';
+                    titulo = 'Dibujo compartido';
+                    linkHtml = pizarraId ? `<a href="views/pizarra.html?pizarra=${pizarraId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver dibujo →</a>` : '';
+                }
+
                 return `
                 <div style="padding:12px 16px;border-bottom:1px solid #f0dfe8;background:${bg};display:flex;align-items:flex-start;gap:10px;">
-                    <span style="font-size:1.3rem;flex-shrink:0;">🎨</span>
+                    <span style="font-size:1.3rem;flex-shrink:0;">${icon}</span>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:.78rem;font-weight:700;color:#342330;">Dibujo compartido</div>
+                        <div style="font-size:.78rem;font-weight:700;color:#342330;">${titulo}</div>
                         <div style="font-size:.68rem;color:#8d6e82;margin-top:2px;">${fecha}</div>
-                        ${pizarraId ? `<a href="views/pizarra.html?pizarra=${pizarraId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver dibujo →</a>` : ''}
+                        ${linkHtml}
                     </div>
                     ${dot}
                 </div>`;
