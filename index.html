@@ -449,9 +449,10 @@
                 if (n.tipo === 'calendario_invitacion') {
                     const tituloEvento = n.payload?.titulo || 'Evento';
                     const fechaEvento = n.payload?.fecha ? ` · ${n.payload.fecha}` : '';
+                    const eventoId = n.payload?.evento_id || '';
                     icon = '📅';
                     titulo = `Evento compartido: ${tituloEvento}${fechaEvento}`;
-                    linkHtml = `<a href="views/calendario.html" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver calendario →</a>`;
+                    linkHtml = `<a href="views/calendario.html?evento=${eventoId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver evento →</a>`;
                 } else {
                     const pizarraId = n.payload?.pizarra_id;
                     icon = '🎨';

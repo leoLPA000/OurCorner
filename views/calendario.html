@@ -586,6 +586,37 @@
         </div>
     </div>
 
+    <!-- MODAL: VISOR DE EVENTO COMPARTIDO -->
+    <div class="modal fade" id="eventoViewerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:20px; overflow:hidden;">
+                <div class="modal-header text-white pb-3" style="background: var(--header-gradient);">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span id="viewerTipoBadge" class="badge fw-bold px-3 py-2"
+                                style="background:rgba(255,255,255,0.25); font-size:.8rem;"></span>
+                            <span id="viewerFecha" class="small fw-bold opacity-75"></span>
+                        </div>
+                        <h4 class="modal-title fw-bold mb-0" id="viewerTitulo"></h4>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-3 flex-shrink-0"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p id="viewerContenido" class="mb-3 fs-6" style="white-space:pre-line; color:var(--text-main);"></p>
+                    <img id="viewerImagen" src="" alt="" class="img-fluid rounded-3 mb-3 w-100"
+                        style="display:none; max-height:300px; object-fit:cover;">
+                    <div id="viewerMusica"></div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-4">
+                    <button class="btn btn-romantic rounded-pill px-4 fw-bold" data-bs-dismiss="modal">
+                        <i class="bi bi-calendar3"></i> Ver en mi calendario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <!-- Bootstrap 5.3 JS -->
@@ -640,6 +671,9 @@
                     } else {
                         document.getElementById('addMemorySection').style.display = 'none';
                     }
+
+                    // Modo viewer: viene de una notificación
+                    await checkViewerMode();
                 } else {
                     memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
                 }
@@ -650,6 +684,60 @@
 
             renderCalendar(currentYear, currentMonth);
             renderMemoriesWall();
+        }
+
+        async function checkViewerMode() {
+            const params = new URLSearchParams(window.location.search);
+            const eventoId = params.get('evento');
+            if (!eventoId) return;
+
+            const { data, error } = await sbClient
+                .from('calendario_eventos')
+                .select('*')
+                .eq('id', eventoId)
+                .single();
+
+            if (error || !data) return;
+
+            // Rellenar el modal viewer
+            document.getElementById('viewerTipoBadge').innerHTML =
+                `${getCategoryIcon(data.tipo)} ${getCategoryName(data.tipo)}`;
+            document.getElementById('viewerFecha').textContent = data.fecha;
+
+            const tituloEl = document.getElementById('viewerTitulo');
+            tituloEl.textContent = data.titulo || '';
+            tituloEl.style.display = data.titulo ? 'block' : 'none';
+
+            const contenidoEl = document.getElementById('viewerContenido');
+            contenidoEl.textContent = data.contenido || '';
+            contenidoEl.style.display = data.contenido ? 'block' : 'none';
+
+            const imgEl = document.getElementById('viewerImagen');
+            if (data.image_url) {
+                imgEl.src = data.image_url;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            document.getElementById('viewerMusica').innerHTML =
+                getMusicEmbedHtml(data.music_url);
+
+            // Marcar notificación como leída
+            await sbClient
+                .from('notificaciones')
+                .update({ leida: true })
+                .eq('recipient_id', sbUser.id)
+                .eq('tipo', 'calendario_invitacion')
+                .filter('payload->>evento_id', 'eq', eventoId);
+
+            // Abrir el modal viewer
+            new bootstrap.Modal(document.getElementById('eventoViewerModal')).show();
+
+            // Ir al mes del evento en el calendario de fondo
+            const [y, m] = data.fecha.split('-').map(Number);
+            currentYear = y;
+            currentMonth = m - 1;
         }
 
         async function loadFromSupabase() {
@@ -670,7 +758,7 @@
                     title: e.titulo || '',
                     content: e.contenido || '',
                     musicUrl: e.music_url || null,
-                    image: null,
+                    image: e.image_url || null,
                     taggedUserId: e.tagged_user_id,
                     ownerId: e.owner_id,
                     createdAt: e.creado_en,
@@ -696,7 +784,25 @@
             }
         }
 
-        async function saveToSupabase({ date, type, title, content, musicUrl, taggedUserId }) {
+        async function uploadImageToStorage(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const path = `${sbUser.id}/${Date.now()}.${ext}`;
+            const { error } = await sbClient.storage
+                .from('calendario-imagenes')
+                .upload(path, file, { upsert: false });
+            if (error) throw error;
+            const { data } = sbClient.storage
+                .from('calendario-imagenes')
+                .getPublicUrl(path);
+            return data.publicUrl;
+        }
+
+        async function saveToSupabase({ date, type, title, content, musicUrl, taggedUserId, imageFile }) {
+            let imageUrl = null;
+            if (imageFile) {
+                imageUrl = await uploadImageToStorage(imageFile);
+            }
+
             const { data, error } = await sbClient
                 .from('calendario_eventos')
                 .insert({
@@ -706,6 +812,7 @@
                     titulo: title || null,
                     contenido: content || null,
                     music_url: musicUrl || null,
+                    image_url: imageUrl,
                     tagged_user_id: taggedUserId || null
                 })
                 .select('*')
@@ -729,7 +836,7 @@
                 title: data.titulo || '',
                 content: data.contenido || '',
                 musicUrl: data.music_url || null,
-                image: null,
+                image: data.image_url || null,
                 taggedUserId: data.tagged_user_id,
                 ownerId: data.owner_id,
                 createdAt: data.creado_en,
@@ -1012,8 +1119,10 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
 
+            const imageFile = document.getElementById('memoryImageInput').files[0] || null;
+
             if (sbClient && sbUser) {
-                saveToSupabase({ date, type, title, content, musicUrl, taggedUserId })
+                saveToSupabase({ date, type, title, content, musicUrl, taggedUserId, imageFile })
                     .then(newEntry => {
                         memoriesData.unshift(newEntry);
                         afterSave(date);
