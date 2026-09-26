@@ -280,8 +280,10 @@
             </a>
 
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-outline-secondary theme-toggle-btn p-2 rounded-circle d-flex align-items-center justify-content-center"
-                    id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar Modo Femenino / Masculino" style="width: 42px; height: 42px;">
+                <button
+                    class="btn btn-outline-secondary theme-toggle-btn p-2 rounded-circle d-flex align-items-center justify-content-center"
+                    id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar Modo Femenino / Masculino"
+                    style="width: 42px; height: 42px;">
                     <i class="bi bi-gender-female fs-5" id="themeIcon"></i>
                 </button>
 
@@ -299,8 +301,7 @@
         <div class="hero-banner">
             <h1 class="romantic-title fw-bold mb-1">Nuestro Calendario de Historias</h1>
             <p class="lead mb-0 fs-6 fw-bold">
-                <i class="bi bi-stars"></i> Un espacio eterno para escribir nuestra historia, guardar momentos y dedicar
-                música.
+                <i class="bi bi-stars"></i> Un espacio eterno para escribir nuestra historia, guardar momentos.
             </p>
         </div>
 
@@ -451,114 +452,120 @@
 
                     <div id="addMemorySection">
 
-                    <hr class="my-4">
+                        <hr class="my-4">
 
-                    <!-- Formulario para agregar un nuevo recuerdo -->
-                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                        <i class="bi bi-plus-circle-fill text-primary"></i> Agregar Nuevo Recuerdo a esta fecha
-                    </h5>
+                        <!-- Formulario para agregar un nuevo recuerdo -->
+                        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-plus-circle-fill text-primary"></i> Agregar Nuevo Recuerdo a esta fecha
+                        </h5>
 
-                    <form id="newMemoryForm" onsubmit="handleSaveMemory(event)">
-                        <input type="hidden" id="selectedDateInput">
+                        <form id="newMemoryForm" onsubmit="handleSaveMemory(event)">
+                            <input type="hidden" id="selectedDateInput">
 
-                        <div class="row g-3">
-                            <!-- Tipo de Recuerdo con Iconos -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Tipo de Recuerdo</label>
-                                <input type="hidden" id="memoryTypeSelect" value="poema" required>
-                                <div class="dropdown w-100">
-                                    <button
-                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between text-start bg-white border fw-bold"
-                                        type="button" id="memoryTypeDropdownBtn" data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                        <span id="selectedCategoryLabel" class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-journal-text text-danger fs-5"></i> Poema / Frase de amor
-                                        </span>
-                                    </button>
-                                    <ul class="dropdown-menu w-100 shadow" aria-labelledby="memoryTypeDropdownBtn">
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('poema', '<i class=\'bi bi-journal-text text-danger fs-5\'></i> Poema / Frase de amor')">
+                            <div class="row g-3">
+                                <!-- Tipo de Recuerdo con Iconos -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Tipo de Recuerdo</label>
+                                    <input type="hidden" id="memoryTypeSelect" value="poema" required>
+                                    <div class="dropdown w-100">
+                                        <button
+                                            class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between text-start bg-white border fw-bold"
+                                            type="button" id="memoryTypeDropdownBtn" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            <span id="selectedCategoryLabel" class="d-flex align-items-center gap-2">
                                                 <i class="bi bi-journal-text text-danger fs-5"></i> Poema / Frase de
                                                 amor
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('historia', '<i class=\'bi bi-book text-primary fs-5\'></i> Algo sucedido en el día')">
-                                                <i class="bi bi-book text-primary fs-5"></i> Algo sucedido en el día
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('chistoso', '<i class=\'bi bi-emoji-smile-fill text-warning fs-5\'></i> Algo chistoso')">
-                                                <i class="bi bi-emoji-smile-fill text-warning fs-5"></i> Algo chistoso
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('musica', '<i class=\'bi bi-music-note-beamed text-info fs-5\'></i> Música dedicada')">
-                                                <i class="bi bi-music-note-beamed text-info fs-5"></i> Música dedicada
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('tarjeta', '<i class=\'bi bi-envelope-heart-fill text-danger fs-5\'></i> Tarjetita de Amor')">
-                                                <i class="bi bi-envelope-heart-fill text-danger fs-5"></i> Tarjetita de
-                                                Amor
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button"
-                                                class="dropdown-item d-flex align-items-center gap-2 py-2"
-                                                onclick="selectFormCategory('planes', '<i class=\'bi bi-stars text-warning fs-5\'></i> Algo que me gustaría hacer')">
-                                                <i class="bi bi-stars text-warning fs-5"></i> Algo que me gustaría hacer
-                                            </button>
-                                        </li>
-                                    </ul>
+                                            </span>
+                                        </button>
+                                        <ul class="dropdown-menu w-100 shadow" aria-labelledby="memoryTypeDropdownBtn">
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('poema', '<i class=\'bi bi-journal-text text-danger fs-5\'></i> Poema / Frase de amor')">
+                                                    <i class="bi bi-journal-text text-danger fs-5"></i> Poema / Frase de
+                                                    amor
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('historia', '<i class=\'bi bi-book text-primary fs-5\'></i> Algo sucedido en el día')">
+                                                    <i class="bi bi-book text-primary fs-5"></i> Algo sucedido en el día
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('chistoso', '<i class=\'bi bi-emoji-smile-fill text-warning fs-5\'></i> Algo chistoso')">
+                                                    <i class="bi bi-emoji-smile-fill text-warning fs-5"></i> Algo
+                                                    chistoso
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('musica', '<i class=\'bi bi-music-note-beamed text-info fs-5\'></i> Música dedicada')">
+                                                    <i class="bi bi-music-note-beamed text-info fs-5"></i> Música
+                                                    dedicada
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('tarjeta', '<i class=\'bi bi-envelope-heart-fill text-danger fs-5\'></i> Tarjetita de Amor')">
+                                                    <i class="bi bi-envelope-heart-fill text-danger fs-5"></i> Tarjetita
+                                                    de
+                                                    Amor
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button"
+                                                    class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                    onclick="selectFormCategory('planes', '<i class=\'bi bi-stars text-warning fs-5\'></i> Algo que me gustaría hacer')">
+                                                    <i class="bi bi-stars text-warning fs-5"></i> Algo que me gustaría
+                                                    hacer
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Título opcional -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Título o Asunto</label>
+                                    <input type="text" class="form-control" id="memoryTitleInput"
+                                        placeholder="Ej: Pensando en ti hoy...">
+                                </div>
+
+                                <!-- Contenido del Mensaje -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small">Detalles o Mensaje de amor</label>
+                                    <textarea class="form-control" id="memoryContentInput" rows="4"
+                                        placeholder="Escribe aquí tu frase, historia, poema o lo que desees dedicar..."></textarea>
+                                </div>
+
+                                <!-- Música (Enlace de YouTube u otro) -->
+                                <div class="col-12" id="musicInputGroup">
+                                    <label class="form-label fw-bold small"><i
+                                            class="bi bi-music-note-beamed text-danger"></i> Enlace de Música o Video de
+                                        YouTube (Opcional)</label>
+                                    <input type="url" class="form-control" id="memoryMusicUrl"
+                                        placeholder="Ej: https://www.youtube.com/watch?v=... o https://youtu.be/...">
+                                </div>
+
+                                <!-- Carga de Imagen -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small"><i class="bi bi-image text-primary"></i>
+                                        Subir
+                                        Imagen / Fotografía (Opcional)</label>
+                                    <input type="file" class="form-control" id="memoryImageInput" accept="image/*"
+                                        onchange="previewImage(this)">
+                                    <div id="imagePreviewContainer" class="mt-2 text-center d-none">
+                                        <img id="imagePreview" src="" class="img-fluid rounded-3 border"
+                                            style="max-height: 200px;">
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Título opcional -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Título o Asunto</label>
-                                <input type="text" class="form-control" id="memoryTitleInput"
-                                    placeholder="Ej: Pensando en ti hoy...">
-                            </div>
-
-                            <!-- Contenido del Mensaje -->
-                            <div class="col-12">
-                                <label class="form-label fw-bold small">Detalles o Mensaje de amor</label>
-                                <textarea class="form-control" id="memoryContentInput" rows="4"
-                                    placeholder="Escribe aquí tu frase, historia, poema o lo que desees dedicar..."></textarea>
-                            </div>
-
-                            <!-- Música (Enlace de YouTube u otro) -->
-                            <div class="col-12" id="musicInputGroup">
-                                <label class="form-label fw-bold small"><i
-                                        class="bi bi-music-note-beamed text-danger"></i> Enlace de Música o Video de
-                                    YouTube (Opcional)</label>
-                                <input type="url" class="form-control" id="memoryMusicUrl"
-                                    placeholder="Ej: https://www.youtube.com/watch?v=... o https://youtu.be/...">
-                            </div>
-
-                            <!-- Carga de Imagen -->
-                            <div class="col-12">
-                                <label class="form-label fw-bold small"><i class="bi bi-image text-primary"></i> Subir
-                                    Imagen / Fotografía (Opcional)</label>
-                                <input type="file" class="form-control" id="memoryImageInput" accept="image/*"
-                                    onchange="previewImage(this)">
-                                <div id="imagePreviewContainer" class="mt-2 text-center d-none">
-                                    <img id="imagePreview" src="" class="img-fluid rounded-3 border"
-                                        style="max-height: 200px;">
-                                </div>
-                            </div>
-                        </div>
 
                             <!-- Invitar a usuario (visible solo cuando hay sesión) -->
                             <div class="col-12" id="taggedUserGroup" style="display:none;">
@@ -568,17 +575,18 @@
                                 <select id="taggedUserSelect" class="form-select">
                                     <option value="">— Solo para mí —</option>
                                 </select>
-                                <div class="form-text">La persona invitada verá este evento en su propio calendario y recibirá una notificación.</div>
+                                <div class="form-text">La persona invitada verá este evento en su propio calendario y
+                                    recibirá una notificación.</div>
                             </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <button type="button" class="btn btn-light rounded-pill fw-bold"
-                                data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-romantic" id="saveMemoryBtn">
-                                <i class="bi bi-heart-fill"></i> Guardar Recuerdo
-                            </button>
-                        </div>
-                    </form>
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <button type="button" class="btn btn-light rounded-pill fw-bold"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-romantic" id="saveMemoryBtn">
+                                    <i class="bi bi-heart-fill"></i> Guardar Recuerdo
+                                </button>
+                            </div>
+                        </form>
                     </div><!-- /addMemorySection -->
 
                 </div>
@@ -587,7 +595,8 @@
     </div>
 
     <!-- MODAL: VISOR DE EVENTO COMPARTIDO -->
-    <div class="modal fade" id="eventoViewerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="eventoViewerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius:20px; overflow:hidden;">
                 <div class="modal-header text-white pb-3" style="background: var(--header-gradient);">
@@ -599,8 +608,8 @@
                         </div>
                         <h4 class="modal-title fw-bold mb-0" id="viewerTitulo"></h4>
                     </div>
-                    <button type="button" class="btn-close btn-close-white ms-3 flex-shrink-0"
-                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close btn-close-white ms-3 flex-shrink-0" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body p-4">
                     <p id="viewerContenido" class="mb-3 fs-6" style="white-space:pre-line; color:var(--text-main);"></p>

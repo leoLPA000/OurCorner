@@ -16,7 +16,7 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/estilos.css">
     <link rel="stylesheet" href="assets/css/boton-navidad.css">
-    <link rel="stylesheet" href="assets/css/menu-flotante.css">
+    <link rel="stylesheet" href="assets/css/menu-flotante.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Fuentes -->
@@ -99,25 +99,27 @@
             </a>
         </section>
 
-        <!-- Menú flotante (antes: botón de acceso a la libreta de eventos).
-             El icono de Facebook lleva ahora a la libreta; los demás quedan
-             como marcadores de posición para futuras redes. -->
+        <!-- Menú flotante: acceso a libreta de eventos, pizarra, calendario, música, etc. -->
         <div class="menu-flotante" id="menuFlotante">
-            <div class="menu-flotante-toggle" id="menuFlotanteToggle" title="Ver nuestra libreta de eventos">
-                <ion-icon name="share-social"></ion-icon>
+            <div class="menu-flotante-toggle" id="menuFlotanteToggle" title="Abrir menú">
+                <img src="galeria/icono.png" alt="R&L" class="menu-flotante-icon" style="width: 38px; height: 38px; max-width: 38px; max-height: 38px; object-fit: contain; pointer-events: none; display: block;">
             </div>
-            <li style="--i: 0; --clr: #1877f2">
-                <a href="views/Libreta.html" title="Ver nuestra libreta de eventos"><i class="fab fa-facebook-f"></i></a>
+            <li style="--i: 0; --clr: #ff9f43">
+                <a href="views/Libreta.html" title="Ver nuestra libreta de eventos"><i
+                        class="fa-solid fa-book-bookmark"></i></a>
             </li>
             <li style="--i: 1; --clr: #ec6090">
                 <a href="views/pizarra.html" title="Pizarra creativa"><i class="fa-solid fa-palette"></i></a>
             </li>
             <li style="--i: 2; --clr: #d63384">
-                <a href="views/calendario.html" title="Calendario de Recuerdos"><i class="fa-solid fa-calendar-days"></i></a>
+                <a href="views/calendario.html" title="Calendario de Recuerdos"><i
+                        class="fa-solid fa-calendar-days"></i></a>
             </li>
             <li style="--i: 3; --clr: #9b59b6">
-                <a href="views/music-player/index.html" title="Reproductor de música"><i class="fa-solid fa-record-vinyl"></i></a>
+                <a href="views/music-player/index.html" title="Reproductor de música"><i
+                        class="fa-solid fa-record-vinyl"></i></a>
             </li>
+            <!--
             <li style="--i: 4; --clr: #0a66c2">
                 <a href="#"><i class="fab fa-linkedin-in"></i></a>
             </li>
@@ -130,6 +132,7 @@
             <li style="--i: 7; --clr: #ff0000">
                 <a href="#"><i class="fab fa-youtube"></i></a>
             </li>
+            -->
         </div>
 
         <!-- Campana de notificaciones (visible solo para usuarios logueados) -->
@@ -150,9 +153,12 @@
                 width:min(300px, 90vw); background:#fff; border-radius:18px;
                 box-shadow:0 12px 40px rgba(117,48,83,.18); border:1px solid #f0dfe8;
                 overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif;">
-                <div style="padding:14px 16px 10px; border-bottom:1px solid #f0dfe8; display:flex; justify-content:space-between; align-items:center;">
+                <div
+                    style="padding:14px 16px 10px; border-bottom:1px solid #f0dfe8; display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:.82rem; font-weight:800; color:#342330;">Notificaciones</span>
-                    <button id="markAllRead" style="font-size:.68rem; color:#ec6090; font-weight:700; background:none; border:none; cursor:pointer;">Marcar todas leídas</button>
+                    <button id="markAllRead"
+                        style="font-size:.68rem; color:#ec6090; font-weight:700; background:none; border:none; cursor:pointer;">Marcar
+                        todas leídas</button>
                 </div>
                 <div id="notifList" style="max-height:300px; overflow-y:auto;"></div>
             </div>
@@ -211,22 +217,22 @@
             // Fecha de inicio: 8 de octubre 2025 a las 00:00 UTC-3:30 (hora intermedia Bolivia-Argentina)
             // Bolivia: UTC-4, Argentina: UTC-3 → Promedio: UTC-3:30
             const fechaInicio = new Date('2025-10-08T00:00:00-03:30');
-            
+
             // Obtener la hora actual en la zona horaria intermedia UTC-3:30
             const ahora = new Date();
             const offsetIntermedio = -3.5 * 60; // -210 minutos (UTC-3:30)
             const offsetLocal = ahora.getTimezoneOffset(); // offset del navegador
             const diferenciaOffset = offsetLocal - offsetIntermedio;
             const horaIntermedia = new Date(ahora.getTime() + diferenciaOffset * 60000);
-            
+
             // Calcular meses completos basándose en aniversarios mensuales (cada día 8)
             let mesesCompletos = 0;
             let fechaAniversario = new Date(fechaInicio);
-            
+
             while (true) {
                 // Avanzar un mes
                 fechaAniversario.setMonth(fechaAniversario.getMonth() + 1);
-                
+
                 // Si el próximo aniversario es mayor que la hora actual, detener
                 if (fechaAniversario > horaIntermedia) {
                     fechaAniversario.setMonth(fechaAniversario.getMonth() - 1); // Volver al último aniversario
@@ -234,10 +240,10 @@
                 }
                 mesesCompletos++;
             }
-            
+
             // Calcular días desde el último aniversario mensual
             const diferenciaDias = Math.floor((horaIntermedia - fechaAniversario) / (1000 * 60 * 60 * 24));
-            
+
             let texto = '';
             if (mesesCompletos === 0 && diferenciaDias === 0) {
                 texto = '¡Hoy comenzamos! 🎉';
@@ -284,14 +290,14 @@
         // ============================================================================
         // 🔐 SISTEMA DE AUTENTICACIÓN
         // ============================================================================
-        
+
         // Inicializar UI de autenticación
         function initAuthUI() {
             const btnAuth = document.getElementById('btnAuth');
             const authContainer = document.getElementById('authContainer');
-            
+
             if (!btnAuth || !authContainer) return;
-            
+
             // Verificar estado de autenticación
             if (window.authService) {
                 window.authService.onAuthStateChange((event, session) => {
@@ -299,31 +305,31 @@
                 });
             }
         }
-        
+
         // Actualizar botón según estado de autenticación
         async function updateAuthButton(session) {
             const btnAuth = document.getElementById('btnAuth');
             const authContainer = document.getElementById('authContainer');
-            
+
             if (!btnAuth || !authContainer) return;
-            
+
             // Limpiar contenido previo
             authContainer.innerHTML = '';
-            
+
             if (session && session.user) {
                 // Usuario autenticado
                 const user = session.user;
                 const username = user.user_metadata?.username || user.email;
                 const displayName = username.length > 15 ? username.substring(0, 12) + '...' : username;
-                
+
                 // Verificar si es super admin
                 const isSuperAdmin = await window.rolesService?.isSuperAdmin();
                 const userRole = await window.rolesService?.getCurrentUserRole();
                 const roleInfo = window.rolesService?.getRoleInfo(userRole);
-                
+
                 // Construir menú dinámicamente
                 let menuItems = '';
-                
+
                 // Opción de Panel Admin (solo super_admin)
                 if (isSuperAdmin) {
                     menuItems += `
@@ -332,7 +338,7 @@
                         </button>
                     `;
                 }
-                
+
                 // Opciones comunes
                 menuItems += `
                     <button class="dropdown-item" onclick="window.location.href='views/mis-mensajes.html'">
@@ -342,7 +348,7 @@
                         🚪 Cerrar Sesión
                     </button>
                 `;
-                
+
                 authContainer.innerHTML = `
                     <button class="btn-auth logged-in" id="btnUserMenu">
                         ${roleInfo?.icon || '👤'}<span class="btn-auth-text"> ${displayName}</span>
@@ -355,23 +361,23 @@
                         ${menuItems}
                     </div>
                 `;
-                
+
                 // Toggle dropdown
                 const btnUserMenu = document.getElementById('btnUserMenu');
                 const userDropdown = document.getElementById('userDropdown');
-                
+
                 btnUserMenu.addEventListener('click', (e) => {
                     e.stopPropagation();
                     userDropdown.classList.toggle('show');
                 });
-                
+
                 // Cerrar dropdown al hacer clic fuera
                 document.addEventListener('click', () => {
                     if (userDropdown) {
                         userDropdown.classList.remove('show');
                     }
                 });
-                
+
             } else {
                 // Usuario no autenticado
                 authContainer.innerHTML = `
@@ -381,14 +387,14 @@
                 `;
             }
         }
-        
+
         // Manejar cierre de sesión
         async function handleLogout() {
             if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) return;
-            
+
             try {
                 const result = await window.authService.signOut();
-                
+
                 if (result.success) {
                     alert('Sesión cerrada exitosamente');
                     window.location.reload();
@@ -400,7 +406,7 @@
                 console.error(error);
             }
         }
-        
+
         // Inicializar al cargar la página
         // Los scripts de assets/js se cargan sin defer/async antes de este bloque,
         // por lo que window.authService ya existe en este punto sin necesidad de sondeo.
@@ -409,58 +415,58 @@
 
     <!-- 🔔 Sistema de notificaciones -->
     <script>
-    (function initNotificaciones() {
-        const sb = window.supabaseClient;
-        if (!sb) return;
+        (function initNotificaciones() {
+            const sb = window.supabaseClient;
+            if (!sb) return;
 
-        const container  = document.getElementById('notifContainer');
-        const bell       = document.getElementById('notifBell');
-        const badge      = document.getElementById('notifBadge');
-        const panel      = document.getElementById('notifPanel');
-        const list       = document.getElementById('notifList');
-        const markAllBtn = document.getElementById('markAllRead');
-        let notifData    = [];
+            const container = document.getElementById('notifContainer');
+            const bell = document.getElementById('notifBell');
+            const badge = document.getElementById('notifBadge');
+            const panel = document.getElementById('notifPanel');
+            const list = document.getElementById('notifList');
+            const markAllBtn = document.getElementById('markAllRead');
+            let notifData = [];
 
-        // Abrir/cerrar panel al hacer clic en la campana
-        bell.addEventListener('click', e => {
-            e.stopPropagation();
-            const open = panel.style.display === 'block';
-            panel.style.display = open ? 'none' : 'block';
-        });
-        document.addEventListener('click', () => { panel.style.display = 'none'; });
-        panel.addEventListener('click', e => e.stopPropagation());
+            // Abrir/cerrar panel al hacer clic en la campana
+            bell.addEventListener('click', e => {
+                e.stopPropagation();
+                const open = panel.style.display === 'block';
+                panel.style.display = open ? 'none' : 'block';
+            });
+            document.addEventListener('click', () => { panel.style.display = 'none'; });
+            panel.addEventListener('click', e => e.stopPropagation());
 
-        function renderNotifs() {
-            const unread = notifData.filter(n => !n.leida).length;
-            badge.textContent = unread;
-            badge.style.display = unread > 0 ? 'inline-block' : 'none';
+            function renderNotifs() {
+                const unread = notifData.filter(n => !n.leida).length;
+                badge.textContent = unread;
+                badge.style.display = unread > 0 ? 'inline-block' : 'none';
 
-            if (notifData.length === 0) {
-                list.innerHTML = '<p style="padding:20px;text-align:center;font-size:.78rem;color:#8d6e82;">Sin notificaciones nuevas 💕</p>';
-                return;
-            }
-
-            list.innerHTML = notifData.map(n => {
-                const fecha = new Date(n.creado_en).toLocaleDateString('es', { day:'numeric', month:'short' });
-                const bg = n.leida ? '#fff' : '#fff8fc';
-                const dot = n.leida ? '' : '<span style="width:8px;height:8px;background:#ec6090;border-radius:50%;flex-shrink:0;display:inline-block;margin-left:auto;"></span>';
-
-                let icon, titulo, linkHtml;
-                if (n.tipo === 'calendario_invitacion') {
-                    const tituloEvento = n.payload?.titulo || 'Evento';
-                    const fechaEvento = n.payload?.fecha ? ` · ${n.payload.fecha}` : '';
-                    const eventoId = n.payload?.evento_id || '';
-                    icon = '📅';
-                    titulo = `Evento compartido: ${tituloEvento}${fechaEvento}`;
-                    linkHtml = `<a href="views/calendario.html?evento=${eventoId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver evento →</a>`;
-                } else {
-                    const pizarraId = n.payload?.pizarra_id;
-                    icon = '🎨';
-                    titulo = 'Dibujo compartido';
-                    linkHtml = pizarraId ? `<a href="views/pizarra.html?pizarra=${pizarraId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver dibujo →</a>` : '';
+                if (notifData.length === 0) {
+                    list.innerHTML = '<p style="padding:20px;text-align:center;font-size:.78rem;color:#8d6e82;">Sin notificaciones nuevas 💕</p>';
+                    return;
                 }
 
-                return `
+                list.innerHTML = notifData.map(n => {
+                    const fecha = new Date(n.creado_en).toLocaleDateString('es', { day: 'numeric', month: 'short' });
+                    const bg = n.leida ? '#fff' : '#fff8fc';
+                    const dot = n.leida ? '' : '<span style="width:8px;height:8px;background:#ec6090;border-radius:50%;flex-shrink:0;display:inline-block;margin-left:auto;"></span>';
+
+                    let icon, titulo, linkHtml;
+                    if (n.tipo === 'calendario_invitacion') {
+                        const tituloEvento = n.payload?.titulo || 'Evento';
+                        const fechaEvento = n.payload?.fecha ? ` · ${n.payload.fecha}` : '';
+                        const eventoId = n.payload?.evento_id || '';
+                        icon = '📅';
+                        titulo = `Evento compartido: ${tituloEvento}${fechaEvento}`;
+                        linkHtml = `<a href="views/calendario.html?evento=${eventoId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver evento →</a>`;
+                    } else {
+                        const pizarraId = n.payload?.pizarra_id;
+                        icon = '🎨';
+                        titulo = 'Dibujo compartido';
+                        linkHtml = pizarraId ? `<a href="views/pizarra.html?pizarra=${pizarraId}" style="display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;color:#ec6090;text-decoration:none;">Ver dibujo →</a>` : '';
+                    }
+
+                    return `
                 <div style="padding:12px 16px;border-bottom:1px solid #f0dfe8;background:${bg};display:flex;align-items:flex-start;gap:10px;">
                     <span style="font-size:1.3rem;flex-shrink:0;">${icon}</span>
                     <div style="flex:1;min-width:0;">
@@ -470,62 +476,62 @@
                     </div>
                     ${dot}
                 </div>`;
-            }).join('');
-        }
-
-        async function fetchNotifs(userId) {
-            const { data, error } = await sb.from('notificaciones')
-                .select('*').eq('recipient_id', userId)
-                .order('creado_en', { ascending: false }).limit(20);
-            if (!error && data) { notifData = data; renderNotifs(); }
-        }
-
-        async function markAllRead(userId) {
-            await sb.from('notificaciones')
-                .update({ leida: true })
-                .eq('recipient_id', userId).eq('leida', false);
-            notifData = notifData.map(n => ({ ...n, leida: true }));
-            renderNotifs();
-        }
-
-        function subscribeRealtime(userId) {
-            sb.channel('notif-' + userId)
-                .on('postgres_changes', {
-                    event: 'INSERT', schema: 'public', table: 'notificaciones',
-                    filter: `recipient_id=eq.${userId}`
-                }, payload => {
-                    notifData.unshift(payload.new);
-                    renderNotifs();
-                    // Animar campana
-                    bell.style.transform = 'rotate(-15deg)';
-                    setTimeout(() => bell.style.transform = 'rotate(15deg)', 150);
-                    setTimeout(() => bell.style.transform = 'rotate(0deg)', 300);
-                })
-                .subscribe();
-        }
-
-        // Esperar sesión activa
-        sb.auth.getSession().then(({ data: { session } }) => {
-            if (!session) return;
-            const userId = session.user.id;
-            container.style.display = 'block';
-            fetchNotifs(userId);
-            subscribeRealtime(userId);
-            markAllBtn.addEventListener('click', () => markAllRead(userId));
-        });
-
-        // También reaccionar a cambios de sesión (login/logout)
-        sb.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                container.style.display = 'block';
-                fetchNotifs(session.user.id);
-                subscribeRealtime(session.user.id);
-            } else {
-                container.style.display = 'none';
-                notifData = [];
+                }).join('');
             }
-        });
-    })();
+
+            async function fetchNotifs(userId) {
+                const { data, error } = await sb.from('notificaciones')
+                    .select('*').eq('recipient_id', userId)
+                    .order('creado_en', { ascending: false }).limit(20);
+                if (!error && data) { notifData = data; renderNotifs(); }
+            }
+
+            async function markAllRead(userId) {
+                await sb.from('notificaciones')
+                    .update({ leida: true })
+                    .eq('recipient_id', userId).eq('leida', false);
+                notifData = notifData.map(n => ({ ...n, leida: true }));
+                renderNotifs();
+            }
+
+            function subscribeRealtime(userId) {
+                sb.channel('notif-' + userId)
+                    .on('postgres_changes', {
+                        event: 'INSERT', schema: 'public', table: 'notificaciones',
+                        filter: `recipient_id=eq.${userId}`
+                    }, payload => {
+                        notifData.unshift(payload.new);
+                        renderNotifs();
+                        // Animar campana
+                        bell.style.transform = 'rotate(-15deg)';
+                        setTimeout(() => bell.style.transform = 'rotate(15deg)', 150);
+                        setTimeout(() => bell.style.transform = 'rotate(0deg)', 300);
+                    })
+                    .subscribe();
+            }
+
+            // Esperar sesión activa
+            sb.auth.getSession().then(({ data: { session } }) => {
+                if (!session) return;
+                const userId = session.user.id;
+                container.style.display = 'block';
+                fetchNotifs(userId);
+                subscribeRealtime(userId);
+                markAllBtn.addEventListener('click', () => markAllRead(userId));
+            });
+
+            // También reaccionar a cambios de sesión (login/logout)
+            sb.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    container.style.display = 'block';
+                    fetchNotifs(session.user.id);
+                    subscribeRealtime(session.user.id);
+                } else {
+                    container.style.display = 'none';
+                    notifData = [];
+                }
+            });
+        })();
     </script>
 
 

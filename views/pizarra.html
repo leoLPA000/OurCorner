@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +8,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     :root {
@@ -22,7 +25,10 @@
       --shadow: 0 20px 60px rgba(117, 48, 83, .13);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       color: var(--ink);
@@ -31,161 +37,932 @@
       background-image: radial-gradient(#f2cddd 1px, transparent 1px), linear-gradient(135deg, #fff8fb 0%, #fff 48%, #fff1f7 100%);
       background-size: 22px 22px, 100% 100%;
     }
-    .app-shell { min-height: 100vh; }
-    .brand-script { font-family: 'Pacifico', cursive; color: var(--pink-deep); font-size: 1.42rem; }
-    .eyebrow { color: var(--pink-deep); font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
-    .topbar { padding: 22px 0 16px; }
-    .topbar .container-xl { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .brand-wrap { display: flex; align-items: center; gap: 13px; }
-    .brand-mark { width: 43px; height: 43px; border-radius: 14px 18px 14px 18px; display: grid; place-items: center; color: white; background: var(--pink); box-shadow: 5px 5px 0 #f8b2cc; font-size: 1.35rem; transform: rotate(-6deg); }
-    .brand-title { margin: 0; font-size: 1rem; font-weight: 800; }
-    .status-pill { display: flex; align-items: center; gap: 8px; color: var(--muted); font: 500 .69rem 'DM Mono', monospace; }
-    .status-dot { width: 8px; height: 8px; background: #6bd09d; border-radius: 50%; box-shadow: 0 0 0 4px #dff7e9; }
-    .workspace { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 22px; align-items: start; }
-    .panel { border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.88); box-shadow: var(--shadow); }
-    .tools-panel { padding: 17px; position: sticky; top: 16px; }
-    .section-label { margin: 4px 0 10px; color: #ad8e9e; font: 500 .66rem 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
-    .tool-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .tool-btn, .shape-btn { border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--ink); min-height: 54px; transition: .18s ease; touch-action: manipulation; }
-    .tool-btn:hover, .shape-btn:hover { border-color: #efa0bc; color: var(--pink-deep); transform: translateY(-2px); box-shadow: 0 7px 14px rgba(236,96,144,.13); }
-    .tool-btn.active { border-color: var(--pink); background: #fff0f5; color: var(--pink-deep); box-shadow: inset 0 0 0 1px var(--pink); }
-    .tool-icon { display: block; font-size: 1.18rem; line-height: 1; margin-bottom: 5px; }
-    .tool-name { display: block; font-size: .66rem; font-weight: 700; }
-    .shape-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-    .shape-btn { min-height: 44px; font-size: 1.22rem; }
-    .shape-btn.active { background: var(--rose); border-color: var(--pink); }
-    .control-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0 7px; }
-    .control-row label { color: var(--muted); font-size: .72rem; font-weight: 700; }
-    input[type="color"] { appearance: none; width: 34px; height: 28px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: pointer; }
-    input[type="range"] { accent-color: var(--pink); width: 100%; }
-    .swatches { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
-    .swatch { width: 24px; height: 24px; border: 2px solid #fff; outline: 1px solid var(--line); border-radius: 50%; cursor: pointer; transition: transform .15s; }
-    .swatch:hover { transform: scale(1.16); }
-    .divider { border-top: 1px solid var(--line); margin: 17px 0; }
-    .hint { color: #aa8c9d; font-size: .69rem; line-height: 1.5; }
-    .canvas-panel { overflow: visible; }
-    .canvas-head { padding: 17px 19px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 12px; }
-    .canvas-heading { margin: 0; font-size: .9rem; font-weight: 800; }
-    .canvas-meta { color: var(--muted); font: .65rem 'DM Mono', monospace; }
-    .canvas-actions { display: flex; gap: 7px; }
-    .icon-action { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 10px; width: 35px; height: 35px; display: grid; place-items: center; }
-    .icon-action:hover { color: var(--pink-deep); border-color: #efa0bc; }
-    .zoom-bar { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
-    .zoom-bar .icon-action { width: 27px; height: 27px; border: 0; font-size: 1rem; }
-    .zoom-range { width: 86px !important; margin: 0; }
-    .zoom-value { min-width: 40px; color: var(--pink-deep); text-align: center; font: 500 .65rem 'DM Mono', monospace; }
-    .canvas-wrap { padding: 16px; background: #fff; overflow: hidden; border-radius: 0 0 22px 22px; }
-    .canvas-wrap { position: relative; }
-    .text-editor-panel { display: none; position: absolute; z-index: 3; width: min(250px, calc(100% - 32px)); border: 2px solid var(--pink); border-radius: 10px; padding: 8px; background: #fff; box-shadow: 0 8px 20px rgba(191,55,109,.18); touch-action: auto; }
-    .text-editor, .text-font, .text-weight, .text-width { display: block; width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; color: var(--ink); background: #fff; outline: none; font-size: .78rem; }
-    .text-editor { font: 700 14px 'Plus Jakarta Sans', sans-serif; }
-    .text-editor { min-height: 58px; resize: vertical; }
-    .text-font { margin-top: 7px; }
-    .text-weight { margin-top: 6px; }
-    .text-width { margin-top: 6px; }
-    .text-submit { width: 100%; margin-top: 7px; border: 0; border-radius: 7px; padding: 7px 9px; color: #fff; background: var(--pink); font-size: .75rem; font-weight: 800; }
-    .text-submit:hover { background: var(--pink-deep); }
-    .text-editor:focus, .text-font:focus, .text-weight:focus, .text-width:focus { border-color: var(--pink); box-shadow: 0 0 0 3px #ffe5ef; }
-    #board { display: block; width: 100%; height: clamp(420px, 68vh, 620px); min-height: 390px; border: 1px solid #f2dae5; border-radius: 16px; cursor: crosshair; touch-action: none; background: transparent; }
-    .canvas-footer { padding: 10px 18px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .tip { color: var(--muted); font-size: .72rem; }
-    .export-btn { border: 0; color: #fff; background: var(--pink); font-size: .72rem; font-weight: 800; padding: 10px 15px; border-radius: 11px; box-shadow: 0 5px 12px rgba(191,55,109,.22); }
-    .export-btn:hover { background: var(--pink-deep); }
-    .emoji-input { display: flex; gap: 6px; }
-    .emoji-input input { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; font-size: .78rem; outline: none; }
-    .emoji-input input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px #ffe5ef; }
-    .add-emoji { border: 0; border-radius: 9px; background: var(--rose); color: var(--pink-deep); width: 34px; font-size: 1rem; }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .brand-script {
+      font-family: 'Pacifico', cursive;
+      color: var(--pink-deep);
+      font-size: 1.42rem;
+    }
+
+    .eyebrow {
+      color: var(--pink-deep);
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .topbar {
+      padding: 22px 0 16px;
+    }
+
+    .topbar .container-xl {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-mark {
+      width: 43px;
+      height: 43px;
+      border-radius: 14px 18px 14px 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--pink);
+      box-shadow: 5px 5px 0 #f8b2cc;
+      font-size: 1.35rem;
+      transform: rotate(-6deg);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font: 500 .69rem 'DM Mono', monospace;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #6bd09d;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px #dff7e9;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .88);
+      box-shadow: var(--shadow);
+    }
+
+    .tools-panel {
+      padding: 17px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .section-label {
+      margin: 4px 0 10px;
+      color: #ad8e9e;
+      font: 500 .66rem 'DM Mono', monospace;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .tool-btn,
+    .shape-btn {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 54px;
+      transition: .18s ease;
+      touch-action: manipulation;
+    }
+
+    .tool-btn:hover,
+    .shape-btn:hover {
+      border-color: #efa0bc;
+      color: var(--pink-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(236, 96, 144, .13);
+    }
+
+    .tool-btn.active {
+      border-color: var(--pink);
+      background: #fff0f5;
+      color: var(--pink-deep);
+      box-shadow: inset 0 0 0 1px var(--pink);
+    }
+
+    .tool-icon {
+      display: block;
+      font-size: 1.18rem;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .tool-name {
+      display: block;
+      font-size: .66rem;
+      font-weight: 700;
+    }
+
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .shape-btn {
+      min-height: 44px;
+      font-size: 1.22rem;
+    }
+
+    .shape-btn.active {
+      background: var(--rose);
+      border-color: var(--pink);
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 15px 0 7px;
+    }
+
+    .control-row label {
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    input[type="color"] {
+      appearance: none;
+      width: 34px;
+      height: 28px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      accent-color: var(--pink);
+      width: 100%;
+    }
+
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .swatch {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #fff;
+      outline: 1px solid var(--line);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+
+    .swatch:hover {
+      transform: scale(1.16);
+    }
+
+    .divider {
+      border-top: 1px solid var(--line);
+      margin: 17px 0;
+    }
+
+    .hint {
+      color: #aa8c9d;
+      font-size: .69rem;
+      line-height: 1.5;
+    }
+
+    .canvas-panel {
+      overflow: visible;
+    }
+
+    .canvas-head {
+      padding: 17px 19px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      gap: 12px;
+    }
+
+    .canvas-heading {
+      margin: 0;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .canvas-meta {
+      color: var(--muted);
+      font: .65rem 'DM Mono', monospace;
+    }
+
+    .canvas-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .icon-action {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 10px;
+      width: 35px;
+      height: 35px;
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-action:hover {
+      color: var(--pink-deep);
+      border-color: #efa0bc;
+    }
+
+    .zoom-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+    }
+
+    .zoom-bar .icon-action {
+      width: 27px;
+      height: 27px;
+      border: 0;
+      font-size: 1rem;
+    }
+
+    .zoom-range {
+      width: 86px !important;
+      margin: 0;
+    }
+
+    .zoom-value {
+      min-width: 40px;
+      color: var(--pink-deep);
+      text-align: center;
+      font: 500 .65rem 'DM Mono', monospace;
+    }
+
+    .canvas-wrap {
+      padding: 16px;
+      background: #fff;
+      overflow: hidden;
+      border-radius: 0 0 22px 22px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+    }
+
+    .text-editor-panel {
+      display: none;
+      position: absolute;
+      z-index: 3;
+      width: min(250px, calc(100% - 32px));
+      border: 2px solid var(--pink);
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(191, 55, 109, .18);
+      touch-action: auto;
+    }
+
+    .text-editor,
+    .text-font,
+    .text-weight,
+    .text-width {
+      display: block;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 8px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      font-size: .78rem;
+    }
+
+    .text-editor {
+      font: 700 14px 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .text-editor {
+      min-height: 58px;
+      resize: vertical;
+    }
+
+    .text-font {
+      margin-top: 7px;
+    }
+
+    .text-weight {
+      margin-top: 6px;
+    }
+
+    .text-width {
+      margin-top: 6px;
+    }
+
+    .text-submit {
+      width: 100%;
+      margin-top: 7px;
+      border: 0;
+      border-radius: 7px;
+      padding: 7px 9px;
+      color: #fff;
+      background: var(--pink);
+      font-size: .75rem;
+      font-weight: 800;
+    }
+
+    .text-submit:hover {
+      background: var(--pink-deep);
+    }
+
+    .text-editor:focus,
+    .text-font:focus,
+    .text-weight:focus,
+    .text-width:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px #ffe5ef;
+    }
+
+    #board {
+      display: block;
+      width: 100%;
+      height: clamp(420px, 68vh, 620px);
+      min-height: 390px;
+      border: 1px solid #f2dae5;
+      border-radius: 16px;
+      cursor: crosshair;
+      touch-action: none;
+      background: transparent;
+    }
+
+    .canvas-footer {
+      padding: 10px 18px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .tip {
+      color: var(--muted);
+      font-size: .72rem;
+    }
+
+    .export-btn {
+      border: 0;
+      color: #fff;
+      background: var(--pink);
+      font-size: .72rem;
+      font-weight: 800;
+      padding: 10px 15px;
+      border-radius: 11px;
+      box-shadow: 0 5px 12px rgba(191, 55, 109, .22);
+    }
+
+    .export-btn:hover {
+      background: var(--pink-deep);
+    }
+
+    .emoji-input {
+      display: flex;
+      gap: 6px;
+    }
+
+    .emoji-input input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 7px 9px;
+      font-size: .78rem;
+      outline: none;
+    }
+
+    .emoji-input input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px #ffe5ef;
+    }
+
+    .add-emoji {
+      border: 0;
+      border-radius: 9px;
+      background: var(--rose);
+      color: var(--pink-deep);
+      width: 34px;
+      font-size: 1rem;
+    }
+
     @media (max-width: 800px) {
-      .topbar { padding-top: 15px; }
-      .status-pill { display: none; }
-      .workspace { grid-template-columns: 1fr; }
-      .tools-panel { position: static; order: 2; }
-      .tool-grid { grid-template-columns: repeat(4, 1fr); }
-      .tool-btn { min-height: 60px; }
-      .shape-grid { grid-template-columns: repeat(6, 1fr); }
-      .tools-panel .divider, .tools-panel .hint { display: none; }
-      #board { min-height: 420px; height: 58svh; }
+      .topbar {
+        padding-top: 15px;
+      }
+
+      .status-pill {
+        display: none;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-panel {
+        position: static;
+        order: 2;
+      }
+
+      .tool-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .tool-btn {
+        min-height: 60px;
+      }
+
+      .shape-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      .tools-panel .divider,
+      .tools-panel .hint {
+        display: none;
+      }
+
+      #board {
+        min-height: 420px;
+        height: 58svh;
+      }
     }
+
     @media (max-width: 480px) {
-      .canvas-head { align-items: flex-start; flex-wrap: wrap; }
-      .canvas-meta { font-size: .55rem; }
-      .canvas-actions { width: 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-      .zoom-bar { width: 100%; }
-      .zoom-range { flex: 1; min-width: 0; }
-      .canvas-actions > .icon-action { flex: 0 0 35px; }
-      .canvas-footer { align-items: flex-start; flex-direction: column; }
-      .export-btn { width: 100%; }
-      .tool-grid { grid-template-columns: repeat(2, 1fr); }
-      .shape-grid { grid-template-columns: repeat(3, 1fr); }
+      .canvas-head {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .canvas-meta {
+        font-size: .55rem;
+      }
+
+      .canvas-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+
+      .zoom-bar {
+        width: 100%;
+      }
+
+      .zoom-range {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .canvas-actions>.icon-action {
+        flex: 0 0 35px;
+      }
+
+      .canvas-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .export-btn {
+        width: 100%;
+      }
+
+      .tool-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .shape-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
+
     /* ── Modo visor (cuando se abre un dibujo compartido) ── */
-    body.viewer-mode .tools-panel { display: none !important; }
-    body.viewer-mode .workspace { grid-template-columns: 1fr !important; }
-    body.viewer-mode .canvas-actions { display: none !important; }
-    body.viewer-mode .canvas-footer { display: none !important; }
-    body.viewer-mode .canvas-meta { display: none !important; }
-    body.viewer-mode #board { height: clamp(55vh, 72vh, 80vh); cursor: default !important; pointer-events: none; }
-    .viewer-bar { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-    body.viewer-mode .viewer-bar { display: flex; }
-    body.viewer-mode .canvas-heading { font-size: .82rem; }
-    .viewer-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--rose); color: var(--pink-deep); font: 700 .65rem 'DM Mono', monospace; padding: 4px 10px; border-radius: 99px; }
-    .viewer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .viewer-dl { border: 0; color: #fff; background: var(--pink); font-size: .72rem; font-weight: 800; padding: 9px 14px; border-radius: 11px; cursor: pointer; }
-    .viewer-dl:hover { background: var(--pink-deep); }
-    .viewer-own { border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-size: .72rem; font-weight: 700; padding: 9px 14px; border-radius: 11px; cursor: pointer; text-decoration: none; }
-    .viewer-own:hover { border-color: #efa0bc; color: var(--pink-deep); }
+    body.viewer-mode .tools-panel {
+      display: none !important;
+    }
+
+    body.viewer-mode .workspace {
+      grid-template-columns: 1fr !important;
+    }
+
+    body.viewer-mode .canvas-actions {
+      display: none !important;
+    }
+
+    body.viewer-mode .canvas-footer {
+      display: none !important;
+    }
+
+    body.viewer-mode .canvas-meta {
+      display: none !important;
+    }
+
+    body.viewer-mode #board {
+      height: clamp(55vh, 72vh, 80vh);
+      cursor: default !important;
+      pointer-events: none;
+    }
+
+    .viewer-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    body.viewer-mode .viewer-bar {
+      display: flex;
+    }
+
+    body.viewer-mode .canvas-heading {
+      font-size: .82rem;
+    }
+
+    .viewer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--rose);
+      color: var(--pink-deep);
+      font: 700 .65rem 'DM Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .viewer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .viewer-dl {
+      border: 0;
+      color: #fff;
+      background: var(--pink);
+      font-size: .72rem;
+      font-weight: 800;
+      padding: 9px 14px;
+      border-radius: 11px;
+      cursor: pointer;
+    }
+
+    .viewer-dl:hover {
+      background: var(--pink-deep);
+    }
+
+    .viewer-own {
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 9px 14px;
+      border-radius: 11px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .viewer-own:hover {
+      border-color: #efa0bc;
+      color: var(--pink-deep);
+    }
+
     /* ── Temas de fondo del canvas ── */
-    .theme-grid-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .theme-dot { width: 27px; height: 27px; border: 2.5px solid transparent; border-radius: 50%; cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; outline: 1.5px solid #f0dfe8; padding: 0; flex-shrink: 0; }
-    .theme-dot:hover { transform: scale(1.2); }
-    .theme-dot.active { border-color: var(--pink); outline-color: var(--pink); transform: scale(1.12); box-shadow: 0 0 0 3px rgba(236,96,144,.18); }
+    .theme-grid-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .theme-dot {
+      width: 27px;
+      height: 27px;
+      border: 2.5px solid transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+      outline: 1.5px solid #f0dfe8;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .theme-dot:hover {
+      transform: scale(1.2);
+    }
+
+    .theme-dot.active {
+      border-color: var(--pink);
+      outline-color: var(--pink);
+      transform: scale(1.12);
+      box-shadow: 0 0 0 3px rgba(236, 96, 144, .18);
+    }
+
     /* ── Overlay eliminar elemento ── */
-    #deleteOverlay { position: absolute; z-index: 10; align-items: center; padding: 5px 14px 5px 10px; background: #fff; border: 1.5px solid #ffd8e7; border-radius: 99px; box-shadow: 0 6px 22px rgba(191,55,109,.22); pointer-events: auto; white-space: nowrap; gap: 4px; }
-    #deleteObjectBtn { border: 0; background: none; font-size: .78rem; font-weight: 700; color: var(--pink-deep); cursor: pointer; padding: 4px 2px; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; gap: 6px; }
-    #deleteObjectBtn:hover { color: #9b1d4b; }
-    @keyframes fadeInOverlay { from { opacity: 0; transform: translateY(5px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    #deleteOverlay {
+      position: absolute;
+      z-index: 10;
+      align-items: center;
+      padding: 5px 14px 5px 10px;
+      background: #fff;
+      border: 1.5px solid #ffd8e7;
+      border-radius: 99px;
+      box-shadow: 0 6px 22px rgba(191, 55, 109, .22);
+      pointer-events: auto;
+      white-space: nowrap;
+      gap: 4px;
+    }
+
+    #deleteObjectBtn {
+      border: 0;
+      background: none;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--pink-deep);
+      cursor: pointer;
+      padding: 4px 2px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #deleteObjectBtn:hover {
+      color: #9b1d4b;
+    }
+
+    @keyframes fadeInOverlay {
+      from {
+        opacity: 0;
+        transform: translateY(5px) scale(.94);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     /* ── Botón volver ── */
     .btn-volver {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 12px; border: 1.5px solid var(--line);
-      background: rgba(255,255,255,.9); color: var(--pink-deep);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      background: rgba(255, 255, 255, .9);
+      color: var(--pink-deep);
       font: 700 .75rem 'Plus Jakarta Sans', sans-serif;
-      text-decoration: none; white-space: nowrap;
-      box-shadow: 0 3px 10px rgba(191,55,109,.1);
-      transition: .18s ease; flex-shrink: 0;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(191, 55, 109, .1);
+      transition: .18s ease;
+      flex-shrink: 0;
     }
-    .btn-volver:hover { background: var(--rose); border-color: var(--pink); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(191,55,109,.18); }
-    .btn-volver:active { transform: translateY(0); }
+
+    .btn-volver:hover {
+      background: var(--rose);
+      border-color: var(--pink);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(191, 55, 109, .18);
+    }
+
+    .btn-volver:active {
+      transform: translateY(0);
+    }
+
     @media (max-width: 480px) {
-      .btn-volver span { display: none; }
-      .btn-volver { padding: 8px 10px; font-size: .85rem; }
+      .btn-volver span {
+        display: none;
+      }
+
+      .btn-volver {
+        padding: 8px 10px;
+        font-size: .85rem;
+      }
     }
+
     /* ── Botones de nube ── */
-    .footer-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .cloud-btn { border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: .72rem; font-weight: 700; padding: 10px 13px; border-radius: 11px; cursor: not-allowed; opacity: .55; position: relative; }
-    .cloud-btn:not(:disabled):hover { border-color: #efa0bc; color: var(--pink-deep); opacity: 1; cursor: pointer; }
-    .draft-status { font-size: .65rem; color: #6bd09d; font-family: 'DM Mono', monospace; opacity: 0; transition: opacity .4s; white-space: nowrap; }
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cloud-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 10px 13px;
+      border-radius: 11px;
+      cursor: not-allowed;
+      opacity: .55;
+      position: relative;
+    }
+
+    .cloud-btn:not(:disabled):hover {
+      border-color: #efa0bc;
+      color: var(--pink-deep);
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    .draft-status {
+      font-size: .65rem;
+      color: #6bd09d;
+      font-family: 'DM Mono', monospace;
+      opacity: 0;
+      transition: opacity .4s;
+      white-space: nowrap;
+    }
+
     /* ── Modal compartir ── */
-    #shareModal { position: fixed; inset: 0; background: rgba(52,35,48,.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
-    .share-box { background: #fff; border-radius: 22px; padding: 26px; width: min(380px,100%); box-shadow: 0 24px 60px rgba(117,48,83,.22); }
-    .share-box h3 { margin: 0 0 4px; font-size: 1rem; color: var(--ink); }
-    .share-box p { margin: 0 0 18px; font-size: .75rem; color: var(--muted); }
-    .share-user-btn { display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); background: var(--cream); border-radius: 14px; padding: 12px 16px; cursor: pointer; text-align: left; width: 100%; transition: .15s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .share-user-btn:hover { border-color: var(--pink); background: var(--rose); }
-    .share-user-btn .avatar { font-size: 1.4rem; flex-shrink: 0; }
-    .share-user-btn .uname { font-size: .82rem; font-weight: 700; color: var(--ink); }
-    .share-user-btn .uemail { font-size: .68rem; color: var(--muted); }
-    #shareUserList { display: flex; flex-direction: column; gap: 10px; max-height: 240px; overflow-y: auto; }
-    .share-cancel { margin-top: 16px; width: 100%; border: 1.5px solid var(--line); background: #fff; border-radius: 11px; padding: 10px; font-size: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .share-cancel:hover { border-color: #efa0bc; color: var(--pink-deep); }
+    #shareModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(52, 35, 48, .5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .share-box {
+      background: #fff;
+      border-radius: 22px;
+      padding: 26px;
+      width: min(380px, 100%);
+      box-shadow: 0 24px 60px rgba(117, 48, 83, .22);
+    }
+
+    .share-box h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    .share-box p {
+      margin: 0 0 18px;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .share-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1.5px solid var(--line);
+      background: var(--cream);
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: .15s ease;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .share-user-btn:hover {
+      border-color: var(--pink);
+      background: var(--rose);
+    }
+
+    .share-user-btn .avatar {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .share-user-btn .uname {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .share-user-btn .uemail {
+      font-size: .68rem;
+      color: var(--muted);
+    }
+
+    #shareUserList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .share-cancel {
+      margin-top: 16px;
+      width: 100%;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      border-radius: 11px;
+      padding: 10px;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .share-cancel:hover {
+      border-color: #efa0bc;
+      color: var(--pink-deep);
+    }
+
     /* ── Banner de restauración ── */
-    #restoreBanner { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #fff; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: 0 8px 28px rgba(117,48,83,.15); padding: 14px 20px; display: flex; align-items: center; gap: 14px; z-index: 50; font-size: .8rem; font-weight: 600; color: var(--ink); transition: opacity .3s; }
-    #restoreBanner button { border: 0; border-radius: 9px; padding: 7px 14px; font-size: .74rem; font-weight: 800; cursor: pointer; }
-    .btn-restore { background: var(--pink); color: #fff; }
-    .btn-restore:hover { background: var(--pink-deep); }
-    .btn-discard { background: var(--rose); color: var(--pink-deep); }
+    #restoreBanner {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(117, 48, 83, .15);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 50;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--ink);
+      transition: opacity .3s;
+    }
+
+    #restoreBanner button {
+      border: 0;
+      border-radius: 9px;
+      padding: 7px 14px;
+      font-size: .74rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-restore {
+      background: var(--pink);
+      color: #fff;
+    }
+
+    .btn-restore:hover {
+      background: var(--pink-deep);
+    }
+
+    .btn-discard {
+      background: var(--rose);
+      color: var(--pink-deep);
+    }
   </style>
 </head>
+
 <body>
   <main class="app-shell">
     <header class="topbar">
@@ -194,10 +971,13 @@
           <a href="../index.html" class="btn-volver" aria-label="Volver al inicio">← <span>Inicio</span></a>
           <div class="brand-wrap">
             <div class="brand-mark">♡</div>
-            <div><div class="brand-script">Blush Board</div><p class="brand-title">Tu pizarra para crear sin permiso</p></div>
+            <div>
+              <div class="brand-script">Blush Board</div>
+              <p class="brand-title">Tu pizarra para crear sin permiso</p>
+            </div>
           </div>
         </div>
-        <div class="status-pill" id="statusPill"><span class="status-dot"></span> espacio local · listo para jugar</div>
+        <div class="status-pill" id="statusPill"><span class="status-dot"></span> · listo para jugar</div>
       </div>
     </header>
 
@@ -207,11 +987,16 @@
           <div class="eyebrow mb-2">Kit creativo</div>
           <div class="section-label">Herramientas</div>
           <div class="tool-grid">
-            <button class="tool-btn active" data-tool="pencil" title="Lápiz"><span class="tool-icon">✎</span><span class="tool-name">Lápiz</span></button>
-            <button class="tool-btn" data-tool="brush" title="Pincel"><span class="tool-icon"><i class="bi bi-brush"></i></span><span class="tool-name">Pincel</span></button>
-            <button class="tool-btn" data-tool="text" title="Texto"><span class="tool-icon">T</span><span class="tool-name">Texto</span></button>
-            <button class="tool-btn" data-tool="eraser" title="Borrador"><span class="tool-icon"><i class="bi bi-eraser"></i></span><span class="tool-name">Borrar</span></button>
-            <button class="tool-btn" data-tool="hand" title="Mover elemento"><span class="tool-icon"><i class="bi bi-arrows-move"></i></span><span class="tool-name">Mover elemento</span></button>
+            <button class="tool-btn active" data-tool="pencil" title="Lápiz"><span class="tool-icon">✎</span><span
+                class="tool-name">Lápiz</span></button>
+            <button class="tool-btn" data-tool="brush" title="Pincel"><span class="tool-icon"><i
+                  class="bi bi-brush"></i></span><span class="tool-name">Pincel</span></button>
+            <button class="tool-btn" data-tool="text" title="Texto"><span class="tool-icon">T</span><span
+                class="tool-name">Texto</span></button>
+            <button class="tool-btn" data-tool="eraser" title="Borrador"><span class="tool-icon"><i
+                  class="bi bi-eraser"></i></span><span class="tool-name">Borrar</span></button>
+            <button class="tool-btn" data-tool="hand" title="Mover elemento"><span class="tool-icon"><i
+                  class="bi bi-arrows-move"></i></span><span class="tool-name">Mover elemento</span></button>
           </div>
 
           <div class="section-label mt-4">Figuras</div>
@@ -225,22 +1010,28 @@
           </div>
 
           <div class="section-label mt-4">Emoji en la pizarra</div>
-          <div class="emoji-input"><input id="emojiField" type="text" value="✨" maxlength="2" aria-label="Emoji"><button class="add-emoji" id="addEmoji" title="Añadir emoji">+</button></div>
+          <div class="emoji-input"><input id="emojiField" type="text" value="✨" maxlength="2" aria-label="Emoji"><button
+              class="add-emoji" id="addEmoji" title="Añadir emoji">+</button></div>
 
           <div class="section-label mt-4">Fondo del canvas</div>
           <div class="theme-grid-selector" id="themeGrid" aria-label="Temas de fondo">
-            <button class="theme-dot active" data-theme="grid" title="Cuadrícula rosa" style="background:linear-gradient(135deg,#fffdfd,#f9e8f0)"></button>
+            <button class="theme-dot active" data-theme="grid" title="Cuadrícula rosa"
+              style="background:linear-gradient(135deg,#fffdfd,#f9e8f0)"></button>
             <button class="theme-dot" data-theme="white" title="Blanco puro" style="background:#ffffff"></button>
-            <button class="theme-dot" data-theme="lavender" title="Cielo lavanda" style="background:linear-gradient(135deg,#e8dcff,#fff0f9)"></button>
+            <button class="theme-dot" data-theme="lavender" title="Cielo lavanda"
+              style="background:linear-gradient(135deg,#e8dcff,#fff0f9)"></button>
             <button class="theme-dot" data-theme="night" title="Noche ciruela" style="background:#1e1020"></button>
             <button class="theme-dot" data-theme="cream" title="Papel crema" style="background:#fffbf0"></button>
-            <button class="theme-dot" data-theme="mint" title="Menta fresca" style="background:linear-gradient(135deg,#d4f5ec,#f0fff8)"></button>
+            <button class="theme-dot" data-theme="mint" title="Menta fresca"
+              style="background:linear-gradient(135deg,#d4f5ec,#f0fff8)"></button>
             <button class="theme-dot" data-theme="denim" title="Denim oscuro" style="background:#0f1c2e"></button>
-            <button class="theme-dot" data-theme="coral" title="Coral suave" style="background:linear-gradient(135deg,#ffe4d6,#fff0eb)"></button>
+            <button class="theme-dot" data-theme="coral" title="Coral suave"
+              style="background:linear-gradient(135deg,#ffe4d6,#fff0eb)"></button>
           </div>
 
           <div class="divider"></div>
-          <div class="control-row"><label for="colorPicker">Color</label><input id="colorPicker" type="color" value="#ec6090"></div>
+          <div class="control-row"><label for="colorPicker">Color</label><input id="colorPicker" type="color"
+              value="#ec6090"></div>
           <div class="swatches" aria-label="Paleta de colores">
             <button class="swatch" data-color="#ec6090" style="background:#ec6090" title="Rosa chicle"></button>
             <button class="swatch" data-color="#bf376d" style="background:#bf376d" title="Frambuesa"></button>
@@ -252,13 +1043,25 @@
           </div>
           <div class="control-row"><label for="sizeRange">Tamaño <span id="sizeValue">5</span> px</label></div>
           <input id="sizeRange" type="range" min="1" max="40" value="5">
-          <p class="hint mt-3 mb-0">Con Texto, escribe en el campo que aparece. Enter baja a otra línea; usa Añadir a la pizarra para confirmar el bloque.</p>
+          <p class="hint mt-3 mb-0">Con Texto, escribe en el campo que aparece. Enter baja a otra línea; usa Añadir a la
+            pizarra para confirmar el bloque.</p>
         </aside>
 
         <section class="panel canvas-panel">
           <div class="canvas-head">
-            <div><h1 class="canvas-heading">Moodboard de hoy</h1><span class="canvas-meta">PULSA Y ARRASTRA PARA DIBUJAR</span></div>
-            <div class="canvas-actions"><div class="zoom-bar" aria-label="Controles de zoom"><button class="icon-action" id="zoomOutBtn" title="Alejar">−</button><input class="zoom-range" id="zoomRange" type="range" min="50" max="200" value="100" step="1" aria-label="Zoom"><span class="zoom-value" id="zoomValue">100%</span><button class="icon-action" id="zoomInBtn" title="Acercar">+</button><button class="icon-action" id="zoomResetBtn" title="Restablecer zoom">⟳</button></div><button class="icon-action" id="undoBtn" title="Deshacer">↶</button><button class="icon-action" id="redoBtn" title="Rehacer">↷</button><button class="icon-action" id="clearBtn" title="Limpiar pizarra">⌫</button></div>
+            <div>
+              <h1 class="canvas-heading">Moodboard de hoy</h1><span class="canvas-meta">PULSA Y ARRASTRA PARA
+                DIBUJAR</span>
+            </div>
+            <div class="canvas-actions">
+              <div class="zoom-bar" aria-label="Controles de zoom"><button class="icon-action" id="zoomOutBtn"
+                  title="Alejar">−</button><input class="zoom-range" id="zoomRange" type="range" min="50" max="200"
+                  value="100" step="1" aria-label="Zoom"><span class="zoom-value" id="zoomValue">100%</span><button
+                  class="icon-action" id="zoomInBtn" title="Acercar">+</button><button class="icon-action"
+                  id="zoomResetBtn" title="Restablecer zoom">⟳</button></div><button class="icon-action" id="undoBtn"
+                title="Deshacer">↶</button><button class="icon-action" id="redoBtn" title="Rehacer">↷</button><button
+                class="icon-action" id="clearBtn" title="Limpiar pizarra">⌫</button>
+            </div>
           </div>
           <!-- Barra del visor (visible solo en modo compartido) -->
           <div class="viewer-bar">
@@ -272,12 +1075,35 @@
             </div>
           </div>
 
-          <div class="canvas-wrap"><canvas id="board" aria-label="Pizarra interactiva"></canvas><div id="textEditorPanel" class="text-editor-panel"><textarea id="textEditor" class="text-editor" maxlength="1000" placeholder="Escribe aquí..." aria-label="Texto para la pizarra"></textarea><select id="textFont" class="text-font" aria-label="Tipo de letra"><option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans</option><option value="Pacifico, cursive">Pacifico</option><option value="'DM Mono', monospace">DM Mono</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option></select><select id="textWeight" class="text-weight" aria-label="Grosor del texto"><option value="400">Normal</option><option value="700">Negrita</option></select><select id="textWidth" class="text-width" aria-label="Ancho del texto"><option value="220">Compacto</option><option value="320" selected>Medio</option><option value="450">Amplio</option></select><button id="textSubmit" class="text-submit" type="button">Añadir a la pizarra</button></div><div id="deleteOverlay" style="display:none"><button id="deleteObjectBtn" title="Eliminar elemento">🗑️ Eliminar</button></div></div>
+          <div class="canvas-wrap"><canvas id="board" aria-label="Pizarra interactiva"></canvas>
+            <div id="textEditorPanel" class="text-editor-panel"><textarea id="textEditor" class="text-editor"
+                maxlength="1000" placeholder="Escribe aquí..." aria-label="Texto para la pizarra"></textarea><select
+                id="textFont" class="text-font" aria-label="Tipo de letra">
+                <option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans</option>
+                <option value="Pacifico, cursive">Pacifico</option>
+                <option value="'DM Mono', monospace">DM Mono</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+              </select><select id="textWeight" class="text-weight" aria-label="Grosor del texto">
+                <option value="400">Normal</option>
+                <option value="700">Negrita</option>
+              </select><select id="textWidth" class="text-width" aria-label="Ancho del texto">
+                <option value="220">Compacto</option>
+                <option value="320" selected>Medio</option>
+                <option value="450">Amplio</option>
+              </select><button id="textSubmit" class="text-submit" type="button">Añadir a la pizarra</button></div>
+            <div id="deleteOverlay" style="display:none"><button id="deleteObjectBtn" title="Eliminar elemento">🗑️
+                Eliminar</button></div>
+          </div>
           <div class="canvas-footer">
-            <div><span class="tip">💗 Hecho con color, café y un poquito de drama. En móvil, usa dos dedos para ampliar y recorrer.</span><br><span class="draft-status" id="draftStatus">Borrador guardado localmente ✓</span></div>
+            <div><span class="tip">💗 Hecho con color, café y un poquito de drama. En móvil, usa dos dedos para ampliar
+                y recorrer.</span><br><span class="draft-status" id="draftStatus">Borrador guardado localmente ✓</span>
+            </div>
             <div class="footer-actions">
-              <button class="cloud-btn" id="cloudSaveBtn" disabled title="Función reservada para administradores">☁ Guardar en nube</button>
-              <button class="cloud-btn" id="shareEmailBtn" disabled title="Función reservada para administradores">✉ Compartir</button>
+              <button class="cloud-btn" id="cloudSaveBtn" disabled title="Función reservada para administradores">☁
+                Guardar en nube</button>
+              <button class="cloud-btn" id="shareEmailBtn" disabled title="Función reservada para administradores">✉
+                Compartir</button>
               <button class="export-btn" id="downloadBtn">↓ Descargar pizarra</button>
             </div>
           </div>
@@ -327,10 +1153,10 @@
           localStorage.setItem(DRAFT_KEY, JSON.stringify({ objects, currentTheme, timestamp: Date.now() }));
           const el = document.getElementById('draftStatus');
           if (el) { el.style.opacity = '1'; clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', 2500); }
-        } catch (e) {}
+        } catch (e) { }
       }, 800);
     }
-    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { } }
     function updateStatusPill(text, revert) {
       const pill = document.getElementById('statusPill');
       if (!pill) return;
@@ -362,14 +1188,14 @@
     let selectedObjectForDelete = null;
     const deleteOverlay = document.getElementById('deleteOverlay');
     const themes = {
-      grid:     { bg: '#fffdfd', grid: true },
-      white:    { bg: '#ffffff' },
+      grid: { bg: '#fffdfd', grid: true },
+      white: { bg: '#ffffff' },
       lavender: { gradient: ['#e8dcff', '#fff0f9'] },
-      night:    { bg: '#1e1020' },
-      cream:    { bg: '#fffbf0' },
-      mint:     { gradient: ['#d4f5ec', '#f0fff8'] },
-      denim:    { bg: '#0f1c2e' },
-      coral:    { gradient: ['#ffe4d6', '#fff0eb'] },
+      night: { bg: '#1e1020' },
+      cream: { bg: '#fffbf0' },
+      mint: { gradient: ['#d4f5ec', '#f0fff8'] },
+      denim: { bg: '#0f1c2e' },
+      coral: { gradient: ['#ffe4d6', '#fff0eb'] },
     };
 
     function resizeCanvas(preserve = true) {
@@ -680,7 +1506,7 @@
     deleteOverlay.addEventListener('pointerdown', e => e.stopPropagation());
     deleteOverlay.addEventListener('pointerup', e => e.stopPropagation());
     document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDeleteOverlay(); });
-    colorPicker.addEventListener('input', () => {});
+    colorPicker.addEventListener('input', () => { });
     sizeRange.addEventListener('input', () => sizeValue.textContent = sizeRange.value);
     zoomRange.addEventListener('input', event => updateZoom(event.target.value));
     document.getElementById('zoomOutBtn').addEventListener('click', () => updateZoom(Math.max(50, Number(zoomRange.value) - 10)));
@@ -842,7 +1668,7 @@
           return;
         }
         list.innerHTML = users.map(u => `
-          <button class="share-user-btn" onclick="sendShare('${u.user_id}','${u.username.replace(/'/g,"\\'")}')">
+          <button class="share-user-btn" onclick="sendShare('${u.user_id}','${u.username.replace(/'/g, "\\'")}')">
             <span class="avatar">👤</span>
             <div><div class="uname">@${u.username}</div></div>
           </button>`).join('');
@@ -900,7 +1726,7 @@
             .update({ leida: true })
             .eq('recipient_id', currentUser.id)
             .filter('payload->>pizarra_id', 'eq', pizarraId)
-            .then(() => {});
+            .then(() => { });
         }
       } catch (e) { console.error('loadSharedPizarra:', e); }
     }
@@ -942,8 +1768,9 @@
           clearDraft();
           banner.style.display = 'none';
         });
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
 </body>
+
 </html>

@@ -41,6 +41,19 @@
     transition: 1.25s;
     z-index: 5;
     pointer-events: auto;
+    overflow: hidden;
+}
+
+.menu-flotante-toggle img,
+.menu-flotante-icon {
+    width: 98px !important;
+    height: 98px !important;
+    max-width: 98px !important;
+    max-height: 98px !important;
+    object-fit: contain !important;
+    display: block !important;
+    pointer-events: none;
+    user-select: none;
 }
 
 .menu-flotante.active .menu-flotante-toggle {
