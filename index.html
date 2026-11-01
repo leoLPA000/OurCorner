@@ -8,10 +8,16 @@
         content="Página web romántica para Rocío, celebrando nuestro primer mes juntos con mensajes de amor personalizados.">
     <meta name="author" content="Leo">
     <meta name="theme-color" content="#e63946">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OurCorner">
     <title>Nuestro Nidito R❤️L</title>
 
-    <!-- Favicon -->
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="galeria/icono.png">
+    <link rel="apple-touch-icon" href="assets/images/icons/icon-192.png">
 
     <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/estilos.css">
@@ -534,7 +540,8 @@
         })();
     </script>
 
-
+    <!-- 📱 PWA Core -->
+    <script src="assets/js/pwa/pwa.js"></script>
 </body>
 
 </html>

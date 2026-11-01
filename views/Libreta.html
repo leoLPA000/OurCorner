@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e63946">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OurCorner">
   <title>Nuestros Eventos R❤️L</title>
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" type="image/png" href="../galeria/icono.png">
+  <link rel="apple-touch-icon" href="../assets/images/icons/icon-192.png">
+
   <link rel="stylesheet" href="../assets/css/estilos.css">
-  <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../galeria/icono.png">
   <!-- jQuery (requerido para Turn.js) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Turn.js CDN -->
@@ -817,5 +826,7 @@
     });
   </script>
 
+  <!-- 📱 PWA Core -->
+  <script src="../assets/js/pwa/pwa.js"></script>
 </body>
 </html>

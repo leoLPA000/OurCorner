@@ -7,9 +7,16 @@
     <meta name="description" content="Árbol de Navidad 3D para Rocío">
     <meta name="author" content="Leo">
     <meta name="theme-color" content="#2d5016">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OurCorner">
     <title>🎄 Árbol de Navidad R❤️L</title>
-<!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../galeria/icono.png">
+
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" type="image/png" href="../galeria/icono.png">
+    <link rel="apple-touch-icon" href="../assets/images/icons/icon-192.png">
     <!-- Estilos -->
     <link rel="stylesheet" href="../assets/css/estilos.css">
     <link rel="stylesheet" href="../assets/css/calendario.css">
@@ -145,6 +152,8 @@
         iniciarNieve();
     </script>
 
+    <!-- 📱 PWA Core -->
+    <script src="../assets/js/pwa/pwa.js"></script>
 </body>
 
 </html>
