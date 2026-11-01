@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#e63946">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OurCorner">
+    <title>Sin Conexión | OurCorner R❤️L</title>
+
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="./galeria/icono.png">
+    <link rel="apple-touch-icon" href="./assets/images/icons/icon-192.png">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #342330;
+            --muted: #8d6e82;
+            --pink: #ec6090;
+            --pink-deep: #bf376d;
+            --rose-bg: #fff5f8;
+            --card-border: rgba(236, 96, 144, 0.2);
+            --shadow: 0 16px 40px rgba(117, 48, 83, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #fffafc;
+            background-image: radial-gradient(#f7d5e4 1.2px, transparent 1.2px), linear-gradient(135deg, #fff7fb 0%, #ffffff 50%, #fff0f6 100%);
+            background-size: 24px 24px, 100% 100%;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .offline-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px 28px;
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ffeef4, #ffd4e5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.4rem;
+            box-shadow: 0 8px 20px rgba(236, 96, 144, 0.18);
+            animation: pulse 2.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        .offline-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.4rem;
+            color: var(--pink-deep);
+            margin-bottom: 10px;
+        }
+
+        .offline-subtitle {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .offline-description {
+            font-size: 0.92rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+            color: #fff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(191, 55, 109, 0.3);
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(191, 55, 109, 0.4);
+        }
+
+        .btn-retry:active {
+            transform: translateY(0);
+        }
+
+        .offline-features {
+            text-align: left;
+            background: #fff8fb;
+            border: 1px solid rgba(236, 96, 144, 0.14);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .features-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--pink-deep);
+            margin-bottom: 10px;
+        }
+
+        .feature-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .feature-links a {
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .feature-links a:hover {
+            background: #ffeef4;
+            color: var(--pink-deep);
+        }
+
+        .offline-footer {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .connection-status {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 99px;
+            background: #fde8ef;
+            color: var(--pink-deep);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="offline-card">
+        <div class="offline-icon" aria-hidden="true">📡</div>
+
+        <h1 class="offline-title">Modo Fuera de Línea</h1>
+        <p class="offline-subtitle">No hay conexión a Internet en este momento</p>
+        <p class="offline-description">
+            No te preocupes, el amor sigue aquí 💕. Puedes seguir consultando tus mensajes guardados, ver recuerdos o continuar dibujando en tu pizarra local.
+        </p>
+
+        <div class="offline-actions">
+            <button class="btn-retry" id="btnRetry">
+                <span>🔄</span> Intentar nuevamente
+            </button>
+            <span class="connection-status" id="statusBadge">Esperando señal de red...</span>
+        </div>
+
+        <section class="offline-features">
+            <h2 class="features-title">Funciones disponibles sin conexión</h2>
+            <ul class="feature-links">
+                <li>
+                    <a href="./index.html">🏠 <span>Ir a la página principal</span></a>
+                </li>
+                <li>
+                    <a href="./views/pizarra.html">🎨 <span>Blush Board (Pizarra y borrador local)</span></a>
+                </li>
+                <li>
+                    <a href="./views/mis-mensajes.html">✍️ <span>Mis Mensajes (Lectura local)</span></a>
+                </li>
+                <li>
+                    <a href="./views/calendario.html">📅 <span>Calendario (Recuerdos en caché)</span></a>
+                </li>
+            </ul>
+        </section>
+
+        <footer class="offline-footer">
+            OurCorner &bull; Rocío & Leo &bull; PWA Activa
+        </footer>
+    </main>
+
+    <script>
+        const btnRetry = document.getElementById('btnRetry');
+        const statusBadge = document.getElementById('statusBadge');
+
+        btnRetry.addEventListener('click', () => {
+            btnRetry.textContent = 'Verificando...';
+            btnRetry.disabled = true;
+            if (navigator.onLine) {
+                window.location.reload();
+            } else {
+                setTimeout(() => {
+                    btnRetry.innerHTML = '<span>🔄</span> Intentar nuevamente';
+                    btnRetry.disabled = false;
+                    statusBadge.textContent = 'Aún sin conexión a Internet';
+                }, 800);
+            }
+        });
+
+        // Detectar automáticamente cuando regrese internet
+        window.addEventListener('online', () => {
+            statusBadge.textContent = '¡Conexión recuperada! Recargando...';
+            statusBadge.style.background = '#e7f7ed';
+            statusBadge.style.color = '#1b873f';
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            statusBadge.textContent = 'Esperando señal de red...';
+            statusBadge.style.background = '#fde8ef';
+            statusBadge.style.color = 'var(--pink-deep)';
+        });
+    </script>
+</body>
+
+</html>
