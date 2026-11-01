@@ -695,10 +695,18 @@
                     await checkViewerMode();
                 } else {
                     memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+                    if (memoriesData.length === 0 && window.offlineDB) {
+                        const dbMemories = await window.offlineDB.obtenerEventosCalendarioLocales();
+                        if (dbMemories && dbMemories.length > 0) memoriesData = dbMemories;
+                    }
                 }
             } catch (e) {
-                console.warn('Supabase no disponible, usando localStorage:', e.message);
+                console.warn('Supabase no disponible, usando almacenamiento local:', e.message);
                 memoriesData = JSON.parse(localStorage.getItem('our_calendar_memories')) || [];
+                if (memoriesData.length === 0 && window.offlineDB) {
+                    const dbMemories = await window.offlineDB.obtenerEventosCalendarioLocales();
+                    if (dbMemories && dbMemories.length > 0) memoriesData = dbMemories;
+                }
             }
 
             renderCalendar(currentYear, currentMonth);
@@ -783,6 +791,9 @@
                     createdAt: e.creado_en,
                     isShared: e.owner_id !== sbUser.id
                 }));
+                if (window.offlineDB) {
+                    window.offlineDB.cachearEventosCalendario(memoriesData).catch(() => {});
+                }
             }
         }
 

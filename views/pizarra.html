@@ -1161,13 +1161,20 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
         try {
-          localStorage.setItem(DRAFT_KEY, JSON.stringify({ objects, currentTheme, timestamp: Date.now() }));
+          const draftPayload = { objects, currentTheme, timestamp: Date.now() };
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(draftPayload));
+          if (window.offlineDB) window.offlineDB.guardarBorrador('pizarra', draftPayload).catch(() => {});
           const el = document.getElementById('draftStatus');
           if (el) { el.style.opacity = '1'; clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', 2500); }
         } catch (e) { }
       }, 800);
     }
-    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { } }
+    function clearDraft() {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+        if (window.offlineDB) window.offlineDB.eliminarBorrador('pizarra').catch(() => {});
+      } catch (e) { }
+    }
     function updateStatusPill(text, revert) {
       const pill = document.getElementById('statusPill');
       if (!pill) return;

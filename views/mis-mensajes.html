@@ -110,6 +110,9 @@
                 }
 
                 appLog('✅ Mensajes cargados desde Supabase:', mensajes.length);
+                if (window.offlineDB && mensajes) {
+                    window.offlineDB.cachearMensajes(mensajes).catch(() => {});
+                }
 
                 // Filtrar mensajes si es necesario
                 const mensajesFiltrados = filtro === 'todas'
@@ -278,13 +281,56 @@
 
             } catch (err) {
                 console.error('❌ Error al cargar mensajes:', err);
-                contenedor.innerHTML = `
-                    <div class="mensaje-vacio-grande">
-                        <div class="icono-vacio">⚠️</div>
-                        <h3>Error al cargar mensajes</h3>
-                        <p>${escapeHtml(err.message)}</p>
-                    </div>
-                `;
+
+                // Intentar recuperar de IndexedDB offline
+                let mensajesOffline = [];
+                if (window.offlineDB) {
+                    try {
+                        mensajesOffline = await window.offlineDB.obtenerMensajesLocales();
+                    } catch (e) { }
+                }
+
+                if (mensajesOffline && mensajesOffline.length > 0) {
+                    const mensajesFiltrados = filtro === 'todas'
+                        ? mensajesOffline
+                        : mensajesOffline.filter(m => m.categoria === filtro);
+
+                    contenedor.innerHTML = `
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <span style="background:#fff0f5;border:1px solid #ffd8e7;color:#bf376d;padding:6px 16px;border-radius:20px;font-size:0.85rem;font-weight:600;">
+                                📡 Modo sin conexión: Mostrando ${mensajesFiltrados.length} mensajes guardados localmente
+                            </span>
+                        </div>
+                    ` + mensajesFiltrados.map(mensaje => {
+                        const fecha = new Date(mensaje.creado_en || mensaje.cachedAt).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        return `
+                            <article class="mensaje-personalizado" data-id="${mensaje.id}">
+                                <div class="mensaje-header">
+                                    <span class="emoji-categoria">${mensaje.emoji || '❤️'}</span>
+                                    <span class="categoria-badge">${escapeHtml(mensaje.categoria)}</span>
+                                </div>
+                                <p class="mensaje-texto">${escapeHtml(mensaje.texto)}</p>
+                                ${mensaje.nota ? `<p class="mensaje-nota">📝 ${escapeHtml(mensaje.nota)}</p>` : ''}
+                                <div class="mensaje-footer">
+                                    <span class="autor">— ${escapeHtml(mensaje.autor || 'Leo')}</span>
+                                    <span class="fecha">${fecha}</span>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                } else {
+                    contenedor.innerHTML = `
+                        <div class="mensaje-vacio-grande">
+                            <div class="icono-vacio">⚠️</div>
+                            <h3>Sin conexión a Internet</h3>
+                            <p>No se pudieron descargar los mensajes y no hay mensajes locales guardados aún.</p>
+                        </div>
+                    `;
+                }
             }
         }
 

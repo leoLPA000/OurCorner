@@ -37,6 +37,60 @@
             this.checkInstallationMode();
             this.registerServiceWorker();
             this.setupInstallPrompt();
+            this.loadDependencies();
+            this.setupAuthHooks();
+        }
+
+        async loadDependencies() {
+            const modules = [
+                'assets/js/pwa/offlineDB.js',
+                'assets/js/pwa/syncService.js',
+                'assets/js/pwa/pushService.js'
+            ];
+
+            for (const mod of modules) {
+                const src = `${this.rootPrefix}${mod}`;
+                await this.loadScript(src);
+            }
+        }
+
+        loadScript(src) {
+            return new Promise((resolve) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    return resolve();
+                }
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                script.onload = () => resolve();
+                script.onerror = () => {
+                    // Silencioso si aún no se ha creado el archivo en la fase actual
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        setupAuthHooks() {
+            // Escuchar cierre de sesión para purgar datos privados en IndexedDB
+            let lastUserId = null;
+            if (window.supabaseClient && window.supabaseClient.auth) {
+                window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                    if (session?.user) lastUserId = session.user.id;
+                });
+
+                window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_OUT' && lastUserId) {
+                        console.log('🔒 [PWA] Cierre de sesión detectado, ejecutando purga segura');
+                        if (window.offlineDB) {
+                            window.offlineDB.limpiarDatosUsuario(lastUserId);
+                        }
+                        lastUserId = null;
+                    } else if (session?.user) {
+                        lastUserId = session.user.id;
+                    }
+                });
+            }
         }
 
         // Comprueba si la aplicación se está ejecutando como PWA (standalone)
