@@ -27,6 +27,10 @@ const PRECACHE_URLS = [
     './assets/css/menu-flotante.css',
     './assets/css/boton-navidad.css',
     './assets/js/pwa/pwa.js',
+    './assets/js/pwa/offlineDB.js',
+    './assets/js/pwa/syncService.js',
+    './assets/js/pwa/pushService.js',
+    './assets/js/pwa/pwaUI.js',
     './assets/images/icons/icon-192.png',
     './assets/images/icons/icon-512.png',
     './assets/images/icons/icon-maskable-512.png',
@@ -312,6 +316,20 @@ self.addEventListener('notificationclick', (event) => {
                 }
             })
     );
+});
+
+// Sincronización en segundo plano (Background Sync API)
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-pending-operations') {
+        console.log('[SW] Background sync activado para operaciones pendientes');
+        event.waitUntil(
+            self.clients.matchAll({ type: 'window' }).then((clients) => {
+                clients.forEach((client) => {
+                    client.postMessage({ type: 'BACKGROUND_SYNC_TRIGGERED' });
+                });
+            })
+        );
+    }
 });
 
 // Mensajería con clientes (páginas)

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 📝 FORMULARIO DE NUEVOS MENSAJES
  * Sistema para que Rocío agregue sus propios mensajes románticos
  */
@@ -381,7 +381,30 @@ class FormularioMensajes {
             this.crearExplosionExito();
 
         } catch (err) {
-            console.error('❌ Error al guardar mensaje:', err);
+            console.error('❌ Error al guardar mensaje en servidor:', err);
+
+            // Si estamos sin conexión o falló la red, encolar en IndexedDB
+            if (window.offlineDB) {
+                try {
+                    mensaje.id = mensaje.id || ('msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+                    mensaje.creado_en = mensaje.creado_en || new Date().toISOString();
+                    await window.offlineDB.registrarOperacionPendiente('INSERT_MENSAJE', 'mensajes', mensaje);
+                    await window.offlineDB.cachearMensajes([mensaje]);
+
+                    this.mostrarNotificacion('Guardado sin conexión. Se sincronizará automáticamente al volver internet 📡💕', 'info');
+
+                    // Limpiar formulario y refrescar lista local
+                    document.getElementById('formNuevoMensaje').reset();
+                    document.getElementById('caracteresActuales').textContent = '0';
+                    document.getElementById('emojiPreview').textContent = '❤️';
+                    this.ocultarVistaPrevia();
+                    await this.cargarMensajesGuardados();
+                    return;
+                } catch (offlineErr) {
+                    console.error('Error al guardar en cola offline:', offlineErr);
+                }
+            }
+
             this.mostrarNotificacion(`❌ Error al guardar mensaje: ${err.message}`, 'info');
         } finally {
             if (btnGuardar) {

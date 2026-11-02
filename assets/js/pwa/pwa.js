@@ -45,7 +45,8 @@
             const modules = [
                 'assets/js/pwa/offlineDB.js',
                 'assets/js/pwa/syncService.js',
-                'assets/js/pwa/pushService.js'
+                'assets/js/pwa/pushService.js',
+                'assets/js/pwa/pwaUI.js'
             ];
 
             for (const mod of modules) {
