@@ -10,7 +10,7 @@
  * - Gestión de eventos Web Push y Notification Click.
  */
 
-const CACHE_VERSION = 'ourcorner-v1.0.2';
+const CACHE_VERSION = 'ourcorner-v1.0.3';
 const STATIC_CACHE = `ourcorner-static-${CACHE_VERSION}`;
 const PAGES_CACHE = `ourcorner-pages-${CACHE_VERSION}`;
 const ASSETS_CACHE = `ourcorner-assets-${CACHE_VERSION}`;
