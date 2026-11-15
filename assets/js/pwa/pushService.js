@@ -1,5 +1,5 @@
 /**
- * 🔔 PUSH SERVICE - OurCorner PWA
+ *  PUSH SERVICE - OurCorner PWA
  * Gestión completa de Web Push API, suscripciones en Supabase y notificaciones remotas.
  * 
  * Funcionalidades:
@@ -151,11 +151,11 @@
                     }, { onConflict: 'endpoint' });
 
                 if (dbError) {
-                    console.error('❌ Error al guardar suscripción en Supabase:', dbError);
+                    console.error(' Error al guardar suscripción en Supabase:', dbError);
                     throw dbError;
                 }
 
-                console.log('✅ [PushService] Suscripción Web Push registrada con éxito en Supabase');
+                console.log(' [PushService] Suscripción Web Push registrada con éxito en Supabase');
                 window.dispatchEvent(new CustomEvent('pwa-push-subscribed', { detail: { endpoint } }));
 
                 return {
@@ -164,7 +164,7 @@
                 };
 
             } catch (err) {
-                console.error('❌ Error en PushService.subscribe:', err);
+                console.error(' Error en PushService.subscribe:', err);
                 return {
                     success: false,
                     error: err.message || 'Error al activar notificaciones'
@@ -192,12 +192,12 @@
                 await sub.unsubscribe();
                 this.subscription = null;
 
-                console.log('✅ [PushService] Suscripción cancelada exitosamente');
+                console.log(' [PushService] Suscripción cancelada exitosamente');
                 window.dispatchEvent(new CustomEvent('pwa-push-unsubscribed'));
 
                 return { success: true };
             } catch (err) {
-                console.error('❌ Error al cancelar suscripción push:', err);
+                console.error(' Error al cancelar suscripción push:', err);
                 return { success: false, error: err.message };
             }
         }
@@ -215,7 +215,7 @@
                 const { data, error } = await sb.functions.invoke('send-push', {
                     body: {
                         recipient_id: recipientId,
-                        title: notification.title || 'OurCorner 💕',
+                        title: notification.title || 'OurCorner',
                         body: notification.body || 'Tienes un nuevo mensaje',
                         url: notification.url || './index.html',
                         tag: notification.tag || 'ourcorner-message',
@@ -226,7 +226,7 @@
                 if (error) throw error;
                 return { success: true, data };
             } catch (err) {
-                console.error('❌ Error invocando Edge Function send-push:', err);
+                console.error(' Error invocando Edge Function send-push:', err);
                 return { success: false, error: err.message };
             }
         }

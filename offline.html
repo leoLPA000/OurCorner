@@ -210,17 +210,19 @@
 
 <body>
     <main class="offline-card">
-        <div class="offline-icon" aria-hidden="true">📡</div>
+        <div class="offline-icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+        </div>
 
         <h1 class="offline-title">Modo Fuera de Línea</h1>
         <p class="offline-subtitle">No hay conexión a Internet en este momento</p>
         <p class="offline-description">
-            No te preocupes, el amor sigue aquí 💕. Puedes seguir consultando tus mensajes guardados, ver recuerdos o continuar dibujando en tu pizarra local.
+            Puedes seguir consultando tus mensajes guardados, ver recuerdos o continuar dibujando en tu pizarra local.
         </p>
 
         <div class="offline-actions">
             <button class="btn-retry" id="btnRetry">
-                <span>🔄</span> Intentar nuevamente
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Intentar nuevamente
             </button>
             <span class="connection-status" id="statusBadge">Esperando señal de red...</span>
         </div>
@@ -229,16 +231,16 @@
             <h2 class="features-title">Funciones disponibles sin conexión</h2>
             <ul class="feature-links">
                 <li>
-                    <a href="./index.html">🏠 <span>Ir a la página principal</span></a>
+                    <a href="./index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> <span>Ir a la página principal</span></a>
                 </li>
                 <li>
-                    <a href="./views/pizarra.html">🎨 <span>Blush Board (Pizarra y borrador local)</span></a>
+                    <a href="./views/pizarra.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> <span>Blush Board (Pizarra y borrador local)</span></a>
                 </li>
                 <li>
-                    <a href="./views/mis-mensajes.html">✍️ <span>Mis Mensajes (Lectura local)</span></a>
+                    <a href="./views/mis-mensajes.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span>Mis Mensajes (Lectura local)</span></a>
                 </li>
                 <li>
-                    <a href="./views/calendario.html">📅 <span>Calendario (Recuerdos en caché)</span></a>
+                    <a href="./views/calendario.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span>Calendario (Recuerdos en caché)</span></a>
                 </li>
             </ul>
         </section>
@@ -259,7 +261,7 @@
                 window.location.reload();
             } else {
                 setTimeout(() => {
-                    btnRetry.innerHTML = '<span>🔄</span> Intentar nuevamente';
+                    btnRetry.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Intentar nuevamente';
                     btnRetry.disabled = false;
                     statusBadge.textContent = 'Aún sin conexión a Internet';
                 }, 800);

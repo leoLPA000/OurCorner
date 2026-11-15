@@ -1,6 +1,6 @@
 /**
- * 🚀 SERVICE WORKER - OurCorner PWA
- * Versión: 1.0.0
+ * SERVICE WORKER - OurCorner PWA
+ * Versión: 1.0.1
  * 
  * Estrategias implementadas:
  * - Network First con fallback a offline.html para documentos HTML.
@@ -10,7 +10,7 @@
  * - Gestión de eventos Web Push y Notification Click.
  */
 
-const CACHE_VERSION = 'ourcorner-v1.0.0';
+const CACHE_VERSION = 'ourcorner-v1.0.1';
 const STATIC_CACHE = `ourcorner-static-${CACHE_VERSION}`;
 const PAGES_CACHE = `ourcorner-pages-${CACHE_VERSION}`;
 const ASSETS_CACHE = `ourcorner-assets-${CACHE_VERSION}`;
@@ -254,7 +254,7 @@ self.addEventListener('push', (event) => {
     console.log('[SW] Evento push recibido');
 
     let data = {
-        title: 'OurCorner 💕',
+        title: 'OurCorner',
         body: 'Tienes una nueva actualización en Nuestro Nidito',
         icon: './assets/images/icons/icon-192.png',
         badge: './assets/images/icons/favicon-64.png',

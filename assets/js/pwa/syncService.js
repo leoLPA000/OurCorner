@@ -1,5 +1,5 @@
 /**
- * 🔄 SYNC SERVICE - OurCorner PWA
+ *  SYNC SERVICE - OurCorner PWA
  * Gestión de sincronización automática de datos entre IndexedDB y Supabase.
  * 
  * Funcionalidades:
@@ -38,7 +38,7 @@
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.addEventListener('message', (event) => {
                     if (event.data && event.data.type === 'BACKGROUND_SYNC_TRIGGERED') {
-                        console.log('🔄 [SyncService] Señal de Background Sync recibida desde el SW');
+                        console.log(' [SyncService] Señal de Background Sync recibida desde el SW');
                         this.triggerSync();
                     }
                 });
@@ -52,7 +52,7 @@
         }
 
         handleOnline() {
-            console.log('🌐 [SyncService] Conexión a Internet recuperada');
+            console.log(' [SyncService] Conexión a Internet recuperada');
             this.isOnline = true;
             this.showToast('Conexión reestablecida. Sincronizando...', 'info');
             this.requestBackgroundSync();
@@ -60,7 +60,7 @@
         }
 
         handleOffline() {
-            console.log('📡 [SyncService] Sin conexión a Internet');
+            console.log(' [SyncService] Sin conexión a Internet');
             this.isOnline = false;
             this.showToast('Modo sin conexión activado', 'warning');
         }
@@ -73,10 +73,10 @@
                 if ('serviceWorker' in navigator && 'SyncManager' in window) {
                     const registration = await navigator.serviceWorker.ready;
                     await registration.sync.register('sync-pending-operations');
-                    console.log('✅ [SyncService] Background Sync registrado en el Service Worker');
+                    console.log(' [SyncService] Background Sync registrado en el Service Worker');
                 }
             } catch (err) {
-                console.warn('⚠️ [SyncService] Background Sync no disponible, usando sincronización directa:', err);
+                console.warn('️ [SyncService] Background Sync no disponible, usando sincronización directa:', err);
             }
         }
 
@@ -102,7 +102,7 @@
                 // 1. Verificar sesión activa de Supabase
                 const sb = window.supabaseClient;
                 if (!sb) {
-                    console.warn('⚠️ [SyncService] Supabase client no disponible para sincronizar');
+                    console.warn('️ [SyncService] Supabase client no disponible para sincronizar');
                     this.isSyncing = false;
                     return;
                 }
@@ -123,12 +123,12 @@
                     return;
                 }
 
-                console.log(`🔄 [SyncService] Procesando ${operaciones.length} operación(es) pendiente(s)...`);
+                console.log(` [SyncService] Procesando ${operaciones.length} operación(es) pendiente(s)...`);
 
                 for (const op of operaciones) {
                     // Verificar que la operación pertenece al usuario autenticado
                     if (op.userId !== currentUserId && op.userId !== 'anonymous') {
-                        console.warn(`🔒 [SyncService] Operación ${op.id} omitida por pertenecer a otro usuario`);
+                        console.warn(` [SyncService] Operación ${op.id} omitida por pertenecer a otro usuario`);
                         continue;
                     }
 
@@ -141,7 +141,7 @@
                             errorCount++;
                         }
                     } catch (err) {
-                        console.error(`❌ [SyncService] Error al sincronizar operación ${op.id}:`, err);
+                        console.error(` [SyncService] Error al sincronizar operación ${op.id}:`, err);
                         errorCount++;
                         const retries = (op.retryCount || 0) + 1;
                         const status = retries >= this.maxRetries ? 'failed' : 'pending';
@@ -150,13 +150,13 @@
                 }
 
                 if (syncCount > 0) {
-                    console.log(`✅ [SyncService] Sincronizadas con éxito ${syncCount} operación(es)`);
-                    this.showToast(`¡${syncCount} cambio(s) sincronizado(s) con éxito! 💕`, 'success');
+                    console.log(` [SyncService] Sincronizadas con éxito ${syncCount} operación(es)`);
+                    this.showToast(`¡${syncCount} cambio(s) sincronizado(s) con éxito!`, 'success');
                     window.dispatchEvent(new CustomEvent('pwa-sync-completed', { detail: { syncCount } }));
                 }
 
             } catch (err) {
-                console.error('❌ [SyncService] Error general durante la sincronización:', err);
+                console.error(' [SyncService] Error general durante la sincronización:', err);
             } finally {
                 this.isSyncing = false;
             }
@@ -167,7 +167,7 @@
          */
         async executeOperation(op, sb, userId) {
             const { action, targetTable, payload } = op;
-            console.log(`🚀 [SyncService] Ejecutando: ${action} en tabla ${targetTable}`);
+            console.log(` [SyncService] Ejecutando: ${action} en tabla ${targetTable}`);
 
             switch (action) {
                 case 'INSERT_MENSAJE': {
@@ -247,7 +247,7 @@
                 }
 
                 default:
-                    console.warn('⚠️ [SyncService] Acción desconocida:', action);
+                    console.warn('️ [SyncService] Acción desconocida:', action);
                     return false;
             }
         }
@@ -259,10 +259,16 @@
             const existing = document.querySelector('.pwa-sync-toast');
             if (existing) existing.remove();
 
+            const icons = {
+                success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="20 6 9 17 4 12"/></svg>',
+                warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bf376d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+                info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bf376d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+            };
+
             const toast = document.createElement('div');
             toast.className = 'pwa-sync-toast';
             toast.innerHTML = `
-                <span class="toast-icon">${type === 'success' ? '✅' : type === 'warning' ? '📡' : 'ℹ️'}</span>
+                <span class="toast-icon">${icons[type] || icons.info}</span>
                 <span class="toast-text">${message}</span>
             `;
 

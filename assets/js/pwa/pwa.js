@@ -1,5 +1,5 @@
 /**
- * 📱 PWA CORE MANAGER - OurCorner
+ *  PWA CORE MANAGER - OurCorner
  * Gestor centralizado del ciclo de vida PWA, Service Worker e instalación.
  * Compatible con GitHub Pages (subrutas /OurCorner/) y entornos locales (Laragon).
  */
@@ -82,7 +82,7 @@
 
                 window.supabaseClient.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_OUT' && lastUserId) {
-                        console.log('🔒 [PWA] Cierre de sesión detectado, ejecutando purga segura');
+                        console.log(' [PWA] Cierre de sesión detectado, ejecutando purga segura');
                         if (window.offlineDB) {
                             window.offlineDB.limpiarDatosUsuario(lastUserId);
                         }
@@ -101,18 +101,19 @@
                                  document.referrer.includes('android-app://');
             this.isInstalled = isStandalone;
             if (isStandalone) {
-                console.log('📱 [PWA] Ejecutando en modo standalone (instalada)');
+                console.log(' [PWA] Ejecutando en modo standalone (instalada)');
             }
         }
 
         get isIOS() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            // Solo identificar como iOS si es Safari móvil real (no emulación en Chrome de escritorio)
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream && !window.chrome;
         }
 
         // Registro del Service Worker
         async registerServiceWorker() {
             if (!('serviceWorker' in navigator)) {
-                console.warn('⚠️ [PWA] Service Workers no soportados en este navegador');
+                console.warn('️ [PWA] Service Workers no soportados en este navegador');
                 return;
             }
 
@@ -124,7 +125,7 @@
                 });
 
                 this.swRegistration = registration;
-                console.log('✅ [PWA] Service Worker registrado con éxito. Scope:', registration.scope);
+                console.log(' [PWA] Service Worker registrado con éxito. Scope:', registration.scope);
 
                 // Detectar actualización disponible
                 registration.addEventListener('updatefound', () => {
@@ -133,7 +134,7 @@
 
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 [PWA] Nueva versión disponible');
+                            console.log(' [PWA] Nueva versión disponible');
                             window.dispatchEvent(new CustomEvent('pwa-update-available', {
                                 detail: { registration }
                             }));
@@ -142,7 +143,7 @@
                 });
 
             } catch (error) {
-                console.error('❌ [PWA] Error al registrar Service Worker:', error);
+                console.error(' [PWA] Error al registrar Service Worker:', error);
             }
         }
 
@@ -152,7 +153,7 @@
                 // Prevenir el banner automático intrusivo del navegador
                 e.preventDefault();
                 this.deferredPrompt = e;
-                console.log('💡 [PWA] Evento beforeinstallprompt capturado');
+                console.log(' [PWA] Evento beforeinstallprompt capturado');
 
                 // Notificar a la UI que la app es instalable
                 window.dispatchEvent(new CustomEvent('pwa-installable', {
@@ -163,7 +164,7 @@
             window.addEventListener('appinstalled', () => {
                 this.deferredPrompt = null;
                 this.isInstalled = true;
-                console.log('🎉 [PWA] Aplicación instalada exitosamente');
+                console.log(' [PWA] Aplicación instalada exitosamente');
                 window.dispatchEvent(new CustomEvent('pwa-installed'));
             });
         }
@@ -171,30 +172,23 @@
         // Disparar el diálogo de instalación nativo
         async promptInstall() {
             if (!this.deferredPrompt) {
-                if (this.isIOS) {
-                    return {
-                        success: false,
-                        isIOS: true,
-                        message: 'En iOS, pulsa el botón Compartir y selecciona "Agregar a pantalla de inicio"'
-                    };
-                }
                 return {
                     success: false,
-                    message: 'La instalación no está disponible en este momento'
+                    message: 'La instalación directa no está disponible en esta pestaña o navegador.'
                 };
             }
 
             try {
                 this.deferredPrompt.prompt();
                 const { outcome } = await this.deferredPrompt.userChoice;
-                console.log(`[PWA] Respuesta del usuario al instalar: ${outcome}`);
+                console.log(`[PWA] Respuesta del usuario a la instalación: ${outcome}`);
                 this.deferredPrompt = null;
                 return {
                     success: outcome === 'accepted',
                     outcome
                 };
             } catch (err) {
-                console.error('Error al solicitar instalación:', err);
+                console.error('[PWA] Error al solicitar instalación:', err);
                 return { success: false, error: err };
             }
         }

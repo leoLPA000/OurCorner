@@ -51,14 +51,21 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Permitir acceso a mensajes.json (necesario para el sitio)
-<Files "mensajes.json">
+# Permitir acceso a mensajes.json y manifest.json (necesarios para el sitio y PWA)
+<FilesMatch "^(mensajes\.json|manifest\.json)$">
     <IfModule mod_authz_core.c>
         Require all granted
     </IfModule>
     <IfModule !mod_authz_core.c>
         Order allow,deny
         Allow from all
+    </IfModule>
+</FilesMatch>
+
+<Files "manifest.json">
+    <IfModule mod_headers.c>
+        Header set Content-Type "application/manifest+json; charset=utf-8"
+        Header set Access-Control-Allow-Origin "*"
     </IfModule>
 </Files>
 

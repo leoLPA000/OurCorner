@@ -1,161 +1,85 @@
 /**
- * 🎨 PWA UI CONTROLLER - OurCorner
+ * PWA UI CONTROLLER - OurCorner
  * Interfaz de usuario discreta y elegante para instalación y notificaciones Web Push.
- * Respeta 100% la identidad visual de OurCorner (tonos rosa, corazones, tipografía romántica).
+ * Usa exclusivamente iconos vectoriales SVG (sin emojis) e instalación nativa directa.
  */
 
 (function () {
     'use strict';
 
+    // Iconos SVG limpios y consistentes con la paleta de OurCorner
+    const ICONS = {
+        download: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+        bell: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+        bellOff: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+        check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>',
+        info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+
     class PWAUI {
         constructor() {
             this.installBtn = null;
-            this.iosModal = null;
             this.init();
         }
 
         init() {
             this.injectStyles();
             this.createInstallButton();
-            this.createIOSModal();
             this.setupEventListeners();
             this.setupPushNotificationUI();
         }
 
         /**
-         * Inyecta estilos CSS para la UI de PWA sin afectar otros componentes
+         * Inyecta estilos CSS para la UI de PWA
          */
         injectStyles() {
             const styleId = 'pwa-ui-styles';
             if (document.getElementById(styleId)) return;
 
             const style = document.createElement('style');
-            styleId && (style.id = styleId);
+            style.id = styleId;
             style.textContent = `
-                /* Botón flotante elegante de instalación */
+                /* Botón flotante centrado de instalación directa */
                 .pwa-install-pill {
                     position: fixed;
                     bottom: 24px;
-                    left: 24px;
-                    z-index: 9999;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 99999;
                     background: linear-gradient(135deg, #ec6090, #bf376d);
                     color: #ffffff;
                     border: none;
                     border-radius: 99px;
-                    padding: 10px 18px;
+                    padding: 12px 26px;
                     font-family: 'Plus Jakarta Sans', sans-serif;
-                    font-size: 0.88rem;
+                    font-size: 0.92rem;
                     font-weight: 700;
-                    box-shadow: 0 8px 24px rgba(191, 55, 109, 0.35);
+                    letter-spacing: 0.02em;
+                    box-shadow: 0 10px 30px rgba(191, 55, 109, 0.4);
                     cursor: pointer;
-                    display: none;
+                    display: inline-flex;
                     align-items: center;
-                    gap: 8px;
+                    justify-content: center;
+                    gap: 6px;
                     transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
                     backdrop-filter: blur(8px);
+                    -webkit-tap-highlight-color: transparent;
                 }
 
                 .pwa-install-pill:hover {
-                    transform: translateY(-2px) scale(1.02);
-                    box-shadow: 0 12px 28px rgba(191, 55, 109, 0.45);
+                    transform: translateX(-50%) translateY(-2px) scale(1.02);
+                    box-shadow: 0 14px 34px rgba(191, 55, 109, 0.5);
                 }
 
                 .pwa-install-pill:active {
-                    transform: translateY(0);
-                }
-
-                .pwa-install-pill .pill-icon {
-                    font-size: 1.15rem;
-                }
-
-                /* Modal de ayuda para instalación en iOS */
-                .pwa-ios-modal-overlay {
-                    display: none;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(52, 35, 48, 0.6);
-                    backdrop-filter: blur(4px);
-                    z-index: 10000;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 16px;
-                    animation: pwaFadeIn 0.3s ease;
-                }
-
-                .pwa-ios-modal {
-                    background: #ffffff;
-                    border-radius: 24px;
-                    max-width: 380px;
-                    width: 100%;
-                    padding: 26px 22px;
-                    box-shadow: 0 20px 50px rgba(117, 48, 83, 0.25);
-                    border: 1px solid rgba(236, 96, 144, 0.2);
-                    text-align: center;
-                    font-family: 'Plus Jakarta Sans', sans-serif;
-                    position: relative;
-                }
-
-                .pwa-ios-modal h3 {
-                    color: #bf376d;
-                    font-size: 1.25rem;
-                    margin-bottom: 12px;
-                    font-weight: 800;
-                }
-
-                .pwa-ios-modal p {
-                    color: #554450;
-                    font-size: 0.9rem;
-                    line-height: 1.5;
-                    margin-bottom: 18px;
-                }
-
-                .pwa-ios-steps {
-                    text-align: left;
-                    background: #fff5f8;
-                    border-radius: 14px;
-                    padding: 14px 16px;
-                    margin-bottom: 20px;
-                    font-size: 0.85rem;
-                    color: #342330;
-                }
-
-                .pwa-ios-steps ol {
-                    margin-left: 20px;
-                }
-
-                .pwa-ios-steps li {
-                    margin-bottom: 8px;
-                }
-
-                .pwa-ios-close {
-                    background: #f0dfe8;
-                    color: #bf376d;
-                    border: none;
-                    border-radius: 99px;
-                    padding: 10px 22px;
-                    font-weight: 700;
-                    font-size: 0.88rem;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                }
-
-                .pwa-ios-close:hover {
-                    background: #ffd8e7;
-                }
-
-                @keyframes pwaFadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
+                    transform: translateX(-50%) translateY(0);
                 }
             `;
             document.head.appendChild(style);
         }
 
         /**
-         * Crea el botón discreto de instalación
+         * Crea el botón de instalación directa (sin modales ni emojis)
          */
         createInstallButton() {
             if (document.getElementById('pwaInstallPill')) return;
@@ -163,73 +87,37 @@
             const btn = document.createElement('button');
             btn.id = 'pwaInstallPill';
             btn.className = 'pwa-install-pill';
-            btn.setAttribute('aria-label', 'Instalar OurCorner en tu dispositivo');
-            btn.innerHTML = `
-                <span class="pill-icon">📲</span>
-                <span class="pill-text">Instalar OurCorner</span>
-            `;
+            btn.setAttribute('aria-label', 'Instalar OurCorner');
+            btn.innerHTML = `${ICONS.download}<span>Instalar OurCorner</span>`;
 
+            // Clic para instalación nativa directa
             btn.addEventListener('click', async () => {
-                if (window.pwaManager) {
-                    if (window.pwaManager.isIOS) {
-                        this.showIOSModal();
-                        return;
-                    }
+                // 1. Si tenemos el prompt de instalación nativo disponible, dispararlo directamente
+                if (window.pwaManager && window.pwaManager.deferredPrompt) {
                     const result = await window.pwaManager.promptInstall();
                     if (result && result.success) {
                         btn.style.display = 'none';
                     }
+                    return;
+                }
+
+                // 2. Si no está listo (ejemplo: pestaña en modo incógnito donde el navegador bloquea PWAs)
+                if (window.syncService) {
+                    window.syncService.showToast(
+                        'Para instalar con un clic, abre OurCorner en una pestaña normal (no de incógnito).',
+                        'info'
+                    );
                 }
             });
 
             document.body.appendChild(btn);
             this.installBtn = btn;
 
-            // Si es iOS y no está en modo standalone, mostrar la opción discretamente
-            if (window.pwaManager && window.pwaManager.isIOS && !window.pwaManager.isInstalled) {
+            // Ocultar si ya está en modo standalone instalada
+            if (window.pwaManager && window.pwaManager.isInstalled) {
+                btn.style.display = 'none';
+            } else {
                 btn.style.display = 'inline-flex';
-            }
-        }
-
-        /**
-         * Crea el modal con instrucciones amigables para iOS (Safari)
-         */
-        createIOSModal() {
-            if (document.getElementById('pwaIosModalOverlay')) return;
-
-            const overlay = document.createElement('div');
-            overlay.id = 'pwaIosModalOverlay';
-            overlay.className = 'pwa-ios-modal-overlay';
-            overlay.innerHTML = `
-                <div class="pwa-ios-modal">
-                    <h3>📲 Instalar OurCorner en tu iPhone / iPad</h3>
-                    <p>Agrega la aplicación a tu pantalla de inicio para disfrutarla a pantalla completa y sin barras de navegación.</p>
-                    <div class="pwa-ios-steps">
-                        <ol>
-                            <li>Toca el botón <strong>Compartir</strong> <span style="font-size:1.1rem">📤</span> en la barra de Safari.</li>
-                            <li>Baja y pulsa en <strong>"Agregar a pantalla de inicio"</strong> <span style="font-size:1.1rem">➕</span>.</li>
-                            <li>Toca <strong>"Agregar"</strong> arriba a la derecha.</li>
-                        </ol>
-                    </div>
-                    <button class="pwa-ios-close" id="pwaIosCloseBtn">Entendido</button>
-                </div>
-            `;
-
-            overlay.querySelector('#pwaIosCloseBtn').addEventListener('click', () => {
-                overlay.style.display = 'none';
-            });
-
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.style.display = 'none';
-            });
-
-            document.body.appendChild(overlay);
-            this.iosModal = overlay;
-        }
-
-        showIOSModal() {
-            if (this.iosModal) {
-                this.iosModal.style.display = 'flex';
             }
         }
 
@@ -250,7 +138,7 @@
         }
 
         /**
-         * Configura el botón de Web Push en el dropdown de usuario o en el panel de notificaciones
+         * Configura el botón de Web Push en el dropdown de usuario o en el panel de notificaciones con iconos vectoriales
          */
         setupPushNotificationUI() {
             const checkAndInject = async () => {
@@ -265,8 +153,8 @@
                         pushRow.id = 'pwaPushToggleRow';
                         pushRow.style.cssText = 'padding: 8px 16px; background: #fff8fb; border-bottom: 1px solid #f0dfe8; display: flex; justify-content: space-between; align-items: center;';
                         pushRow.innerHTML = `
-                            <span style="font-size: 0.76rem; color: #554450; font-weight: 600;">Notificaciones en el móvil:</span>
-                            <button id="pwaPushToggleBtn" style="font-size: 0.72rem; color: #bf376d; font-weight: 700; background: #ffeef4; border: 1px solid rgba(236,96,144,0.3); border-radius: 20px; padding: 4px 10px; cursor: pointer;">
+                            <span style="font-size: 0.76rem; color: #554450; font-weight: 600;">Notificaciones en el dispositivo:</span>
+                            <button id="pwaPushToggleBtn" style="font-size: 0.72rem; color: #bf376d; font-weight: 700; background: #ffeef4; border: 1px solid rgba(236,96,144,0.3); border-radius: 20px; padding: 4px 10px; cursor: pointer; display: inline-flex; align-items: center;">
                                 Comprobando...
                             </button>
                         `;
@@ -287,11 +175,14 @@
                     const pushItem = document.createElement('button');
                     pushItem.id = 'dropdownPushItem';
                     pushItem.className = 'dropdown-item';
-                    pushItem.innerHTML = '🔔 Activar Notificaciones';
+                    pushItem.style.display = 'flex';
+                    pushItem.style.alignItems = 'center';
 
                     const existingSub = await window.pushService.getExistingSubscription();
                     if (existingSub) {
-                        pushItem.innerHTML = '🔕 Desactivar Notificaciones';
+                        pushItem.innerHTML = `${ICONS.bellOff}<span>Desactivar Notificaciones</span>`;
+                    } else {
+                        pushItem.innerHTML = `${ICONS.bell}<span>Activar Notificaciones</span>`;
                     }
 
                     pushItem.addEventListener('click', async (e) => {
@@ -319,11 +210,11 @@
             if (!btn) return;
             const sub = await window.pushService.getExistingSubscription();
             if (sub) {
-                btn.textContent = '✅ Activadas (Pausar)';
+                btn.innerHTML = `${ICONS.check}<span>Activadas</span>`;
                 btn.style.color = '#1b873f';
                 btn.style.background = '#e7f7ed';
             } else {
-                btn.textContent = '🔔 Activar avisos';
+                btn.innerHTML = `${ICONS.bell}<span>Activar avisos</span>`;
                 btn.style.color = '#bf376d';
                 btn.style.background = '#ffeef4';
             }
@@ -331,7 +222,7 @@
 
         async handlePushToggle(btn, isDropdown = false) {
             btn.disabled = true;
-            btn.textContent = 'Procesando...';
+            btn.innerHTML = `<span>Procesando...</span>`;
 
             const sub = await window.pushService.getExistingSubscription();
             if (sub) {
@@ -339,7 +230,7 @@
                 const res = await window.pushService.unsubscribe();
                 if (res.success) {
                     if (isDropdown) {
-                        btn.innerHTML = '🔔 Activar Notificaciones';
+                        btn.innerHTML = `${ICONS.bell}<span>Activar Notificaciones</span>`;
                     } else {
                         await this.updatePushToggleButton(btn);
                     }
@@ -350,15 +241,19 @@
                 const res = await window.pushService.subscribe();
                 if (res.success) {
                     if (isDropdown) {
-                        btn.innerHTML = '🔕 Desactivar Notificaciones';
+                        btn.innerHTML = `${ICONS.bellOff}<span>Desactivar Notificaciones</span>`;
                     } else {
                         await this.updatePushToggleButton(btn);
                     }
-                    if (window.syncService) window.syncService.showToast('¡Notificaciones push activadas con éxito! 💕', 'success');
+                    if (window.syncService) window.syncService.showToast('Notificaciones push activadas con éxito', 'success');
                 } else {
-                    alert(res.error || 'No se pudieron activar las notificaciones');
+                    if (window.syncService) {
+                        window.syncService.showToast(res.error || 'No se pudieron activar las notificaciones', 'warning');
+                    } else {
+                        alert(res.error || 'No se pudieron activar las notificaciones');
+                    }
                     if (isDropdown) {
-                        btn.innerHTML = '🔔 Activar Notificaciones';
+                        btn.innerHTML = `${ICONS.bell}<span>Activar Notificaciones</span>`;
                     } else {
                         await this.updatePushToggleButton(btn);
                     }

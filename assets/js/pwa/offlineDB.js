@@ -1,5 +1,5 @@
 /**
- * 📦 OFFLINE DB SERVICE - OurCorner PWA
+ *  OFFLINE DB SERVICE - OurCorner PWA
  * Gestión de base de datos local IndexedDB para funcionamiento offline avanzado.
  * 
  * Stores disponibles:
@@ -33,7 +33,7 @@
         openDB() {
             return new Promise((resolve, reject) => {
                 if (!('indexedDB' in window)) {
-                    console.warn('⚠️ [OfflineDB] IndexedDB no soportado en este navegador');
+                    console.warn('️ [OfflineDB] IndexedDB no soportado en este navegador');
                     return resolve(null);
                 }
 
@@ -41,7 +41,7 @@
 
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
-                    console.log('📦 [OfflineDB] Creando o actualizando estructura de base de datos...');
+                    console.log(' [OfflineDB] Creando o actualizando estructura de base de datos...');
 
                     // 1. Store: Mensajes
                     if (!db.objectStoreNames.contains('mensajes')) {
@@ -80,12 +80,12 @@
 
                 request.onsuccess = (event) => {
                     this.db = event.target.result;
-                    console.log('✅ [OfflineDB] Conexión abierta exitosamente');
+                    console.log(' [OfflineDB] Conexión abierta exitosamente');
                     resolve(this.db);
                 };
 
                 request.onerror = (event) => {
-                    console.error('❌ [OfflineDB] Error al abrir base de datos:', event.target.error);
+                    console.error(' [OfflineDB] Error al abrir base de datos:', event.target.error);
                     reject(event.target.error);
                 };
             });
@@ -258,7 +258,7 @@
             };
 
             await this.put('operaciones_pendientes', operacion);
-            console.log('📝 [OfflineDB] Operación registrada en cola pendiente:', action, id);
+            console.log(' [OfflineDB] Operación registrada en cola pendiente:', action, id);
 
             // Disparar evento para que syncService intente sincronizar si hay red
             window.dispatchEvent(new CustomEvent('pwa-pending-op-added', { detail: operacion }));
@@ -354,7 +354,7 @@
          */
         async limpiarDatosUsuario(userId) {
             if (!userId) return;
-            console.log('🔒 [OfflineDB] Limpiando datos privados locales del usuario:', userId);
+            console.log(' [OfflineDB] Limpiando datos privados locales del usuario:', userId);
 
             const stores = ['mensajes', 'eventos_calendario', 'borradores', 'operaciones_pendientes'];
             const db = await this.getDB();
@@ -366,7 +366,7 @@
                     await this.delete(storeName, item.id);
                 }
             }
-            console.log('✅ [OfflineDB] Datos privados locales purgados de forma segura.');
+            console.log(' [OfflineDB] Datos privados locales purgados de forma segura.');
         }
     }
 
