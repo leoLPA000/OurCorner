@@ -10,8 +10,8 @@
     // Determinar la ruta relativa a la raíz del proyecto según la ubicación de la página actual
     function getRootRelativePath() {
         const path = window.location.pathname;
-        if (path.includes('/views/login-Animation/') || 
-            path.includes('/views/music-player/') || 
+        if (path.includes('/views/login-Animation/') ||
+            path.includes('/views/music-player/') ||
             path.includes('/views/menu/')) {
             return '../../';
         }
@@ -97,11 +97,12 @@
         // Comprueba si la aplicación se está ejecutando como PWA (standalone)
         checkInstallationMode() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                                 window.navigator.standalone === true ||
-                                 document.referrer.includes('android-app://');
+                window.navigator.standalone === true ||
+                document.referrer.includes('android-app://');
             this.isInstalled = isStandalone;
             if (isStandalone) {
-                console.log(' [PWA] Ejecutando en modo standalone (instalada)');
+                localStorage.setItem('ourcorner_pwa_installed', 'true');
+                console.log('[PWA] Ejecutando en modo standalone (instalada)');
             }
         }
 
@@ -113,7 +114,7 @@
         // Registro del Service Worker
         async registerServiceWorker() {
             if (!('serviceWorker' in navigator)) {
-                console.warn('️ [PWA] Service Workers no soportados en este navegador');
+                console.warn('[PWA] Service Workers no soportados en este navegador');
                 return;
             }
 
@@ -125,7 +126,7 @@
                 });
 
                 this.swRegistration = registration;
-                console.log(' [PWA] Service Worker registrado con éxito. Scope:', registration.scope);
+                console.log('[PWA] Service Worker registrado con éxito. Scope:', registration.scope);
 
                 // Detectar actualización disponible
                 registration.addEventListener('updatefound', () => {
@@ -134,7 +135,7 @@
 
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log(' [PWA] Nueva versión disponible');
+                            console.log('[PWA] Nueva versión disponible');
                             window.dispatchEvent(new CustomEvent('pwa-update-available', {
                                 detail: { registration }
                             }));
@@ -143,7 +144,7 @@
                 });
 
             } catch (error) {
-                console.error(' [PWA] Error al registrar Service Worker:', error);
+                console.error('[PWA] Error al registrar Service Worker:', error);
             }
         }
 
@@ -153,7 +154,10 @@
                 // Prevenir el banner automático intrusivo del navegador
                 e.preventDefault();
                 this.deferredPrompt = e;
-                console.log(' [PWA] Evento beforeinstallprompt capturado');
+                // Si el navegador emite este evento, la app NO está instalada en este navegador (o fue desinstalada)
+                this.isInstalled = false;
+                localStorage.removeItem('ourcorner_pwa_installed');
+                console.log('[PWA] Evento beforeinstallprompt capturado (app lista para instalar)');
 
                 // Notificar a la UI que la app es instalable
                 window.dispatchEvent(new CustomEvent('pwa-installable', {
@@ -164,7 +168,9 @@
             window.addEventListener('appinstalled', () => {
                 this.deferredPrompt = null;
                 this.isInstalled = true;
-                console.log(' [PWA] Aplicación instalada exitosamente');
+                localStorage.setItem('ourcorner_pwa_installed', 'true');
+                localStorage.removeItem('ourcorner_pwa_dismissed_until');
+                console.log('[PWA] Aplicación instalada exitosamente');
                 window.dispatchEvent(new CustomEvent('pwa-installed'));
             });
         }
